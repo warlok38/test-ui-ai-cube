@@ -1,0 +1,17 @@
+:root {
+  --space-module: 0.25rem;
+  --space-0: 0;
+  --space-1: calc(var(--space-module) * 1);
+  --space-2: calc(var(--space-module) * 2);
+  --space-3: calc(var(--space-module) * 3);
+  --space-4: calc(var(--space-module) * 4);
+  --space-5: calc(var(--space-module) * 5);
+  --space-6: calc(var(--space-module) * 6);
+  --space-8: calc(var(--space-module) * 8);
+  --space-10: calc(var(--space-module) * 10);
+  --space-12: calc(var(--space-module) * 12);
+  --space-14: calc(var(--space-module) * 14);
+  --space-16: calc(var(--space-module) * 16);
+  --space-24: calc(var(--space-module) * 24);
+  --space-32: calc(var(--space-module) * 32);
+}

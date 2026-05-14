@@ -1,0 +1,9 @@
+.headerSecondary {
+  display: flex;
+  align-items: center;
+  height: var(--layout-header-height);
+  padding: var(--space-0) var(--space-4);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-bg-header-secondary);
+}

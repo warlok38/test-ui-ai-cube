@@ -1,0 +1,15 @@
+.headerPrimary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--layout-header-height);
+  padding: var(--space-0) var(--space-4);
+  font-weight: 600;
+  color: var(--color-text-strong);
+  background: var(--color-bg-header-primary);
+}
+
+.title {
+  font-size: var(--font-size-base);
+}

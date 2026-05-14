@@ -1,0 +1,31 @@
+.layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.contentArea {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.contentColumn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.mainContent {
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-4);
+  color: var(--color-text-default);
+  background: var(--color-bg-default);
+  overflow: auto;
+}

@@ -1,0 +1,7 @@
+:root {
+  --radius-md: 0.75rem;
+
+  --layout-header-height: 2.5rem;
+  --layout-sidebar-width-collapsed: 2.5rem;
+  --layout-sidebar-width-expanded: 20rem;
+}

@@ -1,0 +1,17 @@
+:root {
+  --color-text-default: var(--palette-neutral-900);
+  --color-text-muted: var(--palette-neutral-800);
+  --color-text-strong: var(--palette-neutral-950);
+  --color-text-inverse: var(--palette-neutral-000);
+
+  --color-bg-default: var(--palette-surface-100);
+  --color-bg-page-start: var(--palette-surface-page-start);
+  --color-bg-page-end: var(--palette-surface-page-end);
+  --color-bg-header-primary: var(--palette-brand-700);
+  --color-bg-header-secondary: var(--palette-accent-300);
+  --color-bg-sidebar: var(--palette-brand-500);
+  --color-bg-sidebar-accent: var(--palette-brand-600);
+  --color-bg-interactive-hover: var(--palette-overlay-interactive-hover);
+
+  --color-border-interactive: var(--palette-border-interactive);
+}
