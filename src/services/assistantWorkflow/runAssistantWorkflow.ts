@@ -3,18 +3,26 @@ import { fakeDelay } from '@/modules/fakeApi/delay'
 import type { FakeScenarioKind } from '@/modules/fakeLlm/config'
 import { executeDaxQuery } from '@/modules/fakeApi/executeDax'
 import { pingOlapServer } from '@/modules/fakeApi/olapPing'
-import { buildChartJson, canChart, generateDaxText, generateInterpretation } from '@/modules/fakeLlm/templates'
+import {
+  buildChartJson,
+  canChart,
+  generateDaxText,
+  generateInterpretation
+} from '@/modules/fakeLlm/templates'
 import type {
   AssistantFailurePayload,
   AssistantPhase,
   AssistantSuccessPayload,
   AssistantWorkflowResult,
-  RetryLogEntry,
+  RetryLogEntry
 } from './types'
 
 export const ASSISTANT_MAX_ATTEMPTS = 3
 
-export type PhaseListener = (_phase: AssistantPhase, _meta?: { attempt: number; maxAttempts: number }) => void
+export type PhaseListener = (
+  _phase: AssistantPhase,
+  _meta?: { attempt: number; maxAttempts: number }
+) => void
 
 const MAX_ATTEMPTS = ASSISTANT_MAX_ATTEMPTS
 
@@ -36,7 +44,7 @@ export async function runAssistantWorkflow(params: {
   if (!userPrompt.trim()) {
     return {
       outcome: 'input_warning',
-      message: 'Введите текст запроса: поле не должно быть пустым.',
+      message: 'Введите текст запроса: поле не должно быть пустым.'
     }
   }
 
@@ -50,7 +58,7 @@ export async function runAssistantWorkflow(params: {
       details: ping.details,
       errorCode: ping.errorCode,
       retryLog: [],
-      durationMs,
+      durationMs
     }
   }
 
@@ -66,7 +74,7 @@ export async function runAssistantWorkflow(params: {
       scenario,
       attempt,
       userPrompt,
-      lastError: lastErrorContext,
+      lastError: lastErrorContext
     })
 
     onPhase('fetching', { attempt, maxAttempts: MAX_ATTEMPTS })
@@ -75,7 +83,7 @@ export async function runAssistantWorkflow(params: {
       scenario,
       attempt,
       dax: lastDax,
-      userPrompt,
+      userPrompt
     })
 
     if (exec.kind === 'success' && exec.rows.length > 0) {
@@ -85,7 +93,7 @@ export async function runAssistantWorkflow(params: {
       const chartRaw = canChart(exec.rows)
         ? buildChartJson({
             scenario,
-            rows: exec.rows,
+            rows: exec.rows
           })
         : null
 
@@ -99,7 +107,7 @@ export async function runAssistantWorkflow(params: {
         interpretation,
         chartConfig: chartRaw,
         durationMs,
-        scenarioLabel: scenario,
+        scenarioLabel: scenario
       }
       return success
     }
@@ -120,7 +128,7 @@ export async function runAssistantWorkflow(params: {
         attemptsUsed: MAX_ATTEMPTS,
         summaryText:
           'Не удалось получить корректные данные после 3 попыток. Просмотрите техническое резюме ретраев ниже или измените формулировку вопроса.',
-        durationMs,
+        durationMs
       }
       return failure
     }
@@ -136,6 +144,6 @@ export async function runAssistantWorkflow(params: {
     attemptsUsed: MAX_ATTEMPTS,
     summaryText:
       'Достигнуто максимальное число попыток генерации и исполнения DAX без успешного ответа куба.',
-    durationMs,
+    durationMs
   }
 }

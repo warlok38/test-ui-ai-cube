@@ -10,7 +10,7 @@ import styles from './Header2.module.css'
 const NAV_ITEMS = [
   { href: '/', label: 'Главная' },
   { href: '/admin', label: 'Админ' },
-  { href: '/technical', label: 'Техническая' },
+  { href: '/technical', label: 'Техническая' }
 ] as const
 
 export function Header2() {

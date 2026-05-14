@@ -46,18 +46,18 @@ export function useLeftBar() {
     ? {
         onClick: openLeftBar,
         role: 'button' as const,
-        tabIndex: 0,
+        tabIndex: 0
       }
     : {
         onClick: undefined,
         role: undefined,
-        tabIndex: -1,
+        tabIndex: -1
       }
 
   return {
     isOpen,
     closeLeftBar,
     handleCollapsedMenuKeyDown,
-    asideInteractionProps,
+    asideInteractionProps
   }
 }

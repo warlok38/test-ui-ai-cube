@@ -1,6 +1,14 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode
+} from 'react'
 
 import ruRU from 'antd/locale/ru_RU'
 import { App as AntApp, ConfigProvider, theme as antdTheme } from 'antd'
@@ -78,8 +86,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       hashed: false,
       token: {
         ...base.token,
-        fontSize: baseFontSize,
-      },
+        fontSize: baseFontSize
+      }
     }
   }, [mode, baseFontSize])
 
@@ -88,9 +96,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       mode,
       theme: mode,
       toggleTheme,
-      setMode,
+      setMode
     }),
-    [mode, toggleTheme, setMode],
+    [mode, toggleTheme, setMode]
   )
 
   return (

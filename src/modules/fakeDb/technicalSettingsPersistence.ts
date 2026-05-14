@@ -2,7 +2,7 @@ import {
   clampStageDelayMs,
   TECHNICAL_SCENARIO_OPTIONS,
   DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
-  type AssistantTechnicalSettings,
+  type AssistantTechnicalSettings
 } from '@/features/technical/model'
 
 const STORAGE_KEY = 'olap-assistant.technical-settings.v1'
@@ -16,7 +16,8 @@ function normalize(input: unknown): AssistantTechnicalSettings {
 
   const scenarioValues = new Set(TECHNICAL_SCENARIO_OPTIONS.map((opt) => opt.value))
   const scenario =
-    typeof input.scenario === 'string' && scenarioValues.has(input.scenario as AssistantTechnicalSettings['scenario'])
+    typeof input.scenario === 'string' &&
+    scenarioValues.has(input.scenario as AssistantTechnicalSettings['scenario'])
       ? (input.scenario as AssistantTechnicalSettings['scenario'])
       : DEFAULT_ASSISTANT_TECHNICAL_SETTINGS.scenario
 
@@ -25,8 +26,8 @@ function normalize(input: unknown): AssistantTechnicalSettings {
     stageDelayMs: clampStageDelayMs(
       typeof input.stageDelayMs === 'number'
         ? input.stageDelayMs
-        : DEFAULT_ASSISTANT_TECHNICAL_SETTINGS.stageDelayMs,
-    ),
+        : DEFAULT_ASSISTANT_TECHNICAL_SETTINGS.stageDelayMs
+    )
   }
 }
 

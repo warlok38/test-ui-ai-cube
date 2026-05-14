@@ -4,11 +4,14 @@ import type { FakeScenarioKind } from './config'
 import type { OlapExecutionResult } from '@/modules/fakeApi/executeDax'
 import type { ChartConfigPayload } from '@/services/assistantWorkflow/types'
 
-export function generateInterpretation(prompt: string, rowsSample: OlapExecutionResult['rows']): string {
+export function generateInterpretation(
+  prompt: string,
+  rowsSample: OlapExecutionResult['rows']
+): string {
   const count = rowsSample.length
   return `По вашему запросу («${truncate(
     prompt,
-    80,
+    80
   )}») было получено ${count} строк(и). Основная динамика отражает демонстрационные показатели куба. Рекомендуется проверить фильтры и измерения на соответствие бизнес-вопросу.`
 }
 
@@ -57,7 +60,7 @@ export function buildChartJson(input: {
       xKey: labelKey,
       yKey: numericKey,
       title: 'Динамика показателя',
-      color: PALETTE_PRIMARY,
+      color: PALETTE_PRIMARY
     }
   }
 
@@ -67,7 +70,7 @@ export function buildChartJson(input: {
       xKey: labelKey,
       yKey: numericKey,
       title: 'Сравнение значений',
-      color: PALETTE_PRIMARY,
+      color: PALETTE_PRIMARY
     }
   }
 
@@ -80,7 +83,7 @@ export function buildChartJson(input: {
     xKey: labelKey,
     yKey: numericKey,
     title: 'Аналитический срез',
-    color: PALETTE_PRIMARY,
+    color: PALETTE_PRIMARY
   }
 }
 

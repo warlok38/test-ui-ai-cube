@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis,
+  YAxis
 } from 'recharts'
 import type { ChartConfigPayload } from '@/services/assistantWorkflow/types'
 import { PALETTE_PRIMARY, PALETTE_PRIMARY_DARK, CHART_GRID_STROKE } from '@/constants/theme'
@@ -45,7 +45,11 @@ export function AnalyticsChart({ config, rows }: AnalyticsChartProps) {
           {config.type === 'bar' ? (
             <BarChart data={rows}>
               <CartesianGrid stroke={axisStroke} strokeDasharray="3 3" />
-              <XAxis dataKey={config.xKey} stroke={axisStroke} tick={{ fill: axisStroke, fontSize: 12 }} />
+              <XAxis
+                dataKey={config.xKey}
+                stroke={axisStroke}
+                tick={{ fill: axisStroke, fontSize: 12 }}
+              />
               <YAxis stroke={axisStroke} tick={{ fill: axisStroke, fontSize: 12 }} />
               <Tooltip />
               <Bar dataKey={config.yKey} fill={color} radius={[4, 4, 0, 0]} />
@@ -53,7 +57,11 @@ export function AnalyticsChart({ config, rows }: AnalyticsChartProps) {
           ) : (
             <LineChart data={rows}>
               <CartesianGrid stroke={axisStroke} strokeDasharray="3 3" />
-              <XAxis dataKey={config.xKey} stroke={axisStroke} tick={{ fill: axisStroke, fontSize: 12 }} />
+              <XAxis
+                dataKey={config.xKey}
+                stroke={axisStroke}
+                tick={{ fill: axisStroke, fontSize: 12 }}
+              />
               <YAxis stroke={axisStroke} tick={{ fill: axisStroke, fontSize: 12 }} />
               <Tooltip />
               <Line type="monotone" dataKey={config.yKey} stroke={color} strokeWidth={2} dot />

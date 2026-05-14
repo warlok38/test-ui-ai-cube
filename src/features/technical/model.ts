@@ -11,7 +11,7 @@ export type AssistantTechnicalSettings = {
 
 export const DEFAULT_ASSISTANT_TECHNICAL_SETTINGS: AssistantTechnicalSettings = {
   scenario: 'successful_bar',
-  stageDelayMs: TECHNICAL_DELAY_DEFAULT_MS,
+  stageDelayMs: TECHNICAL_DELAY_DEFAULT_MS
 }
 
 export function clampStageDelayMs(value: number): number {
@@ -27,31 +27,31 @@ export const TECHNICAL_SCENARIO_OPTIONS: Array<{
   {
     value: 'successful_bar',
     label: 'Успех + bar-график',
-    summary: 'Успешный ответ с категориальным графиком.',
+    summary: 'Успешный ответ с категориальным графиком.'
   },
   {
     value: 'successful_line',
     label: 'Успех + line-график',
-    summary: 'Успешный ответ с временным рядом.',
+    summary: 'Успешный ответ с временным рядом.'
   },
   {
     value: 'retry_then_success',
     label: 'Ретраи, затем успех',
-    summary: 'Первые попытки с ошибкой/пусто, затем успешный ответ.',
+    summary: 'Первые попытки с ошибкой/пусто, затем успешный ответ.'
   },
   {
     value: 'fail_all_soap',
     label: 'Ошибка SOAP на всех попытках',
-    summary: 'Финал: failed_max после 3 SOAP-ошибок.',
+    summary: 'Финал: failed_max после 3 SOAP-ошибок.'
   },
   {
     value: 'fail_all_empty',
     label: 'Пустой результат на всех попытках',
-    summary: 'Финал: failed_max после 3 пустых выборок.',
+    summary: 'Финал: failed_max после 3 пустых выборок.'
   },
   {
     value: 'server_unreachable',
     label: 'Сервер недоступен',
-    summary: 'Падение на этапе ping с outcome server_unreachable.',
-  },
+    summary: 'Падение на этапе ping с outcome server_unreachable.'
+  }
 ]

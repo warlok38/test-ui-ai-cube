@@ -17,13 +17,13 @@ export async function pingOlapServer(scenario: FakeScenarioKind): Promise<OlapPi
       ok: false,
       latencyMs: Math.round(performance.now() - started),
       details: 'SOAP Fault: не удалось установить соединение с Analysis Services (таймаут).',
-      errorCode: 'E_OLAP_TIMEOUT',
+      errorCode: 'E_OLAP_TIMEOUT'
     }
   }
 
   return {
     ok: true,
     latencyMs: Math.round(performance.now() - started),
-    details: 'Базовая проверка конечной точки XMLA пройдена.',
+    details: 'Базовая проверка конечной точки XMLA пройдена.'
   }
 }

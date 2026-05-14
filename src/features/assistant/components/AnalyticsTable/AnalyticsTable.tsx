@@ -30,9 +30,9 @@ export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
     () =>
       rows.map((row, index) => ({
         ...row,
-        __rk: `${rowFingerprint(row)}#${index}`,
+        __rk: `${rowFingerprint(row)}#${index}`
       })),
-    [rows],
+    [rows]
   )
 
   const columns: TableColumnsType<RowWithStableKey> = useMemo(() => {
@@ -45,7 +45,7 @@ export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
           ? undefined
           : uniq.map((value) => ({
               text: value,
-              value,
+              value
             }))
       return {
         title: key,
@@ -64,7 +64,7 @@ export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
         onFilter: (value: boolean | Key, record: RowWithStableKey) =>
           String(record[key] ?? '')
             .toLowerCase()
-            .includes(String(value).toLowerCase()),
+            .includes(String(value).toLowerCase())
       }
     })
   }, [filteredInfo, rows])

@@ -4,12 +4,19 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import {
   clampStageDelayMs,
   DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
-  type AssistantTechnicalSettings,
+  type AssistantTechnicalSettings
 } from '@/features/technical/model'
 import { appendRequestLog } from '@/modules/fakeDb/repo'
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
-import type { AssistantPhase, AssistantSuccessPayload, RetryLogEntry } from '@/services/assistantWorkflow/types'
-import { ASSISTANT_MAX_ATTEMPTS, runAssistantWorkflow } from '@/services/assistantWorkflow/runAssistantWorkflow'
+import type {
+  AssistantPhase,
+  AssistantSuccessPayload,
+  RetryLogEntry
+} from '@/services/assistantWorkflow/types'
+import {
+  ASSISTANT_MAX_ATTEMPTS,
+  runAssistantWorkflow
+} from '@/services/assistantWorkflow/runAssistantWorkflow'
 import { cubeApi } from '@/store/api/cubeApi'
 
 export type ChatMessage = {
@@ -63,16 +70,19 @@ const initialState: AssistantUiState = {
   technicalSettings: { ...initialTechnicalSettings },
   messages: [],
   currentAttempt: 1,
-  maxAttempts: ASSISTANT_MAX_ATTEMPTS,
+  maxAttempts: ASSISTANT_MAX_ATTEMPTS
 }
 
-function pushMessage(list: ChatMessage[], msg: Omit<ChatMessage, 'createdAt'> & Partial<Pick<ChatMessage, 'createdAt'>>) {
+function pushMessage(
+  list: ChatMessage[],
+  msg: Omit<ChatMessage, 'createdAt'> & Partial<Pick<ChatMessage, 'createdAt'>>
+) {
   return [
     ...list,
     {
       ...msg,
-      createdAt: msg.createdAt ?? Date.now(),
-    },
+      createdAt: msg.createdAt ?? Date.now()
+    }
   ]
 }
 
@@ -91,10 +101,10 @@ export const runAssistantThunk = createAsyncThunk(
             assistantSlice.actions.setPhase({
               phase,
               currentAttempt: meta?.attempt,
-              maxAttempts: meta?.maxAttempts,
-            }),
+              maxAttempts: meta?.maxAttempts
+            })
           )
-        },
+        }
       })
 
       dispatch(cubeApi.util.invalidateTags(['Metrics', 'Logs']))
@@ -110,7 +120,7 @@ export const runAssistantThunk = createAsyncThunk(
           interpretation: result.interpretation,
           tableRows: result.rows,
           durationMs: result.durationMs,
-          feedback: null,
+          feedback: null
         }).id
       } else if (result.outcome === 'failed_max') {
         logId = appendRequestLog({
@@ -122,7 +132,7 @@ export const runAssistantThunk = createAsyncThunk(
           interpretation: null,
           tableRows: null,
           durationMs: result.durationMs,
-          feedback: null,
+          feedback: null
         }).id
       } else if (result.outcome === 'server_unreachable') {
         logId = appendRequestLog({
@@ -134,7 +144,7 @@ export const runAssistantThunk = createAsyncThunk(
           interpretation: result.details ?? 'Сервер недоступен',
           tableRows: null,
           durationMs: result.durationMs,
-          feedback: null,
+          feedback: null
         }).id
       }
 
@@ -145,8 +155,8 @@ export const runAssistantThunk = createAsyncThunk(
   },
   {
     condition: (prompt: string | undefined | null): boolean =>
-      typeof prompt === 'string' ? prompt.trim().length > 0 : false,
-  },
+      typeof prompt === 'string' ? prompt.trim().length > 0 : false
+  }
 )
 
 export const assistantSlice = createSlice({
@@ -155,7 +165,11 @@ export const assistantSlice = createSlice({
   reducers: {
     setPhase(
       state,
-      action: PayloadAction<{ phase: AssistantPhase; currentAttempt?: number; maxAttempts?: number }>,
+      action: PayloadAction<{
+        phase: AssistantPhase
+        currentAttempt?: number
+        maxAttempts?: number
+      }>
     ) {
       state.phase = action.payload.phase
       if (action.payload.currentAttempt !== undefined) {
@@ -185,7 +199,7 @@ export const assistantSlice = createSlice({
       state.unreachableDetails = null
       state.unreachableCode = null
       state.failedSummaryText = null
-    },
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -207,7 +221,7 @@ export const assistantSlice = createSlice({
         state.messages = pushMessage(state.messages, {
           id: crypto.randomUUID(),
           role: 'user',
-          text: prompt,
+          text: prompt
         })
       })
       .addCase(runAssistantThunk.fulfilled, (state, action) => {
@@ -223,7 +237,7 @@ export const assistantSlice = createSlice({
           state.messages = pushMessage(state.messages, {
             id: crypto.randomUUID(),
             role: 'assistant',
-            text: result.message,
+            text: result.message
           })
           return
         }
@@ -236,7 +250,7 @@ export const assistantSlice = createSlice({
           state.messages = pushMessage(state.messages, {
             id: crypto.randomUUID(),
             role: 'assistant',
-            text: `Сервер недоступен: ${state.unreachableDetails}`,
+            text: `Сервер недоступен: ${state.unreachableDetails}`
           })
           return
         }
@@ -249,14 +263,14 @@ export const assistantSlice = createSlice({
             retryLog: result.retryLog,
             lastDax: result.lastDax,
             durationMs: result.durationMs,
-            attemptsUsed: result.attemptsUsed,
+            attemptsUsed: result.attemptsUsed
           }
           state.messages = pushMessage(state.messages, {
             id: crypto.randomUUID(),
             role: 'assistant',
             text: `${result.summaryText}\n\nДетали ретраев:\n${result.retryLog
               .map((r) => `- ${r.summary}`)
-              .join('\n')}`,
+              .join('\n')}`
           })
           return
         }
@@ -268,7 +282,7 @@ export const assistantSlice = createSlice({
         state.messages = pushMessage(state.messages, {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: `Готово. Использовано попыток: ${result.attemptsUsed}. См. интерпретацию и таблицу ниже.`,
+          text: `Готово. Использовано попыток: ${result.attemptsUsed}. См. интерпретацию и таблицу ниже.`
         })
       })
       .addCase(runAssistantThunk.rejected, (state, action) => {
@@ -279,10 +293,10 @@ export const assistantSlice = createSlice({
         state.messages = pushMessage(state.messages, {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: msg,
+          text: msg
         })
       })
-  },
+  }
 })
 
 export const assistantActions = assistantSlice.actions

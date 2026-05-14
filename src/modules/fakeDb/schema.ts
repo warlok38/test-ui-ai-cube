@@ -1,10 +1,6 @@
 export type RequestFeedback = 'like' | 'dislike'
 
-export type RequestLogStatus =
-  | 'success'
-  | 'failed_max'
-  | 'server_unreachable'
-  | 'cancelled_hint'
+export type RequestLogStatus = 'success' | 'failed_max' | 'server_unreachable' | 'cancelled_hint'
 
 export type RequestLogRecord = {
   id: string

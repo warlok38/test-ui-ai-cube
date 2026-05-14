@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx'
 
 export function exportRowsToExcel(
   rows: Record<string, string | number | null>[],
-  fileName = 'cube-result.xlsx',
+  fileName = 'cube-result.xlsx'
 ): void {
   if (!rows.length) return
   const sheet = XLSX.utils.json_to_sheet(rows)

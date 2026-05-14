@@ -20,7 +20,7 @@ export const cubeApi = createApi({
         await randomDelay(180, 400)
         return { data: aggregateMetrics() }
       },
-      providesTags: ['Metrics'],
+      providesTags: ['Metrics']
     }),
 
     logs: builder.query<RequestLogRecord[], { limit?: number; offset?: number } | void>({
@@ -31,7 +31,7 @@ export const cubeApi = createApi({
         const data = listLogs({ limit, offset })
         return { data }
       },
-      providesTags: ['Logs'],
+      providesTags: ['Logs']
     }),
 
     exportLogsBinary: builder.mutation<Blob, ExportLogsBody>({
@@ -41,7 +41,7 @@ export const cubeApi = createApi({
         if (body.format === 'json') {
           const json = JSON.stringify(logs, null, 2)
           return {
-            data: new Blob([json], { type: 'application/json' }),
+            data: new Blob([json], { type: 'application/json' })
           }
         }
 
@@ -52,19 +52,22 @@ export const cubeApi = createApi({
           'status',
           'attemptsUsed',
           'durationMs',
-          'feedback',
+          'feedback'
         ]
         if (body.format === 'csv') {
           const lines = [
             headers.join(','),
             ...logs.map((row) =>
               headers
-                .map((h) =>
-                  `"${String((row as unknown as Record<string, unknown>)[h] ?? '')
-                    .replaceAll('"', '""')}"`,
+                .map(
+                  (h) =>
+                    `"${String((row as unknown as Record<string, unknown>)[h] ?? '').replaceAll(
+                      '"',
+                      '""'
+                    )}"`
                 )
-                .join(','),
-            ),
+                .join(',')
+            )
           ]
           return { data: new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' }) }
         }
@@ -74,8 +77,12 @@ export const cubeApi = createApi({
         const book = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(book, sheet, 'logs')
         const buffer = XLSX.write(book, { bookType: 'xlsx', type: 'array' })
-        return { data: new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }) }
-      },
+        return {
+          data: new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+        }
+      }
     }),
 
     submitFeedback: builder.mutation<boolean, { logId: string; feedback: RequestFeedback }>({
@@ -84,14 +91,14 @@ export const cubeApi = createApi({
         const ok = patchRequestFeedback(logId, feedback)
         return { data: ok }
       },
-      invalidatesTags: ['Logs', 'Metrics'],
-    }),
-  }),
+      invalidatesTags: ['Logs', 'Metrics']
+    })
+  })
 })
 
 export const {
   useMetricsQuery,
   useLogsQuery,
   useExportLogsBinaryMutation,
-  useSubmitFeedbackMutation,
+  useSubmitFeedbackMutation
 } = cubeApi

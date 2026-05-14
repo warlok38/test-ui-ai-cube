@@ -7,7 +7,7 @@ import {
   DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
   TECHNICAL_DELAY_MAX_MS,
   TECHNICAL_DELAY_MIN_MS,
-  TECHNICAL_SCENARIO_OPTIONS,
+  TECHNICAL_SCENARIO_OPTIONS
 } from '@/features/technical/model'
 import { saveTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -24,7 +24,7 @@ export function TechnicalSettingsPage() {
 
   const selectedScenarioMeta = useMemo(
     () => TECHNICAL_SCENARIO_OPTIONS.find((option) => option.value === technicalSettings.scenario),
-    [technicalSettings.scenario],
+    [technicalSettings.scenario]
   )
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export function TechnicalSettingsPage() {
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
         <Typography.Title level={2}>Техническая вкладка</Typography.Title>
         <Typography.Paragraph type="secondary">
-          Настройки влияют на кнопку <Typography.Text code>Выполнить запрос</Typography.Text> в разделе главной и
-          сохраняются локально в браузере.
+          Настройки влияют на кнопку <Typography.Text code>Выполнить запрос</Typography.Text> в
+          разделе главной и сохраняются локально в браузере.
         </Typography.Paragraph>
 
         <Card title="Сценарий ответа">
@@ -53,7 +53,7 @@ export function TechnicalSettingsPage() {
               value={technicalSettings.scenario}
               options={TECHNICAL_SCENARIO_OPTIONS.map((option) => ({
                 value: option.value,
-                label: option.label,
+                label: option.label
               }))}
               onChange={(value) => dispatch(assistantActions.setTechnicalScenario(value))}
             />
@@ -68,7 +68,13 @@ export function TechnicalSettingsPage() {
             <Typography.Paragraph className={styles.compactParagraph}>
               Применяется к каждому этапу: checking, generating, fetching, interpreting.
             </Typography.Paragraph>
-            <Slider min={minDelaySeconds} max={maxDelaySeconds} step={1} value={delaySeconds} onChange={handleDelaySecondsChange} />
+            <Slider
+              min={minDelaySeconds}
+              max={maxDelaySeconds}
+              step={1}
+              value={delaySeconds}
+              onChange={handleDelaySecondsChange}
+            />
             <InputNumber
               min={minDelaySeconds}
               max={maxDelaySeconds}
@@ -107,15 +113,18 @@ export function TechnicalSettingsPage() {
         </Card>
 
         <Space wrap>
-          <Button onClick={() => dispatch(assistantActions.resetTechnicalSettings())}>Сбросить настройки</Button>
+          <Button onClick={() => dispatch(assistantActions.resetTechnicalSettings())}>
+            Сбросить настройки
+          </Button>
           <Button type="primary" href="/">
             Перейти на главную
           </Button>
         </Space>
 
         <Typography.Paragraph type="secondary">
-          Базовый режим: сценарий <Typography.Text code>{DEFAULT_ASSISTANT_TECHNICAL_SETTINGS.scenario}</Typography.Text>{' '}
-          и задержка <Typography.Text code>0 сек</Typography.Text>.
+          Базовый режим: сценарий{' '}
+          <Typography.Text code>{DEFAULT_ASSISTANT_TECHNICAL_SETTINGS.scenario}</Typography.Text> и
+          задержка <Typography.Text code>0 сек</Typography.Text>.
         </Typography.Paragraph>
       </Space>
     </div>

@@ -8,8 +8,8 @@ export const themeConfig: ThemeConfig = {
     colorPrimary: PALETTE_PRIMARY,
     colorLink: PALETTE_PRIMARY,
     borderRadius: 8,
-    colorBgLayout: '#f3f4f6',
-  },
+    colorBgLayout: '#f3f4f6'
+  }
 }
 
 /** Тёмная тема — согласована с блоком `html[data-theme='dark']` в palette.css */
@@ -28,6 +28,6 @@ export const darkThemeConfig: ThemeConfig = {
     colorSplit: 'rgba(220, 227, 238, 0.08)',
     colorBgSpotlight: 'rgba(0, 0, 0, 0.45)',
     controlItemBgActive: 'rgba(240, 178, 74, 0.18)',
-    colorSuccess: '#49aa19',
-  },
+    colorSuccess: '#49aa19'
+  }
 }

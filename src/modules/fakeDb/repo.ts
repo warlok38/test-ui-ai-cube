@@ -27,12 +27,14 @@ function persist(logs: RequestLogRecord[]): void {
   saveToStorage(JSON.stringify(logs))
 }
 
-export function appendRequestLog(record: Omit<RequestLogRecord, 'id' | 'createdAt'>): RequestLogRecord {
+export function appendRequestLog(
+  record: Omit<RequestLogRecord, 'id' | 'createdAt'>
+): RequestLogRecord {
   const logs = hydrate()
   const full: RequestLogRecord = {
     ...record,
     id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString()
   }
   persist([full, ...logs])
   return full
@@ -67,7 +69,7 @@ function startOfTodayIso(): number {
 export function aggregateMetrics(): MetricsAggregate {
   const logs = hydrate()
   const finished = logs.filter(
-    (l) => l.status === 'success' || l.status === 'failed_max' || l.status === 'server_unreachable',
+    (l) => l.status === 'success' || l.status === 'failed_max' || l.status === 'server_unreachable'
   )
   const successful = logs.filter((l) => l.status === 'success')
   const todayStart = startOfTodayIso()
@@ -84,7 +86,7 @@ export function aggregateMetrics(): MetricsAggregate {
     runsToday,
     finishedRuns,
     successfulRuns,
-    successRatePercent,
+    successRatePercent
   }
 }
 

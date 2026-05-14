@@ -20,7 +20,7 @@ import styles from './AssistantWorkspace.module.css'
 const timeFmt = new Intl.DateTimeFormat('ru-RU', {
   hour: '2-digit',
   minute: '2-digit',
-  second: '2-digit',
+  second: '2-digit'
 })
 
 function phaseToStepIndex(phase: AssistantPhase): number {
@@ -64,7 +64,7 @@ export function AssistantWorkspace() {
     if (!container) return
     container.scrollTo({
       top: container.scrollHeight,
-      behavior: shouldSmoothScrollRef.current ? 'smooth' : 'auto',
+      behavior: shouldSmoothScrollRef.current ? 'smooth' : 'auto'
     })
     shouldSmoothScrollRef.current = false
   }, [assistant.messages, isPinnedToBottom])
@@ -88,14 +88,18 @@ export function AssistantWorkspace() {
           Главная
         </Typography.Title>
         <Typography.Text type="secondary">
-          Активный демон-сценарий: <Typography.Text code>{assistant.technicalSettings.scenario}</Typography.Text> —
-          задаёт ответ фейкового LLM/DAX/OLAP. Измените в разделе <Typography.Text code>/technical</Typography.Text>.
+          Активный демон-сценарий:{' '}
+          <Typography.Text code>{assistant.technicalSettings.scenario}</Typography.Text> — задаёт
+          ответ фейкового LLM/DAX/OLAP. Измените в разделе{' '}
+          <Typography.Text code>/technical</Typography.Text>.
         </Typography.Text>
 
         <ServiceInfo />
 
         <Card className={styles.dialogCard}>
-          {assistant.inputWarning ? <Alert showIcon type="warning" title={assistant.inputWarning} /> : null}
+          {assistant.inputWarning ? (
+            <Alert showIcon type="warning" title={assistant.inputWarning} />
+          ) : null}
           {assistant.unreachableDetails ? (
             <Alert
               showIcon
@@ -104,32 +108,48 @@ export function AssistantWorkspace() {
               description={
                 <div>
                   <Typography.Paragraph>{assistant.unreachableDetails}</Typography.Paragraph>
-                  <Typography.Paragraph code>{assistant.unreachableCode ?? 'нет кода ошибки'}</Typography.Paragraph>
+                  <Typography.Paragraph code>
+                    {assistant.unreachableCode ?? 'нет кода ошибки'}
+                  </Typography.Paragraph>
                 </div>
               }
             />
           ) : null}
           {assistant.failedSummaryText ? (
-            <Alert showIcon type="error" title="Достигнут лимит попыток" description={assistant.failedSummaryText} />
+            <Alert
+              showIcon
+              type="error"
+              title="Достигнут лимит попыток"
+              description={assistant.failedSummaryText}
+            />
           ) : null}
 
           {assistant.messages.length > 0 ? (
-            <div className={styles.messageList} role="list" ref={messageListRef} onScroll={updatePinToBottomState}>
+            <div
+              className={styles.messageList}
+              role="list"
+              ref={messageListRef}
+              onScroll={updatePinToBottomState}
+            >
               {assistant.messages.map((item) => (
                 <div
                   key={item.id}
                   role="listitem"
                   className={classNames(
                     styles.messageRow,
-                    item.role === 'user' ? styles.messageUser : styles.messageBot,
+                    item.role === 'user' ? styles.messageUser : styles.messageBot
                   )}
                 >
                   <Space orientation="vertical">
-                    <Typography.Text strong>{item.role === 'user' ? 'Вы' : 'Ассистент'}</Typography.Text>
+                    <Typography.Text strong>
+                      {item.role === 'user' ? 'Вы' : 'Ассистент'}
+                    </Typography.Text>
                     <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
                       {item.text}
                     </Typography.Paragraph>
-                    <Typography.Text type="secondary">{timeFmt.format(item.createdAt)}</Typography.Text>
+                    <Typography.Text type="secondary">
+                      {timeFmt.format(item.createdAt)}
+                    </Typography.Text>
                   </Space>
                 </div>
               ))}
@@ -141,7 +161,7 @@ export function AssistantWorkspace() {
               <div
                 className={classNames(
                   styles.composerContent,
-                  assistant.isRunning ? styles.composerContentLoading : null,
+                  assistant.isRunning ? styles.composerContentLoading : null
                 )}
               >
                 {assistant.isRunning ? (
@@ -160,7 +180,7 @@ export function AssistantWorkspace() {
                         { title: 'Проверка' },
                         { title: 'LLM → DAX' },
                         { title: 'Запрос к кубу' },
-                        { title: 'Интерпретация' },
+                        { title: 'Интерпретация' }
                       ]}
                     />
                   </div>
@@ -175,7 +195,12 @@ export function AssistantWorkspace() {
                   />
                 )}
               </div>
-              <Button type="primary" loading={assistant.isRunning} disabled={assistant.isRunning} onClick={handleRun}>
+              <Button
+                type="primary"
+                loading={assistant.isRunning}
+                disabled={assistant.isRunning}
+                onClick={handleRun}
+              >
                 {assistant.isRunning ? 'Выполняется...' : 'Выполнить запрос'}
               </Button>
             </Space>
@@ -200,18 +225,25 @@ export function AssistantWorkspace() {
             <AnalyticsTable
               rows={assistant.lastSuccess.rows}
               onExportExcel={() =>
-                exportRowsToExcel(assistant.lastSuccess?.rows ?? [], `cube-result-${Date.now()}.xlsx`)
+                exportRowsToExcel(
+                  assistant.lastSuccess?.rows ?? [],
+                  `cube-result-${Date.now()}.xlsx`
+                )
               }
             />
 
             {assistant.lastSuccess.chartConfig ? (
               <>
                 <Divider />
-                <AnalyticsChart config={assistant.lastSuccess.chartConfig} rows={assistant.lastSuccess.rows} />
+                <AnalyticsChart
+                  config={assistant.lastSuccess.chartConfig}
+                  rows={assistant.lastSuccess.rows}
+                />
               </>
             ) : (
               <Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>
-                График не сформирован: недостаточно данных по правилам визуализации или конфигурация отсутствует.
+                График не сформирован: недостаточно данных по правилам визуализации или конфигурация
+                отсутствует.
               </Typography.Paragraph>
             )}
           </Card>
@@ -232,9 +264,16 @@ export function AssistantWorkspace() {
           <Card title="Диагностика соединения">
             <Typography.Paragraph>
               Последнее измерение пинга:{' '}
-              {assistant.unreachableDurationMs !== null ? `${assistant.unreachableDurationMs} мс` : 'нет данных'}.
+              {assistant.unreachableDurationMs !== null
+                ? `${assistant.unreachableDurationMs} мс`
+                : 'нет данных'}
+              .
             </Typography.Paragraph>
-            <RequestDetailsDrawer attempts={0} retryLog={assistant.lastAttemptLogEntries} durationMs={assistant.unreachableDurationMs} />
+            <RequestDetailsDrawer
+              attempts={0}
+              retryLog={assistant.lastAttemptLogEntries}
+              durationMs={assistant.unreachableDurationMs}
+            />
           </Card>
         ) : null}
       </Space>

@@ -13,7 +13,13 @@ type RequestDetailsProps = {
   durationMs?: number | null
 }
 
-export function RequestDetailsDrawer({ success, failureDax, attempts, retryLog, durationMs }: RequestDetailsProps) {
+export function RequestDetailsDrawer({
+  success,
+  failureDax,
+  attempts,
+  retryLog,
+  durationMs
+}: RequestDetailsProps) {
   const [open, setOpen] = useState(false)
   const dax = success?.finalDax ?? failureDax
 
@@ -31,7 +37,9 @@ export function RequestDetailsDrawer({ success, failureDax, attempts, retryLog, 
             <Descriptions.Item label="Длительность">
               {durationMs !== null && durationMs !== undefined ? `${durationMs} мс` : '—'}
             </Descriptions.Item>
-            <Descriptions.Item label="Сценарий (демо)">{success?.scenarioLabel ?? '—'}</Descriptions.Item>
+            <Descriptions.Item label="Сценарий (демо)">
+              {success?.scenarioLabel ?? '—'}
+            </Descriptions.Item>
           </Descriptions>
 
           {retryLog && retryLog.length ? (
@@ -50,7 +58,14 @@ export function RequestDetailsDrawer({ success, failureDax, attempts, retryLog, 
           <div>
             <Typography.Title level={5}>Итоговый DAX</Typography.Title>
             <Typography.Paragraph>
-              <pre style={{ whiteSpace: 'pre-wrap', background: '#0f172a0d', padding: 12, borderRadius: 8 }}>
+              <pre
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  background: '#0f172a0d',
+                  padding: 12,
+                  borderRadius: 8
+                }}
+              >
                 {dax ?? '—'}
               </pre>
             </Typography.Paragraph>

@@ -20,9 +20,7 @@ export function LeftBar({ collapsedLabel = 'Меню' }: LeftBarProps) {
         {...asideInteractionProps}
       >
         <div className={styles.collapsedLabelWrap}>
-          <span className={styles.collapsedLabel}>
-            {collapsedLabel}
-          </span>
+          <span className={styles.collapsedLabel}>{collapsedLabel}</span>
         </div>
 
         <div className={`${styles.menuContent} ${isOpen ? styles.menuContentOpen : ''}`}>
