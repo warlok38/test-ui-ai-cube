@@ -9,9 +9,9 @@ import {
   TECHNICAL_DELAY_MIN_MS,
   TECHNICAL_SCENARIO_OPTIONS
 } from '@/features/technical/model'
+import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { saveTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { assistantActions } from '@/store/slices/assistantSlice'
 
 import styles from './TechnicalSettingsPage.module.css'
 

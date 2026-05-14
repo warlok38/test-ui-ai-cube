@@ -3,10 +3,10 @@
 import { Alert, App, Button, Card, Divider, Input, Space, Steps, Typography } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
+import { runAssistantThunk } from '@/features/assistant/model/assistantSlice'
 import type { AssistantPhase } from '@/services/assistantWorkflow/types'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { runAssistantThunk } from '@/store/slices/assistantSlice'
 
 import { AnalyticsChart } from './components/AnalyticsChart'
 import { AnalyticsTable } from './components/AnalyticsTable'

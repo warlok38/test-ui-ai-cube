@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import { assistantSlice } from '@/features/assistant/model/assistantSlice'
 import { cubeApi } from '@/store/api/cubeApi'
-import { assistantSlice } from '@/store/slices/assistantSlice'
 
 export const rootReducer = combineReducers({
   [cubeApi.reducerPath]: cubeApi.reducer,
