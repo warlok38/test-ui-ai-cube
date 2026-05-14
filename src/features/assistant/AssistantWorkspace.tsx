@@ -85,7 +85,7 @@ export function AssistantWorkspace() {
     <div className={styles.page}>
       <Space orientation="vertical" size={16} style={{ width: '100%' }}>
         <Typography.Title level={2} className={styles.title}>
-          Интеллектуальный помощник OLAP
+          Главная
         </Typography.Title>
         <Typography.Text type="secondary">
           Активный демон-сценарий: <Typography.Text code>{assistant.technicalSettings.scenario}</Typography.Text> —

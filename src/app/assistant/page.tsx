@@ -1,7 +1,5 @@
-'use client'
-
-import { AssistantWorkspace } from '@/features/assistant/AssistantWorkspace'
+import { redirect } from 'next/navigation'
 
 export default function AssistantPage() {
-  return <AssistantWorkspace />
+  redirect('/')
 }

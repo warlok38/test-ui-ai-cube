@@ -43,7 +43,7 @@ export function TechnicalSettingsPage() {
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
         <Typography.Title level={2}>Техническая вкладка</Typography.Title>
         <Typography.Paragraph type="secondary">
-          Настройки влияют на кнопку <Typography.Text code>Выполнить запрос</Typography.Text> в разделе ассистента и
+          Настройки влияют на кнопку <Typography.Text code>Выполнить запрос</Typography.Text> в разделе главной и
           сохраняются локально в браузере.
         </Typography.Paragraph>
 
@@ -89,7 +89,7 @@ export function TechnicalSettingsPage() {
               showIcon
               type="warning"
               message="input_warning"
-              description="Пустой запрос: отправьте в ассистенте строку только из пробелов."
+              description="Пустой запрос: отправьте на главной строку только из пробелов."
             />
             <Alert
               showIcon
@@ -108,8 +108,8 @@ export function TechnicalSettingsPage() {
 
         <Space wrap>
           <Button onClick={() => dispatch(assistantActions.resetTechnicalSettings())}>Сбросить настройки</Button>
-          <Button type="primary" href="/assistant">
-            Перейти к ассистенту
+          <Button type="primary" href="/">
+            Перейти на главную
           </Button>
         </Space>
 
