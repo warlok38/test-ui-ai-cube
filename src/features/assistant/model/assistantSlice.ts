@@ -18,6 +18,7 @@ import {
   runAssistantWorkflow
 } from '@/services/assistantWorkflow/runAssistantWorkflow'
 import { cubeApi } from '@/store/api/cubeApi'
+import { createId } from '@/utils/createId'
 
 export type ChatMessage = {
   id: string
@@ -219,7 +220,7 @@ export const assistantSlice = createSlice({
         state.maxAttempts = ASSISTANT_MAX_ATTEMPTS
         const prompt = action.meta.arg
         state.messages = pushMessage(state.messages, {
-          id: crypto.randomUUID(),
+          id: createId(),
           role: 'user',
           text: prompt
         })
@@ -235,7 +236,7 @@ export const assistantSlice = createSlice({
           state.inputWarning = result.message
           state.lastLogId = null
           state.messages = pushMessage(state.messages, {
-            id: crypto.randomUUID(),
+            id: createId(),
             role: 'assistant',
             text: result.message
           })
@@ -248,7 +249,7 @@ export const assistantSlice = createSlice({
           state.unreachableDurationMs = result.durationMs
           state.lastAttemptLogEntries = result.retryLog
           state.messages = pushMessage(state.messages, {
-            id: crypto.randomUUID(),
+            id: createId(),
             role: 'assistant',
             text: `Сервер недоступен: ${state.unreachableDetails}`
           })
@@ -266,7 +267,7 @@ export const assistantSlice = createSlice({
             attemptsUsed: result.attemptsUsed
           }
           state.messages = pushMessage(state.messages, {
-            id: crypto.randomUUID(),
+            id: createId(),
             role: 'assistant',
             text: `${result.summaryText}\n\nДетали ретраев:\n${result.retryLog
               .map((r) => `- ${r.summary}`)
@@ -280,7 +281,7 @@ export const assistantSlice = createSlice({
         state.unreachableDurationMs = null
         state.lastAttemptLogEntries = result.retryLog
         state.messages = pushMessage(state.messages, {
-          id: crypto.randomUUID(),
+          id: createId(),
           role: 'assistant',
           text: `Готово. Использовано попыток: ${result.attemptsUsed}. См. интерпретацию и таблицу ниже.`
         })
@@ -291,7 +292,7 @@ export const assistantSlice = createSlice({
         state.currentAttempt = 1
         const msg = typeof action.payload === 'string' ? action.payload : 'Сбой выполнения запроса'
         state.messages = pushMessage(state.messages, {
-          id: crypto.randomUUID(),
+          id: createId(),
           role: 'assistant',
           text: msg
         })

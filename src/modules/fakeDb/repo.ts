@@ -1,6 +1,7 @@
 import type { MetricsAggregate, RequestFeedback, RequestLogRecord } from './schema'
 import seed from './seed.json'
 import { loadFromStorage, saveToStorage } from './persistence'
+import { createId } from '@/utils/createId'
 
 let memoryLogs: RequestLogRecord[] | null = null
 
@@ -33,7 +34,7 @@ export function appendRequestLog(
   const logs = hydrate()
   const full: RequestLogRecord = {
     ...record,
-    id: crypto.randomUUID(),
+    id: createId(),
     createdAt: new Date().toISOString()
   }
   persist([full, ...logs])
