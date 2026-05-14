@@ -158,10 +158,10 @@ export const assistantSlice = createSlice({
       action: PayloadAction<{ phase: AssistantPhase; currentAttempt?: number; maxAttempts?: number }>,
     ) {
       state.phase = action.payload.phase
-      if (action.payload.currentAttempt != null) {
+      if (action.payload.currentAttempt !== undefined) {
         state.currentAttempt = action.payload.currentAttempt
       }
-      if (action.payload.maxAttempts != null) {
+      if (action.payload.maxAttempts !== undefined) {
         state.maxAttempts = action.payload.maxAttempts
       }
     },

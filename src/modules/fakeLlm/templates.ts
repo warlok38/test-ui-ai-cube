@@ -48,7 +48,7 @@ export function buildChartJson(input: {
 
   const keys = Object.keys(first)
   const numericKey = keys.find((k) => typeof first[k] === 'number')
-  const labelKey = keys.find((k) => k !== numericKey && first[k] != null)
+  const labelKey = keys.find((k) => k !== numericKey && first[k] !== null && first[k] !== undefined)
   if (!numericKey || !labelKey) return null
 
   if (scenario === 'successful_line') {

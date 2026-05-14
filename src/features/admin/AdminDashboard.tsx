@@ -112,7 +112,17 @@ export function AdminDashboard() {
 
   const handleExport = async (format: 'csv' | 'json' | 'xlsx') => {
     const blob = await exportMutation({ format }).unwrap()
-    const ext = format === 'xlsx' ? 'xlsx' : format === 'csv' ? 'csv' : 'json'
+    let ext: 'csv' | 'json' | 'xlsx'
+    switch (format) {
+      case 'xlsx':
+        ext = 'xlsx'
+        break
+      case 'csv':
+        ext = 'csv'
+        break
+      default:
+        ext = 'json'
+    }
     triggerBlobDownload(blob, `cube-logs-${Date.now()}.${ext}`)
   }
 

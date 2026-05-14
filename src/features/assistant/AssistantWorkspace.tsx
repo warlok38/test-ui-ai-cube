@@ -232,7 +232,7 @@ export function AssistantWorkspace() {
           <Card title="Диагностика соединения">
             <Typography.Paragraph>
               Последнее измерение пинга:{' '}
-              {assistant.unreachableDurationMs != null ? `${assistant.unreachableDurationMs} мс` : 'нет данных'}.
+              {assistant.unreachableDurationMs !== null ? `${assistant.unreachableDurationMs} мс` : 'нет данных'}.
             </Typography.Paragraph>
             <RequestDetailsDrawer attempts={0} retryLog={assistant.lastAttemptLogEntries} durationMs={assistant.unreachableDurationMs} />
           </Card>

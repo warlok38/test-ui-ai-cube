@@ -29,7 +29,7 @@ export function RequestDetailsDrawer({ success, failureDax, attempts, retryLog, 
               {success?.attemptsUsed ?? attempts ?? '—'}
             </Descriptions.Item>
             <Descriptions.Item label="Длительность">
-              {durationMs != null ? `${durationMs} мс` : '—'}
+              {durationMs !== null && durationMs !== undefined ? `${durationMs} мс` : '—'}
             </Descriptions.Item>
             <Descriptions.Item label="Сценарий (демо)">{success?.scenarioLabel ?? '—'}</Descriptions.Item>
           </Descriptions>
