@@ -1,31 +1,62 @@
 :root {
   --palette-neutral-000: #ffffff;
-  --palette-neutral-900: #111827;
-  --palette-neutral-800: #1f2937;
-  --palette-neutral-950: #0f172a;
-  --palette-brand-500: #2563eb;
-  --palette-brand-600: #1d4ed8;
-  --palette-brand-700: #13529b;
-  --palette-accent-300: #bbc7ac;
-  --palette-surface-100: #effff4;
-  --palette-surface-page-start: #d6dbdc;
-  --palette-surface-page-end: #ffffff;
-  --palette-overlay-interactive-hover: rgba(180, 185, 188, 0.1);
-  --palette-border-interactive: rgba(131, 134, 135, 0.35);
+  --palette-neutral-900: #252a32;
+  --palette-neutral-800: #3d4654;
+  --palette-neutral-950: #14181e;
+
+  /* Основной жёлтый (Ant colorPrimary) */
+  --palette-accent-primary: #ffb829;
+  --palette-accent-primary-hover: #e5a623;
+  /** Текст на сплошной жёлтой кнопке (фиксируется для любой темы) */
+  --palette-accent-on-solid: #14181e;
+  --palette-accent-soft: rgba(255, 184, 41, 0.14);
+  --palette-accent-wash: rgba(255, 184, 41, 0.08);
+
+  /*
+   * «Брендовые» переменные: тёмный хром верхней панели и выезжающего меню LeftBar,
+   * если решат снова подключить сайдбар.
+   */
+  --palette-brand-500: #3d4654;
+  --palette-brand-600: #2f3540;
+  --palette-brand-700: #232830;
+
+  /* Полоса Header2: тёмная под светлый текст и акценты навигации */
+  --palette-header-secondary-strip: #3a424e;
+
+  /* Нейтральные поверхности */
+  --palette-surface-100: #f3f4f6;
+  --palette-surface-page-start: #d9dde3;
+  --palette-surface-page-end: #fafafa;
+
+  --palette-overlay-interactive-hover: rgba(61, 70, 84, 0.08);
+  --palette-border-interactive: rgba(61, 70, 84, 0.22);
 }
 
+/*
+ * Тёмная тема: глубокий графит с лёгким синеватым подтоном и тёплый янтарный акцент.
+ * Фон ниже средней яркости без «чистого чёрного», текст — шкала slate для читаемости.
+ */
 html[data-theme='dark'] {
   --palette-neutral-000: #ffffff;
-  --palette-neutral-900: #e5e7eb;
-  --palette-neutral-800: #cbd5e1;
-  --palette-neutral-950: #f8fafc;
-  --palette-brand-500: #0f172a;
-  --palette-brand-600: #1e293b;
-  --palette-brand-700: #1e293b;
-  --palette-accent-300: #334155;
-  --palette-surface-100: #111827;
-  --palette-surface-page-start: #020617;
-  --palette-surface-page-end: #0b1220;
-  --palette-overlay-interactive-hover: rgba(100, 100, 100, 0.1);
-  --palette-border-interactive: rgba(200, 200, 200, 0.45);
+  --palette-neutral-900: #dce3ee;
+  --palette-neutral-800: #8b96a8;
+  --palette-neutral-950: #f4f7fb;
+
+  --palette-accent-primary: #f0b24a;
+  --palette-accent-primary-hover: #f8c56a;
+  --palette-accent-soft: rgba(240, 178, 74, 0.16);
+  --palette-accent-wash: rgba(240, 178, 74, 0.09);
+
+  --palette-brand-500: #1e2838;
+  --palette-brand-600: #161f2f;
+  --palette-brand-700: #0f1622;
+
+  --palette-header-secondary-strip: #1a2436;
+
+  --palette-surface-100: #151c2b;
+  --palette-surface-page-start: #080b12;
+  --palette-surface-page-end: #101722;
+
+  --palette-overlay-interactive-hover: rgba(220, 227, 238, 0.06);
+  --palette-border-interactive: rgba(220, 227, 238, 0.13);
 }

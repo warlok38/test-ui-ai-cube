@@ -20,6 +20,14 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Масштаб интерфейса (`rem`)
+
+Единица **rem** считается от вычисленного `font-size` элемента `<html>`. Отступы и типографика заданы в rem через CSS‑переменные (`--space-*`, `--font-size-*` и др.), поэтому при изменении корневого размера шрифта весь интерфейс масштабируется согласованно.
+
+Хук **`useGlobalFontSize`** ([`src/hooks/useGlobalFontSize.ts`](src/hooks/useGlobalFontSize.ts)) подписан на событие `resize`, берёт [`window.outerWidth`](https://developer.mozilla.org/en-US/docs/Web/API/Window/outerWidth) (удобнее при масштабировании страницы) и считает размер шрифта по пропорции к базовой ширине **1920** и базовому значению **16** пикселей, ограничивая результат диапазоном **8…24**. Возвращённое число пробрасывается в **`style={{ fontSize }}`** на `<html>` в [`src/app/layout.tsx`](src/app/layout.tsx).
+
+Подробнее про слои токенов и соглашения по верстке: [`src/styles/README.md`](src/styles/README.md).
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

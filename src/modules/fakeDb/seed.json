@@ -1,0 +1,19 @@
+[
+  {
+    "id": "seed-1",
+    "createdAt": "2026-05-01T10:15:00.000Z",
+    "userPrompt": "Выручка по регионам за прошлый квартал",
+    "finalDax": "EVALUATE ROW(\"Region\",\"Север\")",
+    "status": "success",
+    "attemptsUsed": 1,
+    "retrySummaries": [],
+    "interpretation": "Выручка сосредоточена в ключевых регионах (демо-сид).",
+    "tableRows": [
+      { "region": "Север", "revenue": 120000 },
+      { "region": "Юг", "revenue": 98000 },
+      { "region": "Восток", "revenue": 76400 }
+    ],
+    "durationMs": 1820,
+    "feedback": "like"
+  }
+]

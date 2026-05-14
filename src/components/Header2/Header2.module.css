@@ -1,9 +1,60 @@
 .headerSecondary {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   height: var(--layout-header-height);
   padding: var(--space-0) var(--space-4);
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: rgb(243 246 249 / 90%);
   background: var(--color-bg-header-secondary);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius-6);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: rgb(243 246 249 / 78%);
+  text-decoration: none;
+  border: var(--border-width-hairline) solid transparent;
+}
+
+.navLink:hover {
+  color: rgb(253 246 237 / 95%);
+  background: rgb(255 255 255 / 8%);
+  border-color: rgb(255 255 255 / 12%);
+}
+
+.navLink:focus-visible {
+  outline: var(--border-width-strong) solid var(--palette-accent-primary);
+  outline-offset: var(--border-width-strong);
+}
+
+.navLinkActive {
+  color: var(--palette-accent-primary);
+  background: rgb(255 184 41 / 12%);
+  border-color: rgb(255 184 41 / 22%);
+}
+
+.olapStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: #52c41a;
+}
+
+.olapIcon {
+  font-size: 1rem;
 }

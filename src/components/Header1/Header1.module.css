@@ -6,7 +6,7 @@
   min-height: var(--layout-header-height);
   padding: var(--space-0) var(--space-4);
   font-weight: 600;
-  color: var(--color-text-strong);
+  color: var(--color-text-on-header-primary);
   background: var(--color-bg-header-primary);
 }
 

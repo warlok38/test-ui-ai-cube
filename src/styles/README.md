@@ -16,21 +16,22 @@
 ## Слои токенов
 
 - `--space-*` и `--font-size-*` - масштабные токены (spacing/type scale)
-- `--layout-*`, `--radius-*` - структурные токены интерфейса
+- `--layout-*`, `--radius-*`, `--border-width-*` - структурные токены интерфейса
 - `--palette-*` - базовая палитра
 - `--color-*` - семантические токены для компонентов (использовать в CSS-модулях)
 
 ## Контракт темы
 
 - Тема управляется вручную через `html[data-theme='light' | 'dark']`.
-- Источник темы хранится в `localStorage` по ключу `ui-theme`.
-- Начальное значение темы на сервере - `light`, затем после гидрации тема синхронизируется с `localStorage` через `useTheme`.
-- Переключение темы реализовано через `useTheme` (`src/hooks/useTheme.ts`) и UI в `Header1`.
+- Источник темы хранится в `localStorage` по ключу `theme`.
+- Начальное значение темы на сервере - `light`, затем после гидрации тема синхронизируется с `localStorage` через `ThemeProvider` / `useTheme`.
+- Переключение темы реализовано через `useTheme` (`src/theme/ThemeProvider.tsx`, реэкспорт в `src/hooks/index.ts`) и UI в `Header1`.
 
 ## Правила использования
 
 - В компонентах использовать семантические цвета (`--color-text-default`, `--color-bg-default`, `--color-border-*`), а не `--palette-*`.
-- Для размеров и отступов использовать `--space-*` и `--font-size-*` вместо `px`.
+- Для размеров и отступов использовать `--space-*` и `--font-size-*` вместо фиксированных `px` в вёрстке; границы и фокус - `var(--border-width-hairline)` / `var(--border-width-strong)`, чтобы они тоже следовали глобальному масштабу через rem.
+- Масштаб корня задаётся хуком `useGlobalFontSize`; кратко это описано в корневом [README.md](../../README.md).
 - Если значение повторяется в нескольких местах, выносить его в токен.
 - Новые состояния (`hover`, `active`, `disabled`) добавлять как отдельные семантические токены и сразу определять для `light` и `dark`.
 
@@ -42,7 +43,7 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-default);
   background: var(--color-bg-default);
-  border: 1px solid var(--color-border-interactive);
+  border: var(--border-width-hairline) solid var(--color-border-interactive);
 }
 ```
 

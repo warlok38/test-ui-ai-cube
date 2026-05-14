@@ -1,0 +1,27 @@
+.wrap {
+  max-width: var(--layout-max-width-admin);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-2) var(--space-12);
+}
+
+.logsCard {
+  margin-top: var(--space-4);
+  box-shadow:
+    0 var(--border-width-hairline) 0 rgb(20 24 30 / 5%),
+    0 0.75rem 2.125rem rgb(20 24 30 / 8%);
+}
+
+.exportBar {
+  margin-bottom: var(--space-4);
+}
+
+.code {
+  background: rgb(61 70 84 / 5%);
+  border-radius: var(--radius-8);
+  padding: var(--space-3);
+  white-space: pre-wrap;
+}
+
+html[data-theme='dark'] .code {
+  background: rgb(255 255 255 / 6%);
+}

@@ -1,0 +1,101 @@
+.wrap {
+  max-width: var(--layout-max-width-home);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-3) var(--space-16);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: var(--space-3);
+  padding: 0.2rem 0.56rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--palette-neutral-800);
+  background: var(--palette-accent-soft);
+  border: var(--border-width-hairline) solid color-mix(in srgb, var(--palette-accent-primary) 38%, transparent);
+}
+
+.title {
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-strong);
+}
+
+.lead {
+  font-size: 1.06rem;
+  line-height: 1.58;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+  max-width: 52ch;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.ctaPrimary,
+.ctaGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--space-module) * 2.75) var(--space-5);
+  border-radius: var(--radius-8);
+  font-weight: 600;
+  border: var(--border-width-hairline) solid transparent;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease,
+    border-color 140ms ease;
+}
+
+.ctaPrimary {
+  background: var(--palette-accent-primary);
+  color: var(--palette-accent-on-solid);
+  border-color: rgb(17 24 39 / 10%);
+}
+
+.ctaPrimary:hover {
+  filter: brightness(1.03);
+}
+
+.ctaPrimary:active {
+  transform: translateY(var(--border-width-hairline));
+}
+
+.ctaGhost {
+  background: transparent;
+  color: var(--color-text-default);
+  border-color: rgb(61 70 84 / 25%);
+}
+
+html[data-theme='dark'] .ctaGhost {
+  border-color: var(--palette-border-interactive);
+}
+
+.ctaGhost:hover {
+  border-color: var(--palette-accent-primary);
+  color: var(--color-text-strong);
+}
+
+.hints {
+  margin-top: var(--space-8);
+  padding: var(--space-4) calc(var(--space-module) * 4.5);
+  border-radius: var(--radius-10);
+  background: var(--palette-accent-soft);
+  border: var(--border-width-hairline) solid color-mix(in srgb, var(--palette-accent-primary) 35%, transparent);
+  color: var(--color-text-default);
+}
+
+.hints code {
+  font-size: 0.9em;
+}

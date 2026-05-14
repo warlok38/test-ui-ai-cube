@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Layout } from '@/components'
 import { useGlobalFontSize } from '@/hooks'
+import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,9 +16,11 @@ export default function RootLayout({
   const fontSize = useGlobalFontSize()
 
   return (
-    <html lang="en" style={{ fontSize }} data-theme="light" suppressHydrationWarning>
+    <html lang="ru" style={{ fontSize }} suppressHydrationWarning>
       <body className={inter.className}>
-        <Layout>{children}</Layout>
+        <Providers>
+          <Layout>{children}</Layout>
+        </Providers>
       </body>
     </html>
   )

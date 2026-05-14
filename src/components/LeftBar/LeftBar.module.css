@@ -15,8 +15,8 @@
 }
 
 .leftBar:focus-visible {
-  outline: 2px solid var(--color-text-inverse);
-  outline-offset: -2px;
+  outline: var(--border-width-strong) solid var(--color-text-inverse);
+  outline-offset: calc(var(--border-width-strong) * -1);
 }
 
 .collapsedLabelWrap {
@@ -107,7 +107,7 @@
   height: 1.75rem;
   width: 1.75rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,8 +119,8 @@
 }
 
 .closeButton:focus-visible {
-  outline: 2px solid var(--color-text-inverse);
-  outline-offset: 1px;
+  outline: var(--border-width-strong) solid var(--color-text-inverse);
+  outline-offset: var(--border-width-hairline);
 }
 
 .menuBody {
@@ -135,10 +135,34 @@
   scrollbar-color: transparent transparent;
 }
 
-.menuBody p {
+.navIntro {
+  margin-bottom: var(--space-2);
+}
+
+.navIntro p {
   margin: 0;
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.35;
+}
+
+.navLink {
+  display: block;
+  padding: var(--space-2);
+  border-radius: var(--radius-8);
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  font-weight: 600;
+  border: var(--border-width-hairline) solid transparent;
+}
+
+.navLink:hover {
+  background: var(--palette-accent-soft);
+  border-color: rgba(255, 255, 255 / 28%);
+}
+
+.navLink:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-text-inverse);
+  outline-offset: var(--border-width-strong);
 }
 
 .menuBody::-webkit-scrollbar {
@@ -150,9 +174,9 @@
 }
 
 .menuBody::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
-  border: 2px solid transparent;
+  border: var(--border-width-strong) solid transparent;
 }
 
 .menuBody:hover,

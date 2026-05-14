@@ -1,0 +1,21 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list {
+  margin: var(--space-2) 0 0;
+  padding-left: calc(var(--space-module) * 4.5);
+}
+
+.limits {
+  color: rgba(17, 24, 39, 0.75);
+}
+
+html[data-theme='dark'] .limits {
+  color: var(--color-text-muted);
+}
+.collapse {
+  background: transparent;
+}

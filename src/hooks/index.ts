@@ -1,2 +1,2 @@
 export * from './useGlobalFontSize'
-export * from './useTheme'
+export { useTheme } from '@/theme'

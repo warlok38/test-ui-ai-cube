@@ -7,11 +7,17 @@
   --color-bg-default: var(--palette-surface-100);
   --color-bg-page-start: var(--palette-surface-page-start);
   --color-bg-page-end: var(--palette-surface-page-end);
+
   --color-bg-header-primary: var(--palette-brand-700);
-  --color-bg-header-secondary: var(--palette-accent-300);
+  --color-bg-header-secondary: var(--palette-header-secondary-strip);
+
   --color-bg-sidebar: var(--palette-brand-500);
   --color-bg-sidebar-accent: var(--palette-brand-600);
+
   --color-bg-interactive-hover: var(--palette-overlay-interactive-hover);
 
   --color-border-interactive: var(--palette-border-interactive);
+
+  /* Тёмная полоса Header1 — светлый текст */
+  --color-text-on-header-primary: rgba(248, 250, 252, 0.96);
 }
