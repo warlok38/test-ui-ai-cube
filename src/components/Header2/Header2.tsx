@@ -1,34 +1,14 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { LinkOutlined } from '@ant-design/icons'
-import classNames from 'classnames'
+import { AppNavigation } from '@/components/Navigation'
 
 import styles from './Header2.module.css'
 
-const NAV_ITEMS = [
-  { href: '/', label: 'Главная' },
-  { href: '/admin', label: 'Админ' },
-  { href: '/technical', label: 'Техническая' }
-] as const
-
 export function Header2() {
-  const pathname = usePathname()
-
   return (
     <header className={styles.headerSecondary}>
-      <nav className={styles.nav} aria-label="Разделы приложения">
-        {NAV_ITEMS.map(({ href, label }) => (
-          <Link
-            key={href}
-            href={href}
-            className={classNames(styles.navLink, pathname === href && styles.navLinkActive)}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <AppNavigation />
       <span className={styles.olapStatus}>
         <LinkOutlined className={styles.olapIcon} aria-hidden />
         OLAP подключен
