@@ -1,7 +1,7 @@
 'use client'
 
 import { Alert, App, Button, Card, Divider, Input, Space, Steps, Typography } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
 import type { AssistantPhase } from '@/services/assistantWorkflow/types'
 
@@ -45,8 +45,29 @@ export function AssistantWorkspace() {
   const { message } = App.useApp()
 
   const [draft, setDraft] = useState('')
+  const [isPinnedToBottom, setIsPinnedToBottom] = useState(true)
+  const messageListRef = useRef<HTMLDivElement>(null)
+  const shouldSmoothScrollRef = useRef(false)
 
   const activeStepIndex = useMemo(() => phaseToStepIndex(assistant.phase), [assistant.phase])
+
+  const updatePinToBottomState = () => {
+    const container = messageListRef.current
+    if (!container) return
+    const bottomOffset = container.scrollHeight - container.scrollTop - container.clientHeight
+    setIsPinnedToBottom(bottomOffset <= 24)
+  }
+
+  useEffect(() => {
+    if (!isPinnedToBottom) return
+    const container = messageListRef.current
+    if (!container) return
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: shouldSmoothScrollRef.current ? 'smooth' : 'auto',
+    })
+    shouldSmoothScrollRef.current = false
+  }, [assistant.messages, isPinnedToBottom])
 
   const handleRun = () => {
     const text = draft.trim()
@@ -54,6 +75,8 @@ export function AssistantWorkspace() {
       message.warning('Введите текст запроса перед запуском')
       return
     }
+    shouldSmoothScrollRef.current = true
+    setIsPinnedToBottom(true)
     dispatch(runAssistantThunk(text))
     setDraft('')
   }
@@ -71,7 +94,7 @@ export function AssistantWorkspace() {
 
         <ServiceInfo />
 
-        <Card title="Диалог" className={styles.dialogCard}>
+        <Card className={styles.dialogCard}>
           {assistant.inputWarning ? <Alert showIcon type="warning" title={assistant.inputWarning} /> : null}
           {assistant.unreachableDetails ? (
             <Alert
@@ -90,55 +113,73 @@ export function AssistantWorkspace() {
             <Alert showIcon type="error" title="Достигнут лимит попыток" description={assistant.failedSummaryText} />
           ) : null}
 
-          <div className={styles.messageList} role="list">
-            {assistant.messages.map((item) => (
-              <div
-                key={item.id}
-                role="listitem"
-                className={classNames(
-                  styles.messageRow,
-                  item.role === 'user' ? styles.messageUser : styles.messageBot,
-                )}
-              >
-                <Space orientation="vertical">
-                  <Typography.Text strong>{item.role === 'user' ? 'Вы' : 'Ассистент'}</Typography.Text>
-                  <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
-                    {item.text}
-                  </Typography.Paragraph>
-                  <Typography.Text type="secondary">{timeFmt.format(item.createdAt)}</Typography.Text>
-                </Space>
-              </div>
-            ))}
-          </div>
-
-          {assistant.isRunning ? (
-            <div className={styles.stepWrap}>
-              <Typography.Text>Статус выполнения</Typography.Text>
-              <Steps
-                size="small"
-                status="process"
-                current={activeStepIndex < 0 ? 0 : activeStepIndex}
-                items={[
-                  { title: 'Проверка' },
-                  { title: 'LLM → DAX' },
-                  { title: 'Запрос к кубу' },
-                  { title: 'Интерпретация' },
-                ]}
-              />
+          {assistant.messages.length > 0 ? (
+            <div className={styles.messageList} role="list" ref={messageListRef} onScroll={updatePinToBottomState}>
+              {assistant.messages.map((item) => (
+                <div
+                  key={item.id}
+                  role="listitem"
+                  className={classNames(
+                    styles.messageRow,
+                    item.role === 'user' ? styles.messageUser : styles.messageBot,
+                  )}
+                >
+                  <Space orientation="vertical">
+                    <Typography.Text strong>{item.role === 'user' ? 'Вы' : 'Ассистент'}</Typography.Text>
+                    <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
+                      {item.text}
+                    </Typography.Paragraph>
+                    <Typography.Text type="secondary">{timeFmt.format(item.createdAt)}</Typography.Text>
+                  </Space>
+                </div>
+              ))}
             </div>
           ) : null}
 
-          <Space orientation="vertical" style={{ width: '100%', marginTop: 12 }} size="middle">
-            <Input.TextArea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={4}
-              placeholder="Сформулируйте аналитический вопрос к кубу на естественном языке"
-            />
-            <Button type="primary" loading={assistant.isRunning} disabled={assistant.isRunning} onClick={handleRun}>
-              Выполнить запрос
-            </Button>
-          </Space>
+          <div className={styles.composerArea}>
+            <Space orientation="vertical" className={styles.composerForm} size="middle">
+              <div
+                className={classNames(
+                  styles.composerContent,
+                  assistant.isRunning ? styles.composerContentLoading : null,
+                )}
+              >
+                {assistant.isRunning ? (
+                  <div className={styles.stepWrap}>
+                    <div className={styles.stepHeader}>
+                      <Typography.Text>Статус выполнения</Typography.Text>
+                      <Typography.Text strong>
+                        попытка: {assistant.currentAttempt} из {assistant.maxAttempts}
+                      </Typography.Text>
+                    </div>
+                    <Steps
+                      size="small"
+                      status="process"
+                      current={activeStepIndex < 0 ? 0 : activeStepIndex}
+                      items={[
+                        { title: 'Проверка' },
+                        { title: 'LLM → DAX' },
+                        { title: 'Запрос к кубу' },
+                        { title: 'Интерпретация' },
+                      ]}
+                    />
+                  </div>
+                ) : (
+                  <Input.TextArea
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    rows={4}
+                    bordered={false}
+                    style={{ height: '100%', resize: 'none' }}
+                    placeholder="Сформулируйте аналитический вопрос к кубу на естественном языке"
+                  />
+                )}
+              </div>
+              <Button type="primary" loading={assistant.isRunning} disabled={assistant.isRunning} onClick={handleRun}>
+                {assistant.isRunning ? 'Выполняется...' : 'Выполнить запрос'}
+              </Button>
+            </Space>
+          </div>
         </Card>
 
         {assistant.lastSuccess ? (

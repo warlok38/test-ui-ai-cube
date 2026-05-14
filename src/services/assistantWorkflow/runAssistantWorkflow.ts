@@ -12,9 +12,11 @@ import type {
   RetryLogEntry,
 } from './types'
 
-export type PhaseListener = (_phase: AssistantPhase) => void
+export const ASSISTANT_MAX_ATTEMPTS = 3
 
-const MAX_ATTEMPTS = 3
+export type PhaseListener = (_phase: AssistantPhase, _meta?: { attempt: number; maxAttempts: number }) => void
+
+const MAX_ATTEMPTS = ASSISTANT_MAX_ATTEMPTS
 
 export async function runAssistantWorkflow(params: {
   userPrompt: string
@@ -38,7 +40,7 @@ export async function runAssistantWorkflow(params: {
     }
   }
 
-  onPhase('checking')
+  onPhase('checking', { attempt: 1, maxAttempts: MAX_ATTEMPTS })
   await waitStageDelay()
   const ping = await pingOlapServer(scenario)
   if (!ping.ok) {
@@ -58,7 +60,7 @@ export async function runAssistantWorkflow(params: {
   let lastErrorContext: string | undefined
 
   while (attempt <= MAX_ATTEMPTS) {
-    onPhase('generating')
+    onPhase('generating', { attempt, maxAttempts: MAX_ATTEMPTS })
     await waitStageDelay()
     lastDax = generateDaxText({
       scenario,
@@ -67,7 +69,7 @@ export async function runAssistantWorkflow(params: {
       lastError: lastErrorContext,
     })
 
-    onPhase('fetching')
+    onPhase('fetching', { attempt, maxAttempts: MAX_ATTEMPTS })
     await waitStageDelay()
     const exec = await executeDaxQuery({
       scenario,
@@ -77,7 +79,7 @@ export async function runAssistantWorkflow(params: {
     })
 
     if (exec.kind === 'success' && exec.rows.length > 0) {
-      onPhase('interpreting')
+      onPhase('interpreting', { attempt, maxAttempts: MAX_ATTEMPTS })
       await waitStageDelay()
       const interpretation = generateInterpretation(userPrompt, exec.rows)
       const chartRaw = canChart(exec.rows)

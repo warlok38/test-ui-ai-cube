@@ -9,7 +9,7 @@ import {
 import { appendRequestLog } from '@/modules/fakeDb/repo'
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import type { AssistantPhase, AssistantSuccessPayload, RetryLogEntry } from '@/services/assistantWorkflow/types'
-import { runAssistantWorkflow } from '@/services/assistantWorkflow/runAssistantWorkflow'
+import { ASSISTANT_MAX_ATTEMPTS, runAssistantWorkflow } from '@/services/assistantWorkflow/runAssistantWorkflow'
 import { cubeApi } from '@/store/api/cubeApi'
 
 export type ChatMessage = {
@@ -41,6 +41,8 @@ export type AssistantUiState = {
   feedbackChoice: 'like' | 'dislike' | null
   technicalSettings: AssistantTechnicalSettings
   messages: ChatMessage[]
+  currentAttempt: number
+  maxAttempts: number
 }
 
 const initialTechnicalSettings = loadTechnicalSettings()
@@ -60,6 +62,8 @@ const initialState: AssistantUiState = {
   feedbackChoice: null,
   technicalSettings: { ...initialTechnicalSettings },
   messages: [],
+  currentAttempt: 1,
+  maxAttempts: ASSISTANT_MAX_ATTEMPTS,
 }
 
 function pushMessage(list: ChatMessage[], msg: Omit<ChatMessage, 'createdAt'> & Partial<Pick<ChatMessage, 'createdAt'>>) {
@@ -82,8 +86,14 @@ export const runAssistantThunk = createAsyncThunk(
         userPrompt: prompt,
         scenario: settings.scenario,
         stageDelayMs: clampStageDelayMs(settings.stageDelayMs),
-        onPhase: (phase) => {
-          dispatch(assistantSlice.actions.setPhase({ phase }))
+        onPhase: (phase, meta) => {
+          dispatch(
+            assistantSlice.actions.setPhase({
+              phase,
+              currentAttempt: meta?.attempt,
+              maxAttempts: meta?.maxAttempts,
+            }),
+          )
         },
       })
 
@@ -143,8 +153,17 @@ export const assistantSlice = createSlice({
   name: 'assistant',
   initialState,
   reducers: {
-    setPhase(state, action: PayloadAction<{ phase: AssistantPhase }>) {
+    setPhase(
+      state,
+      action: PayloadAction<{ phase: AssistantPhase; currentAttempt?: number; maxAttempts?: number }>,
+    ) {
       state.phase = action.payload.phase
+      if (action.payload.currentAttempt != null) {
+        state.currentAttempt = action.payload.currentAttempt
+      }
+      if (action.payload.maxAttempts != null) {
+        state.maxAttempts = action.payload.maxAttempts
+      }
     },
     resetFeedbackPreview(state) {
       state.feedbackChoice = null
@@ -182,6 +201,8 @@ export const assistantSlice = createSlice({
         state.feedbackChoice = null
         state.lastAttemptLogEntries = null
         state.phase = 'checking'
+        state.currentAttempt = 1
+        state.maxAttempts = ASSISTANT_MAX_ATTEMPTS
         const prompt = action.meta.arg
         state.messages = pushMessage(state.messages, {
           id: crypto.randomUUID(),
@@ -192,6 +213,7 @@ export const assistantSlice = createSlice({
       .addCase(runAssistantThunk.fulfilled, (state, action) => {
         state.isRunning = false
         state.phase = 'idle'
+        state.currentAttempt = 1
         const { result, logId } = action.payload
         state.lastLogId = logId
 
@@ -252,6 +274,7 @@ export const assistantSlice = createSlice({
       .addCase(runAssistantThunk.rejected, (state, action) => {
         state.isRunning = false
         state.phase = 'idle'
+        state.currentAttempt = 1
         const msg = typeof action.payload === 'string' ? action.payload : 'Сбой выполнения запроса'
         state.messages = pushMessage(state.messages, {
           id: crypto.randomUUID(),
