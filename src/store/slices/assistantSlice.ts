@@ -1,8 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { ACTIVE_FAKE_SCENARIO } from '@/modules/fakeLlm/config'
+import {
+  clampStageDelayMs,
+  DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
+  type AssistantTechnicalSettings,
+} from '@/features/technical/model'
 import { appendRequestLog } from '@/modules/fakeDb/repo'
+import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import type { AssistantPhase, AssistantSuccessPayload, RetryLogEntry } from '@/services/assistantWorkflow/types'
 import { runAssistantWorkflow } from '@/services/assistantWorkflow/runAssistantWorkflow'
 import { cubeApi } from '@/store/api/cubeApi'
@@ -34,8 +39,11 @@ export type AssistantUiState = {
   lastAttemptLogEntries: AssistantSuccessPayload['retryLog'] | null
   lastLogId: string | null
   feedbackChoice: 'like' | 'dislike' | null
+  technicalSettings: AssistantTechnicalSettings
   messages: ChatMessage[]
 }
+
+const initialTechnicalSettings = loadTechnicalSettings()
 
 const initialState: AssistantUiState = {
   phase: 'idle',
@@ -50,6 +58,7 @@ const initialState: AssistantUiState = {
   lastAttemptLogEntries: null,
   lastLogId: null,
   feedbackChoice: null,
+  technicalSettings: { ...initialTechnicalSettings },
   messages: [],
 }
 
@@ -65,11 +74,14 @@ function pushMessage(list: ChatMessage[], msg: Omit<ChatMessage, 'createdAt'> & 
 
 export const runAssistantThunk = createAsyncThunk(
   'assistant/runAssistant',
-  async (prompt: string, { dispatch, rejectWithValue }) => {
+  async (prompt: string, { dispatch, rejectWithValue, getState }) => {
     try {
+      const state = getState() as { assistant: AssistantUiState }
+      const settings = state.assistant?.technicalSettings ?? DEFAULT_ASSISTANT_TECHNICAL_SETTINGS
       const result = await runAssistantWorkflow({
         userPrompt: prompt,
-        scenario: ACTIVE_FAKE_SCENARIO,
+        scenario: settings.scenario,
+        stageDelayMs: clampStageDelayMs(settings.stageDelayMs),
         onPhase: (phase) => {
           dispatch(assistantSlice.actions.setPhase({ phase }))
         },
@@ -116,7 +128,7 @@ export const runAssistantThunk = createAsyncThunk(
         }).id
       }
 
-      return { result, prompt, logId }
+      return { result, logId }
     } catch (e) {
       return rejectWithValue(e instanceof Error ? e.message : 'Неизвестная ошибка')
     }
@@ -139,6 +151,15 @@ export const assistantSlice = createSlice({
     },
     setFeedbackChoice(state, action: PayloadAction<'like' | 'dislike' | null>) {
       state.feedbackChoice = action.payload
+    },
+    setTechnicalScenario(state, action: PayloadAction<AssistantTechnicalSettings['scenario']>) {
+      state.technicalSettings.scenario = action.payload
+    },
+    setTechnicalStageDelayMs(state, action: PayloadAction<number>) {
+      state.technicalSettings.stageDelayMs = clampStageDelayMs(action.payload)
+    },
+    resetTechnicalSettings(state) {
+      state.technicalSettings = { ...DEFAULT_ASSISTANT_TECHNICAL_SETTINGS }
     },
     clearTransientErrors(state) {
       state.inputWarning = null
@@ -171,7 +192,7 @@ export const assistantSlice = createSlice({
       .addCase(runAssistantThunk.fulfilled, (state, action) => {
         state.isRunning = false
         state.phase = 'idle'
-        const { result, prompt, logId } = action.payload
+        const { result, logId } = action.payload
         state.lastLogId = logId
 
         if (result.outcome === 'input_warning') {
@@ -227,7 +248,6 @@ export const assistantSlice = createSlice({
           role: 'assistant',
           text: `Готово. Использовано попыток: ${result.attemptsUsed}. См. интерпретацию и таблицу ниже.`,
         })
-        void prompt
       })
       .addCase(runAssistantThunk.rejected, (state, action) => {
         state.isRunning = false

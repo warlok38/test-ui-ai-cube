@@ -21,8 +21,8 @@ export default function Home() {
       </nav>
       <section className={styles.hints} aria-label="Подсказка для разработчика">
         <p>
-          Сценарий ответов настраивается в <code>src/modules/fakeLlm/config.ts</code>. Лог запросов и метрики
-          сохраняются в <code>localStorage</code> для имитации базы данных.
+          Сценарий ответов и задержки настраиваются во вкладке <code>/technical</code>. Лог запросов, метрики и
+          технические настройки сохраняются в <code>localStorage</code> для имитации базы данных.
         </p>
       </section>
     </div>

@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/', label: 'Главная' },
   { href: '/assistant', label: 'Ассистент' },
   { href: '/admin', label: 'Админ' },
+  { href: '/technical', label: 'Техническая' },
 ] as const
 
 export function Header2() {

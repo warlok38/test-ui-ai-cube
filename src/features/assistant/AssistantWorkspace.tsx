@@ -3,8 +3,6 @@
 import { Alert, App, Button, Card, Divider, Input, Space, Steps, Typography } from 'antd'
 import { useMemo, useState } from 'react'
 import classNames from 'classnames'
-
-import { ACTIVE_FAKE_SCENARIO } from '@/modules/fakeLlm/config'
 import type { AssistantPhase } from '@/services/assistantWorkflow/types'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -67,9 +65,8 @@ export function AssistantWorkspace() {
           Интеллектуальный помощник OLAP
         </Typography.Title>
         <Typography.Text type="secondary">
-          Активный демон-сценарий: <Typography.Text code>{ACTIVE_FAKE_SCENARIO}</Typography.Text> — задаёт ответ фейкового
-          LLM/DAX/OLAP. Измените в{' '}
-          <Typography.Text code>src/modules/fakeLlm/config.ts</Typography.Text>.
+          Активный демон-сценарий: <Typography.Text code>{assistant.technicalSettings.scenario}</Typography.Text> —
+          задаёт ответ фейкового LLM/DAX/OLAP. Измените в разделе <Typography.Text code>/technical</Typography.Text>.
         </Typography.Text>
 
         <ServiceInfo />

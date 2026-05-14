@@ -1,3 +1,5 @@
+import { clampStageDelayMs } from '@/features/technical/model'
+import { fakeDelay } from '@/modules/fakeApi/delay'
 import type { FakeScenarioKind } from '@/modules/fakeLlm/config'
 import { executeDaxQuery } from '@/modules/fakeApi/executeDax'
 import { pingOlapServer } from '@/modules/fakeApi/olapPing'
@@ -17,10 +19,17 @@ const MAX_ATTEMPTS = 3
 export async function runAssistantWorkflow(params: {
   userPrompt: string
   scenario: FakeScenarioKind
+  stageDelayMs?: number
   onPhase: PhaseListener
 }): Promise<AssistantWorkflowResult> {
   const { userPrompt, scenario, onPhase } = params
   const startedAt = performance.now()
+  const stageDelayMs = clampStageDelayMs(params.stageDelayMs ?? 0)
+
+  const waitStageDelay = async () => {
+    if (stageDelayMs <= 0) return
+    await fakeDelay(stageDelayMs)
+  }
 
   if (!userPrompt.trim()) {
     return {
@@ -30,6 +39,7 @@ export async function runAssistantWorkflow(params: {
   }
 
   onPhase('checking')
+  await waitStageDelay()
   const ping = await pingOlapServer(scenario)
   if (!ping.ok) {
     const durationMs = Math.round(performance.now() - startedAt)
@@ -49,7 +59,7 @@ export async function runAssistantWorkflow(params: {
 
   while (attempt <= MAX_ATTEMPTS) {
     onPhase('generating')
-    await new Promise((r) => setTimeout(r, 50))
+    await waitStageDelay()
     lastDax = generateDaxText({
       scenario,
       attempt,
@@ -58,6 +68,7 @@ export async function runAssistantWorkflow(params: {
     })
 
     onPhase('fetching')
+    await waitStageDelay()
     const exec = await executeDaxQuery({
       scenario,
       attempt,
@@ -67,6 +78,7 @@ export async function runAssistantWorkflow(params: {
 
     if (exec.kind === 'success' && exec.rows.length > 0) {
       onPhase('interpreting')
+      await waitStageDelay()
       const interpretation = generateInterpretation(userPrompt, exec.rows)
       const chartRaw = canChart(exec.rows)
         ? buildChartJson({
