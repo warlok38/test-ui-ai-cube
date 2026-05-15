@@ -99,47 +99,45 @@ export function AssistantChatView({
         </div>
       ) : null}
 
-      <div className={styles.composerArea}>
-        <Space orientation="vertical" className={styles.composerForm} size="middle">
-          <div
-            className={classNames(styles.composerContent, isRunning ? styles.composerContentLoading : null)}
-          >
-            {isRunning ? (
-              <div className={styles.stepWrap}>
-                <div className={styles.stepHeader}>
-                  <Typography.Text>Статус выполнения</Typography.Text>
-                  <Typography.Text strong>
-                    попытка: {currentAttempt} из {maxAttempts}
-                  </Typography.Text>
-                </div>
-                <Steps
-                  size="small"
-                  status="process"
-                  current={activeStepIndex < 0 ? 0 : activeStepIndex}
-                  items={[
-                    { title: 'Проверка' },
-                    { title: 'LLM → DAX' },
-                    { title: 'Запрос к кубу' },
-                    { title: 'Интерпретация' }
-                  ]}
-                />
+      <Space orientation="vertical" className={styles.composerForm} size="middle">
+        <div
+          className={classNames(styles.composerContent, isRunning ? styles.composerContentLoading : null)}
+        >
+          {isRunning ? (
+            <div className={styles.stepWrap}>
+              <div className={styles.stepHeader}>
+                <Typography.Text>Статус выполнения</Typography.Text>
+                <Typography.Text strong>
+                  попытка: {currentAttempt} из {maxAttempts}
+                </Typography.Text>
               </div>
-            ) : (
-              <Input.TextArea
-                value={draft}
-                onChange={(e) => onDraftChange(e.target.value)}
-                rows={4}
-                bordered={false}
-                style={{ height: '100%', resize: 'none' }}
-                placeholder="Сформулируйте аналитический вопрос к кубу на естественном языке"
+              <Steps
+                size="small"
+                status="process"
+                current={activeStepIndex < 0 ? 0 : activeStepIndex}
+                items={[
+                  { title: 'Проверка' },
+                  { title: 'LLM → DAX' },
+                  { title: 'Запрос к кубу' },
+                  { title: 'Интерпретация' }
+                ]}
               />
-            )}
-          </div>
-          <Button type="primary" loading={isRunning} disabled={isRunning} onClick={onRun}>
-            {isRunning ? 'Выполняется...' : 'Выполнить запрос'}
-          </Button>
-        </Space>
-      </div>
+            </div>
+          ) : (
+            <Input.TextArea
+              value={draft}
+              onChange={(e) => onDraftChange(e.target.value)}
+              rows={4}
+              bordered={false}
+              style={{ height: '100%', resize: 'none' }}
+              placeholder="Сформулируйте аналитический вопрос к кубу на естественном языке"
+            />
+          )}
+        </div>
+        <Button type="primary" loading={isRunning} disabled={isRunning} onClick={onRun}>
+          {isRunning ? 'Выполняется...' : 'Выполнить запрос'}
+        </Button>
+      </Space>
     </Card>
   )
 }
