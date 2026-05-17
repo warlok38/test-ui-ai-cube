@@ -1,7 +1,7 @@
 .dialogCard {
   box-shadow:
-    0 var(--border-width-hairline) 0 rgb(20 24 30 / 4%),
-    0 0.625rem 1.75rem rgb(20 24 30 / 7%);
+    0 var(--border-width-hairline) 0 #2929290a,
+    0 0.625rem 1.75rem #29292914;
   border-radius: var(--radius-md);
 }
 
@@ -14,8 +14,8 @@
 .messageList {
   max-height: var(--layout-max-height-message-list);
   overflow: auto;
-  border: var(--border-width-hairline) solid var(--palette-border-soft, rgb(230 231 235));
-  border-radius: var(--radius-8);
+  border: var(--border-width-hairline) solid var(--palette-border-soft);
+  border-radius: var(--radius-3);
 }
 
 html[data-theme='dark'] .messageList {
@@ -23,7 +23,7 @@ html[data-theme='dark'] .messageList {
 }
 
 .messageRow:not(:last-child) {
-  border-bottom: var(--border-width-hairline) solid var(--palette-border-soft, rgb(230 231 235));
+  border-bottom: var(--border-width-hairline) solid var(--palette-border-soft);
 }
 
 html[data-theme='dark'] .messageRow:not(:last-child) {
@@ -40,7 +40,7 @@ html[data-theme='dark'] .messageRow:not(:last-child) {
 }
 
 .messageBot {
-  background: rgb(61 70 84 / 4%);
+  background: #2929290a;
 }
 
 html[data-theme='dark'] .messageBot {
@@ -65,14 +65,14 @@ html[data-theme='dark'] .messageBot {
 
 .composerContent {
   height: 8rem;
-  border: var(--border-width-hairline) solid var(--palette-border-soft, rgb(230 231 235));
-  border-radius: var(--radius-8);
-  background: var(--palette-bg-elevated, #fff);
+  border: var(--border-width-hairline) solid var(--palette-border-soft);
+  border-radius: var(--radius-3);
+  background: var(--palette-bg-elevated);
   padding: var(--space-2) var(--space-3);
 }
 
 .composerContentLoading {
-  background: rgb(61 70 84 / 6%);
+  background: #2929290f;
 }
 
 html[data-theme='dark'] .composerContent {

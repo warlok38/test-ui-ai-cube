@@ -7,8 +7,17 @@ export const themeConfig: ThemeConfig = {
   token: {
     colorPrimary: PALETTE_PRIMARY,
     colorLink: PALETTE_PRIMARY,
-    borderRadius: 8,
-    colorBgLayout: '#f3f4f6'
+    colorInfo: PALETTE_PRIMARY,
+    colorText: '#2f2f2f',
+    colorTextHeading: '#1c1c1c',
+    colorTextSecondary: '#575757',
+    colorBorder: '#29292938',
+    colorSplit: '#2929291f',
+    borderRadius: 3,
+    colorBgLayout: '#f2f1ee',
+    colorBgContainer: '#ffffff',
+    colorBgElevated: '#ffffff',
+    controlItemBgActive: '#fab52929'
   }
 }
 
@@ -17,17 +26,18 @@ export const darkThemeConfig: ThemeConfig = {
   token: {
     colorPrimary: PALETTE_PRIMARY_DARK,
     colorLink: PALETTE_PRIMARY_DARK,
+    colorInfo: PALETTE_PRIMARY_DARK,
     borderRadius: 8,
-    colorBgLayout: '#101722',
-    colorBgContainer: '#151c2b',
-    colorBgElevated: '#1a2436',
-    colorText: '#dce3ee',
-    colorTextHeading: '#f4f7fb',
-    colorTextSecondary: '#8b96a8',
-    colorBorder: 'rgba(220, 227, 238, 0.13)',
-    colorSplit: 'rgba(220, 227, 238, 0.08)',
+    colorBgLayout: '#1b1b1b',
+    colorBgContainer: '#171717',
+    colorBgElevated: '#222222',
+    colorText: '#e9e3d8',
+    colorTextHeading: '#fcf8ef',
+    colorTextSecondary: '#b7ada0',
+    colorBorder: '#e9e3d833',
+    colorSplit: '#e9e3d81f',
     colorBgSpotlight: 'rgba(0, 0, 0, 0.45)',
-    controlItemBgActive: 'rgba(240, 178, 74, 0.18)',
+    controlItemBgActive: '#f0b24a2e',
     colorSuccess: '#49aa19'
   }
 }

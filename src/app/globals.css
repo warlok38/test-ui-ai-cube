@@ -14,8 +14,12 @@ body {
 
 body {
   color: var(--color-text-default);
-  background: linear-gradient(to bottom, transparent, var(--color-bg-page-end))
-    var(--color-bg-page-start);
+  background-color: var(--color-bg-page-start);
+  background-image: url('https://zolteh.ru/upload/iblock/084/084b5b365baa07eaa21479b3b83ce7a4.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 a {

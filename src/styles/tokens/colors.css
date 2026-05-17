@@ -19,5 +19,5 @@
   --color-border-interactive: var(--palette-border-interactive);
 
   /* Тёмная полоса Header1 — светлый текст */
-  --color-text-on-header-primary: rgba(248, 250, 252, 0.96);
+  --color-text-on-header-primary: #f6f0e4f5;
 }

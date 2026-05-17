@@ -9,9 +9,9 @@
 }
 
 .tagButton {
-  border: 1px solid rgb(17 24 39 / 28%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 96%) 0%, rgb(245 247 250 / 96%) 100%);
-  color: rgb(17 24 39 / 92%);
+  border: 1px solid #29292947;
+  background: linear-gradient(180deg, #fffdf9f5 0%, #f4f0e8f5 100%);
+  color: #2f2f2feb;
   border-radius: 999px;
   padding: 0.56rem 0.95rem;
   font-size: 0.95rem;
@@ -26,8 +26,8 @@
 }
 
 .tagButton:hover {
-  border-color: rgb(22 119 255 / 52%);
-  box-shadow: 0 0.3rem 0.75rem rgb(15 23 42 / 10%);
+  border-color: #fab52985;
+  box-shadow: 0 0.3rem 0.75rem #2929291a;
   transform: translateY(-1px);
 }
 
@@ -36,7 +36,7 @@
 }
 
 .tagButton:focus-visible {
-  outline: 2px solid rgb(22 119 255 / 60%);
+  outline: 2px solid #fab52999;
   outline-offset: 2px;
 }
 
@@ -48,20 +48,20 @@
 }
 
 .modalText :global(.ant-typography) {
-  color: rgb(17 24 39 / 80%);
+  color: #2f2f2fcc;
 }
 
 html[data-theme='dark'] .tagButton {
-  border-color: rgb(255 255 255 / 22%);
-  background: linear-gradient(180deg, rgb(43 52 66 / 95%) 0%, rgb(34 42 54 / 95%) 100%);
-  color: rgb(255 255 255 / 90%);
+  border-color: #e9e3d838;
+  background: linear-gradient(180deg, #34302af2 0%, #292621f2 100%);
+  color: #f6f0e6e6;
 }
 
 html[data-theme='dark'] .tagButton:hover {
-  border-color: rgb(145 188 255 / 58%);
+  border-color: #f0b24a94;
   box-shadow: 0 0.35rem 1rem rgb(0 0 0 / 28%);
 }
 
 html[data-theme='dark'] .modalText :global(.ant-typography) {
-  color: rgb(255 255 255 / 78%);
+  color: #e9e3d8c7;
 }
