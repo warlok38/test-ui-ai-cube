@@ -24,8 +24,16 @@ function rowFingerprint(row: Row): string {
 
 type RowWithStableKey = Row & { readonly __rk: string }
 
-export function AnalyticsTable({ rows, columns: columnsFromApi, onExportExcel }: AnalyticsTableProps) {
+export function AnalyticsTable({
+  rows,
+  columns: columnsFromApi,
+  onExportExcel
+}: AnalyticsTableProps) {
   const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({})
+  const [pagination, setPagination] = useState<{ current: number; pageSize: number }>({
+    current: 1,
+    pageSize: 10
+  })
 
   const dataSource = useMemo<RowWithStableKey[]>(
     () =>
@@ -75,7 +83,14 @@ export function AnalyticsTable({ rows, columns: columnsFromApi, onExportExcel }:
     })
   }, [columnsFromApi, filteredInfo, rows])
 
-  const handleChange: TableProps<RowWithStableKey>['onChange'] = (_pagination, filters) => {
+  const handleChange: TableProps<RowWithStableKey>['onChange'] = (nextPagination, filters) => {
+    setPagination((prev) => ({
+      current:
+        nextPagination.pageSize && nextPagination.pageSize !== prev.pageSize
+          ? 1
+          : (nextPagination.current ?? prev.current),
+      pageSize: nextPagination.pageSize ?? prev.pageSize
+    }))
     setFilteredInfo(filters as Record<string, FilterValue | null>)
   }
 
@@ -95,7 +110,12 @@ export function AnalyticsTable({ rows, columns: columnsFromApi, onExportExcel }:
         rowKey="__rk"
         columns={columns}
         dataSource={dataSource}
-        pagination={{ pageSize: 20, showSizeChanger: true }}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100']
+        }}
         scroll={{ x: true }}
         onChange={handleChange}
       />
