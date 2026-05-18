@@ -116,10 +116,8 @@ export function AssistantChatView({
                 status="process"
                 current={activeStepIndex < 0 ? 0 : activeStepIndex}
                 items={[
-                  { title: 'Проверка' },
-                  { title: 'LLM → DAX' },
-                  { title: 'Запрос к кубу' },
-                  { title: 'Интерпретация' }
+                  { title: 'Запрос' },
+                  { title: 'Готово' }
                 ]}
               />
             </div>

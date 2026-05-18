@@ -1,7 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
 import { aggregateMetrics, listLogs, patchRequestFeedback } from '@/modules/fakeDb/repo'
+import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
 import type { MetricsAggregate, RequestLogRecord, RequestFeedback } from '@/modules/fakeDb/schema'
+import type { CubeQueryEntity, CubeQueryParams } from '@/services/assistantWorkflow/types'
 import { randomDelay } from '@/modules/fakeApi/delay'
 
 const noopBaseQuery: BaseQueryFn = async () => ({ data: null })
@@ -15,6 +18,14 @@ export const cubeApi = createApi({
   baseQuery: noopBaseQuery,
   tagTypes: ['Metrics', 'Logs'],
   endpoints: (builder) => ({
+    executeQuery: builder.mutation<CubeQueryEntity, CubeQueryParams>({
+      async queryFn(body) {
+        const settings = loadTechnicalSettings()
+        const data = await executeCubeQuery(body, settings.scenario)
+        return { data }
+      }
+    }),
+
     metrics: builder.query<MetricsAggregate, void>({
       async queryFn() {
         await randomDelay(180, 400)
@@ -97,6 +108,7 @@ export const cubeApi = createApi({
 })
 
 export const {
+  useExecuteQueryMutation,
   useMetricsQuery,
   useLogsQuery,
   useExportLogsBinaryMutation,

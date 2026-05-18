@@ -10,6 +10,7 @@ type Row = Record<string, string | number | null>
 
 type AnalyticsTableProps = {
   rows: Row[]
+  columns?: string[]
   onExportExcel?: () => void
 }
 
@@ -23,7 +24,7 @@ function rowFingerprint(row: Row): string {
 
 type RowWithStableKey = Row & { readonly __rk: string }
 
-export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
+export function AnalyticsTable({ rows, columns: columnsFromApi, onExportExcel }: AnalyticsTableProps) {
   const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({})
 
   const dataSource = useMemo<RowWithStableKey[]>(
@@ -36,8 +37,13 @@ export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
   )
 
   const columns: TableColumnsType<RowWithStableKey> = useMemo(() => {
-    if (!rows.length) return []
-    const keys = Object.keys(rows[0])
+    let keys: string[] = []
+    if (columnsFromApi?.length) {
+      keys = columnsFromApi
+    } else if (rows.length) {
+      keys = Object.keys(rows[0])
+    }
+    if (!keys.length) return []
     return keys.map((key) => {
       const uniq = Array.from(new Set(rows.map((r) => String(r[key] ?? ''))))
       const filters =
@@ -67,7 +73,7 @@ export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
             .includes(String(value).toLowerCase())
       }
     })
-  }, [filteredInfo, rows])
+  }, [columnsFromApi, filteredInfo, rows])
 
   const handleChange: TableProps<RowWithStableKey>['onChange'] = (_pagination, filters) => {
     setFilteredInfo(filters as Record<string, FilterValue | null>)
@@ -89,7 +95,7 @@ export function AnalyticsTable({ rows, onExportExcel }: AnalyticsTableProps) {
         rowKey="__rk"
         columns={columns}
         dataSource={dataSource}
-        pagination={{ pageSize: 8, showSizeChanger: true }}
+        pagination={{ pageSize: 20, showSizeChanger: true }}
         scroll={{ x: true }}
         onChange={handleChange}
       />

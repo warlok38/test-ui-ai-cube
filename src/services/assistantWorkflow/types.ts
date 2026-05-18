@@ -2,6 +2,37 @@ import type { RequestLogStatus } from '@/modules/fakeDb/schema'
 
 export type AssistantPhase = 'idle' | 'checking' | 'generating' | 'fetching' | 'interpreting'
 
+export type ChartType = 'bar' | 'line'
+
+export type CubeQueryChartConfig = {
+  chart_type: ChartType
+  x_axis: string
+  y_axis: string
+  title: string
+  series: string
+}
+
+export type CubeQueryDataEntity = {
+  [key: string]: string | number | null
+}
+
+export type CubeQueryEntity = {
+  success: boolean
+  error: boolean
+  data: CubeQueryDataEntity[]
+  columns: string[]
+  dax: string
+  interpretation: string
+  chart_config: CubeQueryChartConfig
+}
+
+export type ValidMaxAttempts = 1 | 2 | 3 | 4 | 5
+
+export type CubeQueryParams = {
+  query: string
+  max_attempts?: ValidMaxAttempts
+}
+
 export type ChartConfigPayload = {
   type: 'bar' | 'line'
   xKey: string

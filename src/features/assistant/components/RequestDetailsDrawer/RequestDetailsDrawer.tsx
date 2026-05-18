@@ -2,26 +2,14 @@
 
 import { Button, Descriptions, Drawer, Space, Typography } from 'antd'
 import { useState } from 'react'
-import type { AssistantSuccessPayload } from '@/services/assistantWorkflow/types'
-import type { RetryLogEntry } from '@/services/assistantWorkflow/types'
+import type { CubeQueryEntity } from '@/services/assistantWorkflow/types'
 
 type RequestDetailsProps = {
-  success?: AssistantSuccessPayload | null
-  failureDax?: string | null
-  attempts?: number
-  retryLog?: RetryLogEntry[] | null
-  durationMs?: number | null
+  result: CubeQueryEntity
 }
 
-export function RequestDetailsDrawer({
-  success,
-  failureDax,
-  attempts,
-  retryLog,
-  durationMs
-}: RequestDetailsProps) {
+export function RequestDetailsDrawer({ result }: RequestDetailsProps) {
   const [open, setOpen] = useState(false)
-  const dax = success?.finalDax ?? failureDax
 
   return (
     <>
@@ -31,32 +19,13 @@ export function RequestDetailsDrawer({
       <Drawer size={520} title="Детали исполнения" open={open} onClose={() => setOpen(false)}>
         <Space orientation="vertical" size="large" style={{ width: '100%' }}>
           <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="Попыток использовано">
-              {success?.attemptsUsed ?? attempts ?? '—'}
-            </Descriptions.Item>
-            <Descriptions.Item label="Длительность">
-              {durationMs !== null && durationMs !== undefined ? `${durationMs} мс` : '—'}
-            </Descriptions.Item>
-            <Descriptions.Item label="Сценарий (демо)">
-              {success?.scenarioLabel ?? '—'}
-            </Descriptions.Item>
+            <Descriptions.Item label="Статус">{result.success ? 'Успех' : 'Ошибка'}</Descriptions.Item>
+            <Descriptions.Item label="Колонок">{result.columns.length}</Descriptions.Item>
+            <Descriptions.Item label="Строк данных">{result.data.length}</Descriptions.Item>
           </Descriptions>
 
-          {retryLog && retryLog.length ? (
-            <div>
-              <Typography.Title level={5}>История ретраев</Typography.Title>
-              <ul>
-                {retryLog.map((entry) => (
-                  <li key={entry.attempt}>
-                    <Typography.Text>{entry.summary}</Typography.Text>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
           <div>
-            <Typography.Title level={5}>Итоговый DAX</Typography.Title>
+            <Typography.Title level={5}>DAX</Typography.Title>
             <Typography.Paragraph>
               <pre
                 style={{
@@ -66,7 +35,7 @@ export function RequestDetailsDrawer({
                   borderRadius: 8
                 }}
               >
-                {dax ?? '—'}
+                {result.dax || '—'}
               </pre>
             </Typography.Paragraph>
           </div>

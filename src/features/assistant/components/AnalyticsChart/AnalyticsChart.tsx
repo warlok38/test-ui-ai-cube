@@ -11,13 +11,13 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
-import type { ChartConfigPayload } from '@/services/assistantWorkflow/types'
+import type { CubeQueryChartConfig } from '@/services/assistantWorkflow/types'
 import { PALETTE_PRIMARY, PALETTE_PRIMARY_DARK, CHART_GRID_STROKE } from '@/constants/theme'
 import { useTheme } from '@/hooks'
 import { Card, Typography } from 'antd'
 
 type AnalyticsChartProps = {
-  config: ChartConfigPayload
+  config: CubeQueryChartConfig
   rows: Record<string, string | number | null>[]
 }
 
@@ -26,13 +26,13 @@ const CHART_GRID_DARK = 'rgba(220, 227, 238, 0.18)'
 
 export function AnalyticsChart({ config, rows }: AnalyticsChartProps) {
   const { theme } = useTheme()
-  const color = config.color ?? (theme === 'dark' ? PALETTE_PRIMARY_DARK : PALETTE_PRIMARY)
+  const color = theme === 'dark' ? PALETTE_PRIMARY_DARK : PALETTE_PRIMARY
   const axisStroke = theme === 'dark' ? CHART_GRID_DARK : CHART_GRID_STROKE
 
   return (
-    <Card size="small" title={config.title ?? 'Визуализация'}>
+    <Card size="small" title={config.title || 'Визуализация'}>
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        Ось X: {config.xKey}, значение: {config.yKey}
+        Ось X: {config.x_axis}, значение: {config.y_axis}, серия: {config.series}
       </Typography.Paragraph>
       <div style={{ width: '100%', height: 320, minWidth: 0, minHeight: 320 }}>
         <ResponsiveContainer
@@ -42,29 +42,29 @@ export function AnalyticsChart({ config, rows }: AnalyticsChartProps) {
           minHeight={280}
           minWidth={0}
         >
-          {config.type === 'bar' ? (
+          {config.chart_type === 'bar' ? (
             <BarChart data={rows}>
               <CartesianGrid stroke={axisStroke} strokeDasharray="3 3" />
               <XAxis
-                dataKey={config.xKey}
+                dataKey={config.x_axis}
                 stroke={axisStroke}
                 tick={{ fill: axisStroke, fontSize: 12 }}
               />
               <YAxis stroke={axisStroke} tick={{ fill: axisStroke, fontSize: 12 }} />
               <Tooltip />
-              <Bar dataKey={config.yKey} fill={color} radius={[4, 4, 0, 0]} />
+              <Bar dataKey={config.y_axis} fill={color} radius={[4, 4, 0, 0]} />
             </BarChart>
           ) : (
             <LineChart data={rows}>
               <CartesianGrid stroke={axisStroke} strokeDasharray="3 3" />
               <XAxis
-                dataKey={config.xKey}
+                dataKey={config.x_axis}
                 stroke={axisStroke}
                 tick={{ fill: axisStroke, fontSize: 12 }}
               />
               <YAxis stroke={axisStroke} tick={{ fill: axisStroke, fontSize: 12 }} />
               <Tooltip />
-              <Line type="monotone" dataKey={config.yKey} stroke={color} strokeWidth={2} dot />
+              <Line type="monotone" dataKey={config.y_axis} stroke={color} strokeWidth={2} dot />
             </LineChart>
           )}
         </ResponsiveContainer>

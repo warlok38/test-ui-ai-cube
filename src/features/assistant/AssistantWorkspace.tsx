@@ -26,45 +26,35 @@ export function AssistantWorkspace() {
         <Typography.Text type="secondary">
           Активный демон-сценарий:{' '}
           <Typography.Text code>{assistant.technicalSettings.scenario}</Typography.Text> — задаёт
-          ответ фейкового LLM/DAX/OLAP. Измените в разделе{' '}
-          <Typography.Text code>/technical</Typography.Text>.
+          ответ фейкового LLM/DAX/OLAP.
         </Typography.Text>
 
         <ServiceInfo />
 
         <AssistantChat />
 
-        {assistant.lastSuccess ? (
-          <Card title="Ответ модели и данные куба" className={styles.resultCard}>
-            <Typography.Paragraph>{assistant.lastSuccess.interpretation}</Typography.Paragraph>
-
+        {assistant.lastResult ? (
+          <Card className={styles.resultCard}>
             <FeedbackBar logId={assistant.lastLogId} />
 
             <Divider />
-            <RequestDetailsDrawer
-              success={assistant.lastSuccess}
-              attempts={assistant.lastSuccess.attemptsUsed}
-              retryLog={assistant.lastSuccess.retryLog}
-              durationMs={assistant.lastSuccess.durationMs}
-            />
-
-            <Divider />
             <AnalyticsTable
-              rows={assistant.lastSuccess.rows}
+              rows={assistant.lastResult.data}
+              columns={assistant.lastResult.columns}
               onExportExcel={() =>
                 exportRowsToExcel(
-                  assistant.lastSuccess?.rows ?? [],
+                  assistant.lastResult?.data ?? [],
                   `cube-result-${Date.now()}.xlsx`
                 )
               }
             />
 
-            {assistant.lastSuccess.chartConfig ? (
+            {assistant.lastResult.data.length > 0 ? (
               <>
                 <Divider />
                 <AnalyticsChart
-                  config={assistant.lastSuccess.chartConfig}
-                  rows={assistant.lastSuccess.rows}
+                  config={assistant.lastResult.chart_config}
+                  rows={assistant.lastResult.data}
                 />
               </>
             ) : (
@@ -73,34 +63,9 @@ export function AssistantWorkspace() {
                 отсутствует.
               </Typography.Paragraph>
             )}
-          </Card>
-        ) : null}
 
-        {assistant.lastFailureDiagnostics && !assistant.lastSuccess ? (
-          <Card title="Техническое резюме">
-            <RequestDetailsDrawer
-              failureDax={assistant.lastFailureDiagnostics.lastDax}
-              attempts={assistant.lastFailureDiagnostics.attemptsUsed}
-              retryLog={assistant.lastFailureDiagnostics.retryLog}
-              durationMs={assistant.lastFailureDiagnostics.durationMs}
-            />
-          </Card>
-        ) : null}
-
-        {assistant.unreachableDetails && !assistant.lastSuccess ? (
-          <Card title="Диагностика соединения">
-            <Typography.Paragraph>
-              Последнее измерение пинга:{' '}
-              {assistant.unreachableDurationMs !== null
-                ? `${assistant.unreachableDurationMs} мс`
-                : 'нет данных'}
-              .
-            </Typography.Paragraph>
-            <RequestDetailsDrawer
-              attempts={0}
-              retryLog={assistant.lastAttemptLogEntries}
-              durationMs={assistant.unreachableDurationMs}
-            />
+            <Divider />
+            <RequestDetailsDrawer result={assistant.lastResult} />
           </Card>
         ) : null}
       </Space>

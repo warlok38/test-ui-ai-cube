@@ -37,12 +37,6 @@ export function LeftBar({ collapsedLabel = 'Меню' }: LeftBarProps) {
             <Link className={styles.navLink} href="/" onClick={closeLeftBar}>
               Главная
             </Link>
-            <Link className={styles.navLink} href="/admin" onClick={closeLeftBar}>
-              Администрирование
-            </Link>
-            <Link className={styles.navLink} href="/technical" onClick={closeLeftBar}>
-              Техническая
-            </Link>
           </nav>
         </div>
       </aside>
