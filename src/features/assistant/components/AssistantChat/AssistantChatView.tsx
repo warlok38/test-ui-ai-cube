@@ -3,6 +3,8 @@
 import { Alert, Button, Card, Input, Space, Steps, Typography } from 'antd'
 import type { RefObject } from 'react'
 import classNames from 'classnames'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
 
 import styles from './AssistantChat.module.css'
@@ -29,6 +31,26 @@ const timeFmt = new Intl.DateTimeFormat('ru-RU', {
   minute: '2-digit',
   second: '2-digit'
 })
+
+const markdownAllowedElements = [
+  'p',
+  'ul',
+  'ol',
+  'li',
+  'strong',
+  'em',
+  'code',
+  'pre',
+  'blockquote',
+  'a',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
+  'hr'
+] as const
 
 export function AssistantChatView({
   inputWarning,
@@ -57,7 +79,9 @@ export function AssistantChatView({
           description={
             <div>
               <Typography.Paragraph>{unreachableDetails}</Typography.Paragraph>
-              <Typography.Paragraph code>{unreachableCode ?? 'нет кода ошибки'}</Typography.Paragraph>
+              <Typography.Paragraph code>
+                {unreachableCode ?? 'нет кода ошибки'}
+              </Typography.Paragraph>
             </div>
           }
         />
@@ -88,10 +112,28 @@ export function AssistantChatView({
               )}
             >
               <Space orientation="vertical">
-                <Typography.Text strong>{item.role === 'user' ? 'Вы' : 'Ассистент'}</Typography.Text>
-                <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
-                  {item.text}
-                </Typography.Paragraph>
+                <Typography.Text strong>
+                  {item.role === 'user' ? 'Вы' : 'Ассистент'}
+                </Typography.Text>
+                {item.role === 'assistant' ? (
+                  <div className={styles.markdownContent}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      allowedElements={markdownAllowedElements}
+                      components={{
+                        a: ({ ...props }) => (
+                          <a {...props} target="_blank" rel="noreferrer noopener" />
+                        )
+                      }}
+                    >
+                      {item.text}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
+                    {item.text}
+                  </Typography.Paragraph>
+                )}
                 <Typography.Text type="secondary">{timeFmt.format(item.createdAt)}</Typography.Text>
               </Space>
             </div>
@@ -101,7 +143,10 @@ export function AssistantChatView({
 
       <Space orientation="vertical" className={styles.composerForm} size="middle">
         <div
-          className={classNames(styles.composerContent, isRunning ? styles.composerContentLoading : null)}
+          className={classNames(
+            styles.composerContent,
+            isRunning ? styles.composerContentLoading : null
+          )}
         >
           {isRunning ? (
             <div className={styles.stepWrap}>
@@ -115,10 +160,7 @@ export function AssistantChatView({
                 size="small"
                 status="process"
                 current={activeStepIndex < 0 ? 0 : activeStepIndex}
-                items={[
-                  { title: 'Запрос' },
-                  { title: 'Готово' }
-                ]}
+                items={[{ title: 'Запрос' }, { title: 'Готово' }]}
               />
             </div>
           ) : (

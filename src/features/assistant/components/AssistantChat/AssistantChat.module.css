@@ -47,6 +47,81 @@ html[data-theme='dark'] .messageBot {
   background: rgb(255 255 255 / 5%);
 }
 
+.markdownContent {
+  overflow-wrap: anywhere;
+}
+
+.markdownContent > :first-child {
+  margin-top: 0;
+}
+
+.markdownContent > :last-child {
+  margin-bottom: 0;
+}
+
+.markdownContent p,
+.markdownContent ul,
+.markdownContent ol,
+.markdownContent blockquote,
+.markdownContent pre,
+.markdownContent table {
+  margin: 0 0 var(--space-2);
+}
+
+.markdownContent ul,
+.markdownContent ol {
+  padding-inline-start: 1.25rem;
+}
+
+.markdownContent a {
+  text-decoration: underline;
+}
+
+.markdownContent code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  padding: 0.1rem 0.25rem;
+  border-radius: var(--radius-2);
+  background: #29292914;
+}
+
+.markdownContent pre {
+  overflow: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-2);
+  background: #29292914;
+}
+
+.markdownContent pre code {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.markdownContent blockquote {
+  margin-left: 0;
+  padding-left: var(--space-3);
+  border-left: 0.1875rem solid var(--palette-border-soft);
+}
+
+.markdownContent table {
+  width: 100%;
+  border-collapse: collapse;
+  display: block;
+  overflow: auto;
+}
+
+.markdownContent th,
+.markdownContent td {
+  border: var(--border-width-hairline) solid var(--palette-border-soft);
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+}
+
+html[data-theme='dark'] .markdownContent code,
+html[data-theme='dark'] .markdownContent pre {
+  background: rgb(255 255 255 / 10%);
+}
+
 .stepWrap {
   width: 100%;
   height: 100%;
