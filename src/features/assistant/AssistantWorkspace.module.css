@@ -13,5 +13,5 @@
   box-shadow:
     0 var(--border-width-hairline) 0 #2929290a,
     0 0.625rem 1.75rem #29292914;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-3);
 }
