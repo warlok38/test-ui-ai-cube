@@ -162,6 +162,20 @@ export const assistantSlice = createSlice({
       state.unreachableDetails = null
       state.unreachableCode = null
       state.failedSummaryText = null
+    },
+    resetChat(state) {
+      state.messages = []
+      state.phase = 'idle'
+      state.isRunning = false
+      state.inputWarning = null
+      state.unreachableDetails = null
+      state.unreachableCode = null
+      state.failedSummaryText = null
+      state.lastResult = null
+      state.lastQuery = null
+      state.lastLogId = null
+      state.feedbackChoice = null
+      state.currentAttempt = 1
     }
   }
 })
