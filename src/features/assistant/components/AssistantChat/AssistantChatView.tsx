@@ -1,183 +1,67 @@
 'use client'
 
-import { Alert, Button, Card, Input, Space, Steps, Typography } from 'antd'
-import type { RefObject } from 'react'
-import classNames from 'classnames'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
+import { ArrowUpOutlined } from '@ant-design/icons'
+import { Button, Input } from 'antd'
 
 import styles from './AssistantChat.module.css'
 
 type AssistantChatViewProps = {
-  inputWarning: string | null
-  unreachableDetails: string | null
-  unreachableCode: string | null
-  failedSummaryText: string | null
-  messages: ChatMessage[]
-  isRunning: boolean
-  currentAttempt: number
-  maxAttempts: number
-  activeStepIndex: number
+  variant: 'empty' | 'active'
   draft: string
-  messageListRef: RefObject<HTMLDivElement>
+  isRunning: boolean
   onDraftChange: (value: string) => void
   onRun: () => void
-  onMessageListScroll: () => void
 }
 
-const timeFmt = new Intl.DateTimeFormat('ru-RU', {
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit'
-})
-
-const markdownAllowedElements = [
-  'p',
-  'ul',
-  'ol',
-  'li',
-  'strong',
-  'em',
-  'code',
-  'pre',
-  'blockquote',
-  'a',
-  'table',
-  'thead',
-  'tbody',
-  'tr',
-  'th',
-  'td',
-  'hr'
-] as const
-
 export function AssistantChatView({
-  inputWarning,
-  unreachableDetails,
-  unreachableCode,
-  failedSummaryText,
-  messages,
-  isRunning,
-  currentAttempt,
-  maxAttempts,
-  activeStepIndex,
+  variant,
   draft,
-  messageListRef,
+  isRunning,
   onDraftChange,
-  onRun,
-  onMessageListScroll
+  onRun
 }: AssistantChatViewProps) {
+  const canSend = draft.trim().length > 0 && !isRunning
+  const minRows = variant === 'empty' ? 4 : 2
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      if (canSend) onRun()
+    }
+  }
+
   return (
-    <Card className={styles.dialogCard}>
-      {inputWarning ? <Alert showIcon type="warning" title={inputWarning} /> : null}
-      {unreachableDetails ? (
-        <Alert
-          showIcon
-          type="error"
-          title="Сервер OLAP недоступен"
-          description={
-            <div>
-              <Typography.Paragraph>{unreachableDetails}</Typography.Paragraph>
-              <Typography.Paragraph code>
-                {unreachableCode ?? 'нет кода ошибки'}
-              </Typography.Paragraph>
-            </div>
-          }
-        />
-      ) : null}
-      {failedSummaryText ? (
-        <Alert
-          showIcon
-          type="error"
-          title="Достигнут лимит попыток"
-          description={failedSummaryText}
-        />
-      ) : null}
-
-      {messages.length > 0 ? (
-        <div
-          className={styles.messageList}
-          role="list"
-          ref={messageListRef}
-          onScroll={onMessageListScroll}
-        >
-          {messages.map((item) => (
-            <div
-              key={item.id}
-              role="listitem"
-              className={classNames(
-                styles.messageRow,
-                item.role === 'user' ? styles.messageUser : styles.messageBot
-              )}
-            >
-              <Space orientation="vertical">
-                <Typography.Text strong>
-                  {item.role === 'user' ? 'Вы' : 'Ассистент'}
-                </Typography.Text>
-                {item.role === 'assistant' ? (
-                  <div className={styles.markdownContent}>
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      allowedElements={markdownAllowedElements}
-                      components={{
-                        a: ({ ...props }) => (
-                          <a {...props} target="_blank" rel="noreferrer noopener" />
-                        )
-                      }}
-                    >
-                      {item.text}
-                    </ReactMarkdown>
-                  </div>
-                ) : (
-                  <Typography.Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
-                    {item.text}
-                  </Typography.Paragraph>
-                )}
-                <Typography.Text type="secondary">{timeFmt.format(item.createdAt)}</Typography.Text>
-              </Space>
-            </div>
-          ))}
+    <div className={styles.composerRoot}>
+      <div className={styles.composerContent}>
+        <div className={styles.composerBody}>
+          <Input.TextArea
+            className={styles.composerTextarea}
+            value={draft}
+            onChange={(e) => onDraftChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isRunning}
+            autoSize={{ minRows, maxRows: 12 }}
+            bordered={false}
+            placeholder="Сформулируйте аналитический вопрос к кубу на естественном языке"
+          />
         </div>
-      ) : null}
 
-      <Space orientation="vertical" className={styles.composerForm} size="middle">
-        <div
-          className={classNames(
-            styles.composerContent,
-            isRunning ? styles.composerContentLoading : null
-          )}
-        >
-          {isRunning ? (
-            <div className={styles.stepWrap}>
-              <div className={styles.stepHeader}>
-                <Typography.Text>Статус выполнения</Typography.Text>
-                <Typography.Text strong>
-                  попытка: {currentAttempt} из {maxAttempts}
-                </Typography.Text>
-              </div>
-              <Steps
-                size="small"
-                status="process"
-                current={activeStepIndex < 0 ? 0 : activeStepIndex}
-                items={[{ title: 'Запрос' }, { title: 'Готово' }]}
-              />
-            </div>
-          ) : (
-            <Input.TextArea
-              value={draft}
-              onChange={(e) => onDraftChange(e.target.value)}
-              rows={4}
-              bordered={false}
-              style={{ height: '100%', resize: 'none' }}
-              placeholder="Сформулируйте аналитический вопрос к кубу на естественном языке"
+        <footer className={styles.composerFooter}>
+          <div className={styles.composerFooterStart} />
+          <div className={styles.composerFooterEnd}>
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<ArrowUpOutlined />}
+              className={styles.composerSend}
+              loading={isRunning}
+              disabled={!canSend}
+              onClick={onRun}
+              aria-label="Отправить запрос"
             />
-          )}
-        </div>
-        <Button type="primary" loading={isRunning} disabled={isRunning} onClick={onRun}>
-          {isRunning ? 'Выполняется...' : 'Выполнить запрос'}
-        </Button>
-      </Space>
-    </Card>
+          </div>
+        </footer>
+      </div>
+    </div>
   )
 }

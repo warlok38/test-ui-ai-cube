@@ -1,4 +1,4 @@
-import type { FakeScenarioKind } from '@/modules/fakeLlm/config'
+import { LLM_RESPONSE_DELAY_MS, type FakeScenarioKind } from '@/modules/fakeLlm/config'
 import type {
   CubeQueryChartConfig,
   CubeQueryDataEntity,
@@ -182,6 +182,8 @@ export async function executeCubeQuery(
       chart_config: fallbackChartConfig()
     }
   }
+
+  await fakeDelay(LLM_RESPONSE_DELAY_MS)
 
   let lastDax = buildDax(query, 1)
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

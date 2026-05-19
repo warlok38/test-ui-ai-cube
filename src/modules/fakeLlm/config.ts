@@ -17,3 +17,6 @@ export type FakeScenarioKind =
   | 'server_unreachable'
 
 export const ACTIVE_FAKE_SCENARIO: FakeScenarioKind = 'successful_bar'
+
+/** Имитация задержки ответа LLM (мс). */
+export const LLM_RESPONSE_DELAY_MS = 2_000

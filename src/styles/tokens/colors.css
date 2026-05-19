@@ -20,4 +20,12 @@
 
   /* Тёмная полоса Header1 — светлый текст */
   --color-text-on-header-primary: #f6f0e4f5;
+
+  --color-scrollbar-thumb: transparent;
+  --color-scrollbar-thumb-visible: rgb(41 41 41 / 35%);
+}
+
+html[data-theme='dark'] {
+  --color-scrollbar-thumb: transparent;
+  --color-scrollbar-thumb-visible: rgb(233 227 216 / 35%);
 }

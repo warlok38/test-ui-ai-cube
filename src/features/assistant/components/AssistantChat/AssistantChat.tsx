@@ -1,27 +1,17 @@
 'use client'
 
 import { App } from 'antd'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useState } from 'react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { appendRequestLog } from '@/modules/fakeDb/repo'
-import type { AssistantPhase, ValidMaxAttempts } from '@/services/assistantWorkflow/types'
+import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { cubeApi, useExecuteQueryMutation } from '@/store/api/cubeApi'
 
+import { AssistantChatMessages } from './AssistantChatMessages'
 import { AssistantChatView } from './AssistantChatView'
 
-function phaseToStepIndex(phase: AssistantPhase): number {
-  switch (phase) {
-    case 'checking':
-    case 'generating':
-    case 'fetching':
-      return 0
-    case 'interpreting':
-      return 1
-    default:
-      return -1
-  }
-}
+import styles from './AssistantChat.module.css'
 
 export function AssistantChat() {
   const dispatch = useAppDispatch()
@@ -30,31 +20,7 @@ export function AssistantChat() {
   const [executeQuery] = useExecuteQueryMutation()
 
   const [draft, setDraft] = useState('')
-  const [isPinnedToBottom, setIsPinnedToBottom] = useState(true)
-  const messageListRef = useRef<HTMLDivElement>(null)
-  const shouldSmoothScrollRef = useRef(false)
-
-  const activeStepIndex = useMemo(() => phaseToStepIndex(assistant.phase), [assistant.phase])
-
-  const handleMessageListScroll = () => {
-    const container = messageListRef.current
-    if (!container) return
-
-    const bottomOffset = container.scrollHeight - container.scrollTop - container.clientHeight
-    setIsPinnedToBottom(bottomOffset <= 24)
-  }
-
-  useEffect(() => {
-    if (!isPinnedToBottom) return
-    const container = messageListRef.current
-    if (!container) return
-
-    container.scrollTo({
-      top: container.scrollHeight,
-      behavior: shouldSmoothScrollRef.current ? 'smooth' : 'auto'
-    })
-    shouldSmoothScrollRef.current = false
-  }, [assistant.messages, isPinnedToBottom])
+  const isEmptyChat = assistant.messages.length === 0
 
   const handleRun = async () => {
     const text = draft.trim()
@@ -64,8 +30,6 @@ export function AssistantChat() {
     }
 
     const maxAttempts: ValidMaxAttempts = 3
-    shouldSmoothScrollRef.current = true
-    setIsPinnedToBottom(true)
     dispatch(assistantActions.startQuery({ prompt: text, maxAttempts }))
 
     const startedAt = performance.now()
@@ -120,22 +84,35 @@ export function AssistantChat() {
     setDraft('')
   }
 
-  return (
+  const composer = (
     <AssistantChatView
-      inputWarning={assistant.inputWarning}
-      unreachableDetails={assistant.unreachableDetails}
-      unreachableCode={assistant.unreachableCode}
-      failedSummaryText={assistant.failedSummaryText}
-      messages={assistant.messages}
-      isRunning={assistant.isRunning}
-      currentAttempt={assistant.currentAttempt}
-      maxAttempts={assistant.maxAttempts}
-      activeStepIndex={activeStepIndex}
+      variant={isEmptyChat ? 'empty' : 'active'}
       draft={draft}
-      messageListRef={messageListRef}
+      isRunning={assistant.isRunning}
       onDraftChange={setDraft}
       onRun={handleRun}
-      onMessageListScroll={handleMessageListScroll}
     />
+  )
+
+  if (isEmptyChat) {
+    return (
+      <div className={`${styles.chatShell} ${styles.chatShellEmpty}`}>
+        <div className={styles.chatColumn}>{composer}</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`${styles.chatShell} ${styles.chatShellActive}`}>
+      <AssistantChatMessages
+        messages={assistant.messages}
+        isRunning={assistant.isRunning}
+        currentAttempt={assistant.currentAttempt}
+        maxAttempts={assistant.maxAttempts}
+      />
+      <div className={styles.composerDock}>
+        <div className={styles.chatColumn}>{composer}</div>
+      </div>
+    </div>
   )
 }

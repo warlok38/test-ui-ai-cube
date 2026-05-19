@@ -18,6 +18,8 @@ export type ChatMessage = {
   role: 'user' | 'assistant'
   text: string
   createdAt: number
+  result?: CubeQueryEntity | null
+  logId?: string | null
 }
 
 export type AssistantUiState = {
@@ -128,7 +130,9 @@ export const assistantSlice = createSlice({
       state.messages = pushMessage(state.messages, {
         id: createId(),
         role: 'assistant',
-        text: action.payload.result.interpretation
+        text: action.payload.result.interpretation,
+        result: action.payload.result,
+        logId: action.payload.logId
       })
     },
     queryFailed(state, action: PayloadAction<string>) {
@@ -162,6 +166,20 @@ export const assistantSlice = createSlice({
       state.unreachableDetails = null
       state.unreachableCode = null
       state.failedSummaryText = null
+    },
+    resetChat(state) {
+      state.messages = []
+      state.phase = 'idle'
+      state.isRunning = false
+      state.inputWarning = null
+      state.unreachableDetails = null
+      state.unreachableCode = null
+      state.failedSummaryText = null
+      state.lastResult = null
+      state.lastQuery = null
+      state.lastLogId = null
+      state.feedbackChoice = null
+      state.currentAttempt = 1
     }
   }
 })
