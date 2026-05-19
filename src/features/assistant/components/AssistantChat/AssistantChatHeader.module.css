@@ -1,0 +1,24 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  flex-shrink: 0;
+  background: var(--color-bg-default);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  min-height: var(--layout-header-height);
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-default);
+}

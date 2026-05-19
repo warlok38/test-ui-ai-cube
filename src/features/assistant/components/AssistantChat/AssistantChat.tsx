@@ -8,7 +8,10 @@ import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { cubeApi, useExecuteQueryMutation } from '@/store/api/cubeApi'
 
+import { AssistantChatMessages } from './AssistantChatMessages'
 import { AssistantChatView } from './AssistantChatView'
+
+import styles from './AssistantChat.module.css'
 
 export function AssistantChat() {
   const dispatch = useAppDispatch()
@@ -17,6 +20,7 @@ export function AssistantChat() {
   const [executeQuery] = useExecuteQueryMutation()
 
   const [draft, setDraft] = useState('')
+  const isEmptyChat = assistant.messages.length === 0
 
   const handleRun = async () => {
     const text = draft.trim()
@@ -80,14 +84,35 @@ export function AssistantChat() {
     setDraft('')
   }
 
-  return (
+  const composer = (
     <AssistantChatView
+      variant={isEmptyChat ? 'empty' : 'active'}
       draft={draft}
       isRunning={assistant.isRunning}
-      currentAttempt={assistant.currentAttempt}
-      maxAttempts={assistant.maxAttempts}
       onDraftChange={setDraft}
       onRun={handleRun}
     />
+  )
+
+  if (isEmptyChat) {
+    return (
+      <div className={`${styles.chatShell} ${styles.chatShellEmpty}`}>
+        <div className={styles.chatColumn}>{composer}</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`${styles.chatShell} ${styles.chatShellActive}`}>
+      <AssistantChatMessages
+        messages={assistant.messages}
+        isRunning={assistant.isRunning}
+        currentAttempt={assistant.currentAttempt}
+        maxAttempts={assistant.maxAttempts}
+      />
+      <div className={styles.composerDock}>
+        <div className={styles.chatColumn}>{composer}</div>
+      </div>
+    </div>
   )
 }

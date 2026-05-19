@@ -19,6 +19,8 @@
 
   --layout-max-height-message-list: 20rem;
 
+  --scrollbar-size: 0.375rem;
+
   --border-width-hairline: 0.0625rem;
   --border-width-strong: 0.125rem;
 }
