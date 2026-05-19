@@ -4,6 +4,40 @@
   gap: var(--space-2);
   flex-shrink: 0;
   margin-top: var(--space-3);
+  padding: 0 var(--space-3) var(--space-3);
+  transition:
+    margin-top 300ms cubic-bezier(0.32, 0.72, 0, 1),
+    padding 300ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.footerCollapsed {
+  justify-content: center;
+  margin-top: 0;
+  padding: var(--space-3) 0;
+}
+
+.footerExtra {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  pointer-events: auto;
+  transition:
+    opacity 280ms cubic-bezier(0.32, 0.72, 0, 1) 50ms,
+    flex 300ms cubic-bezier(0.32, 0.72, 0, 1) 50ms;
+}
+
+.footerCollapsed .footerExtra {
+  flex: 0 0 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1) 40ms,
+    flex 300ms cubic-bezier(0.32, 0.72, 0, 1) 40ms;
 }
 
 .avatar {
@@ -109,4 +143,11 @@
 .menuIcon {
   font-size: var(--font-size-base);
   flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer,
+  .footerExtra {
+    transition: none;
+  }
 }
