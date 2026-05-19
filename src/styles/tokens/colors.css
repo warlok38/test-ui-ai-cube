@@ -13,6 +13,13 @@
 
   --color-bg-sidebar: var(--palette-brand-500);
   --color-bg-sidebar-accent: var(--palette-brand-600);
+  --color-bg-sidebar-footer: var(--palette-brand-600);
+  --color-bg-sidebar-menu: var(--palette-brand-600);
+  --color-bg-sidebar-accent-hover: var(--palette-brand-700);
+  --color-bg-sidebar-hover: var(--palette-accent-soft);
+  --color-text-sidebar: var(--color-text-inverse);
+  --color-border-sidebar: rgb(255 255 255 / 20%);
+  --color-scrollbar-sidebar-visible: rgb(255 255 255 / 45%);
 
   --color-bg-interactive-hover: var(--palette-overlay-interactive-hover);
 
@@ -26,6 +33,16 @@
 }
 
 html[data-theme='dark'] {
+  --color-bg-sidebar: var(--palette-brand-500);
+  --color-bg-sidebar-accent: var(--palette-brand-600);
+  --color-bg-sidebar-footer: var(--palette-brand-600);
+  --color-bg-sidebar-menu: var(--palette-brand-600);
+  --color-bg-sidebar-accent-hover: var(--palette-brand-700);
+  --color-bg-sidebar-hover: var(--palette-accent-soft);
+  --color-text-sidebar: var(--color-text-inverse);
+  --color-border-sidebar: rgb(255 255 255 / 20%);
+  --color-scrollbar-sidebar-visible: rgb(233 227 216 / 35%);
+
   --color-scrollbar-thumb: transparent;
   --color-scrollbar-thumb-visible: rgb(233 227 216 / 35%);
 }

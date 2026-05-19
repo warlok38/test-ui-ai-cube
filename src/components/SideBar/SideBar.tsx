@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { useAppDispatch } from '@/store/hooks'
 
+import { SideBarFooter } from './SideBarFooter/SideBarFooter'
 import styles from './SideBar.module.css'
 import { useSideBar } from './hooks/useSideBar'
 import { MOCK_CHAT_GROUPS } from './mockChats'
@@ -94,6 +95,8 @@ export function SideBar({ position = 'left' }: SideBarProps) {
             </section>
           ))}
         </div>
+
+        <SideBarFooter />
       </div>
     </aside>
   )

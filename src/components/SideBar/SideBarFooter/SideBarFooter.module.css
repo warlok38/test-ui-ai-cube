@@ -1,0 +1,112 @@
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  margin-top: var(--space-3);
+}
+
+.avatar {
+  flex-shrink: 0;
+  background: var(--color-bg-sidebar-accent) !important;
+  color: var(--color-text-sidebar) !important;
+}
+
+.userName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-sidebar);
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-5);
+  color: var(--color-text-sidebar);
+  background: transparent;
+  font-size: var(--font-size-base);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: var(--color-bg-sidebar-hover);
+}
+
+.menuButton:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-text-sidebar);
+  outline-offset: var(--border-width-hairline);
+}
+
+.dropdownOverlay :global(.ant-dropdown-menu) {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.menuPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 11rem;
+  padding: var(--space-2);
+  border-radius: var(--radius-5);
+  background: var(--color-bg-sidebar-menu);
+  border: var(--border-width-hairline) solid var(--color-border-sidebar);
+  box-shadow: 0 0.5rem 1.25rem rgb(0 0 0 / 18%);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-5);
+  color: var(--color-text-sidebar);
+  background: transparent;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: var(--color-bg-sidebar-hover);
+}
+
+.menuItem:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-text-sidebar);
+  outline-offset: var(--border-width-hairline);
+}
+
+.menuItemTheme {
+  cursor: default;
+}
+
+.menuItemTheme:hover {
+  background: transparent;
+}
+
+.menuItemAction {
+  display: inline-flex;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.menuIcon {
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+}

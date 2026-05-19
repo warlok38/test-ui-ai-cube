@@ -32,14 +32,20 @@ const MoonIcon = () => (
   </svg>
 )
 
-export function ThemeSwitch() {
+export type ThemeSwitchSize = 'default' | 'small'
+
+type ThemeSwitchProps = {
+  size?: ThemeSwitchSize
+}
+
+export function ThemeSwitch({ size = 'default' }: ThemeSwitchProps) {
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
 
   return (
     <button
       type="button"
-      className={styles.switch}
+      className={`${styles.switch} ${size === 'small' ? styles.switchSmall : ''}`}
       onClick={toggleTheme}
       title={isDark ? 'Светлая тема' : 'Темная тема'}
     >
