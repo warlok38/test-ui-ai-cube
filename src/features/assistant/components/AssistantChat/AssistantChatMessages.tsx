@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef, type Ref } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
+import { ScrollToBottom } from '@/components/ScrollToBottom'
 import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
 import { AnalyticsChart } from '@/features/assistant/components/AnalyticsChart'
 import { AnalyticsTable } from '@/features/assistant/components/AnalyticsTable'
@@ -115,32 +116,35 @@ export function AssistantChatMessages({
   }
 
   return (
-    <div ref={messageListRef} className={styles.messageList}>
-      <div className={styles.chatColumn}>
-        {messages.map((message) =>
-          message.role === 'user' ? (
-            <UserMessage
-              key={message.id}
-              text={message.text}
-              innerRef={setMessageRef(message.id)}
-            />
-          ) : (
-            <AssistantMessage
-              key={message.id}
-              message={message}
-              innerRef={setMessageRef(message.id)}
-            />
-          )
-        )}
+    <div className={styles.messagesStage}>
+      <div ref={messageListRef} className={styles.messageList}>
+        <div className={styles.chatColumn}>
+          {messages.map((message) =>
+            message.role === 'user' ? (
+              <UserMessage
+                key={message.id}
+                text={message.text}
+                innerRef={setMessageRef(message.id)}
+              />
+            ) : (
+              <AssistantMessage
+                key={message.id}
+                message={message}
+                innerRef={setMessageRef(message.id)}
+              />
+            )
+          )}
 
-        {isRunning ? (
-          <div className={styles.messageRow}>
-            <Typography.Text type="secondary" className={styles.loadingStatus}>
-              Попытка {currentAttempt} из {maxAttempts}
-            </Typography.Text>
-          </div>
-        ) : null}
+          {isRunning ? (
+            <div className={styles.messageRow}>
+              <Typography.Text type="secondary" className={styles.loadingStatus}>
+                Попытка {currentAttempt} из {maxAttempts}
+              </Typography.Text>
+            </div>
+          ) : null}
+        </div>
       </div>
+      <ScrollToBottom scrollContainerRef={messageListRef} />
     </div>
   )
 }
