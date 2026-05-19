@@ -6,6 +6,7 @@ import {
   MenuUnfoldOutlined,
   PlusOutlined
 } from '@ant-design/icons'
+import classNames from 'classnames'
 import { useState } from 'react'
 
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
@@ -37,16 +38,13 @@ export function SideBar({ position = 'left' }: SideBarProps) {
     toggleSideBar()
   }
 
-  const sideBarClassName = [
-    styles.sideBar,
-    position === 'right' ? styles.sideBarRight : '',
-    isOpen ? styles.sideBarOpen : ''
-  ]
-    .filter(Boolean)
-    .join(' ')
-
   return (
-    <aside className={sideBarClassName}>
+    <aside
+      className={classNames(styles.sideBar, {
+        [styles.sideBarRight]: position === 'right',
+        [styles.sideBarOpen]: isOpen
+      })}
+    >
       <div className={styles.body}>
         {!isOpen && (
           <button
@@ -60,7 +58,7 @@ export function SideBar({ position = 'left' }: SideBarProps) {
         )}
 
         <div
-          className={`${styles.menuContent} ${isOpen ? styles.menuContentOpen : ''}`}
+          className={classNames(styles.menuContent, { [styles.menuContentOpen]: isOpen })}
           onClick={(e) => e.stopPropagation()}
         >
           <header className={styles.header}>
@@ -87,7 +85,9 @@ export function SideBar({ position = 'left' }: SideBarProps) {
                   <button
                     key={chat.id}
                     type="button"
-                    className={`${styles.chatItem} ${activeChatId === chat.id ? styles.chatItemActive : ''}`}
+                    className={classNames(styles.chatItem, {
+                      [styles.chatItemActive]: activeChatId === chat.id
+                    })}
                     onClick={() => setActiveChatId(chat.id)}
                   >
                     {chat.title}
