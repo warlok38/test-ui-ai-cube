@@ -1,0 +1,68 @@
+/* Ant Design 6: disabled через :disabled; повышенная специфичность для css-in-js */
+.btnSelectedLike:global(.ant-btn):disabled,
+.btnSelectedLike:global(.ant-btn.ant-btn-disabled),
+.btnSelectedLike:global(.ant-btn):disabled:hover,
+.btnSelectedLike:global(.ant-btn.ant-btn-disabled):hover {
+  border-color: #52c41a !important;
+  color: #52c41a !important;
+  background: rgb(82 196 26 / 6%) !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.btnSelectedLike:global(.ant-btn):disabled :global(.ant-btn-icon),
+.btnSelectedLike:global(.ant-btn):disabled :global(.anticon),
+.btnSelectedLike:global(.ant-btn.ant-btn-disabled) :global(.ant-btn-icon),
+.btnSelectedLike:global(.ant-btn.ant-btn-disabled) :global(.anticon) {
+  color: #52c41a !important;
+}
+
+.btnSelectedDislike:global(.ant-btn):disabled,
+.btnSelectedDislike:global(.ant-btn.ant-btn-disabled),
+.btnSelectedDislike:global(.ant-btn):disabled:hover,
+.btnSelectedDislike:global(.ant-btn.ant-btn-disabled):hover {
+  border-color: #ff4d4f !important;
+  color: #ff4d4f !important;
+  background: rgb(255 77 79 / 6%) !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.btnSelectedDislike:global(.ant-btn):disabled :global(.ant-btn-icon),
+.btnSelectedDislike:global(.ant-btn):disabled :global(.anticon),
+.btnSelectedDislike:global(.ant-btn.ant-btn-disabled) :global(.ant-btn-icon),
+.btnSelectedDislike:global(.ant-btn.ant-btn-disabled) :global(.anticon) {
+  color: #ff4d4f !important;
+}
+
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn):disabled,
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn.ant-btn-disabled),
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn):disabled:hover,
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn.ant-btn-disabled):hover {
+  border-color: #49aa19 !important;
+  color: #49aa19 !important;
+  background: rgb(73 170 25 / 12%) !important;
+}
+
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn):disabled :global(.ant-btn-icon),
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn):disabled :global(.anticon),
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn.ant-btn-disabled) :global(.ant-btn-icon),
+:global(html[data-theme='dark']) .btnSelectedLike:global(.ant-btn.ant-btn-disabled) :global(.anticon) {
+  color: #49aa19 !important;
+}
+
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn):disabled,
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn.ant-btn-disabled),
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn):disabled:hover,
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn.ant-btn-disabled):hover {
+  border-color: #ff4d4f !important;
+  color: #ff4d4f !important;
+  background: rgb(255 77 79 / 12%) !important;
+}
+
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn):disabled :global(.ant-btn-icon),
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn):disabled :global(.anticon),
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn.ant-btn-disabled) :global(.ant-btn-icon),
+:global(html[data-theme='dark']) .btnSelectedDislike:global(.ant-btn.ant-btn-disabled) :global(.anticon) {
+  color: #ff4d4f !important;
+}

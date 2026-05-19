@@ -2,8 +2,11 @@
 
 import { LikeOutlined, DislikeOutlined } from '@ant-design/icons'
 import { App, Button, Space, Typography } from 'antd'
+import classNames from 'classnames'
 import { useState } from 'react'
 import { useSubmitFeedbackMutation } from '@/store/api/cubeApi'
+
+import styles from './FeedbackBar.module.css'
 
 type FeedbackBarProps = {
   logId: string | null
@@ -33,7 +36,7 @@ export function FeedbackBar({ logId }: FeedbackBarProps) {
       <Typography.Text>Оцените результат:</Typography.Text>
       <Space style={{ marginLeft: 8 }}>
         <Button
-          type={choice === 'like' ? 'primary' : 'default'}
+          className={classNames(choice === 'like' && styles.btnSelectedLike)}
           icon={<LikeOutlined />}
           disabled={!!choice || isLoading}
           onClick={() => void handle('like')}
@@ -41,7 +44,7 @@ export function FeedbackBar({ logId }: FeedbackBarProps) {
           Полезно
         </Button>
         <Button
-          danger={choice === 'dislike'}
+          className={classNames(choice === 'dislike' && styles.btnSelectedDislike)}
           icon={<DislikeOutlined />}
           disabled={!!choice || isLoading}
           onClick={() => void handle('dislike')}
