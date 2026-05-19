@@ -10,6 +10,7 @@ import { cubeApi, useExecuteQueryMutation } from '@/store/api/cubeApi'
 
 import { AssistantChatMessages } from './AssistantChatMessages'
 import { AssistantChatView } from './AssistantChatView'
+import { AssistantEmptyLanding } from './AssistantEmptyLanding'
 
 import styles from './AssistantChat.module.css'
 
@@ -97,7 +98,9 @@ export function AssistantChat() {
   if (isEmptyChat) {
     return (
       <div className={`${styles.chatShell} ${styles.chatShellEmpty}`}>
-        <div className={styles.chatColumn}>{composer}</div>
+        <div className={styles.chatColumn}>
+          <AssistantEmptyLanding>{composer}</AssistantEmptyLanding>
+        </div>
       </div>
     )
   }
