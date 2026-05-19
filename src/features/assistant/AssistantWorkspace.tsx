@@ -20,7 +20,7 @@ export function AssistantWorkspace() {
   return (
     <div className={styles.page}>
       <Space orientation="vertical" size={16} style={{ width: '100%' }}>
-        <Typography.Title level={2} className={styles.title}>
+        {/* <Typography.Title level={2} className={styles.title}>
           Главная
         </Typography.Title>
         <Typography.Text type="secondary">
@@ -29,11 +29,11 @@ export function AssistantWorkspace() {
           ответ фейкового LLM/DAX/OLAP.
         </Typography.Text>
 
-        <ServiceInfo />
+        <ServiceInfo /> */}
 
         <AssistantChat />
 
-        {assistant.lastResult ? (
+        {/* {assistant.lastResult ? (
           <Card className={styles.resultCard}>
             <FeedbackBar logId={assistant.lastLogId} />
 
@@ -67,7 +67,7 @@ export function AssistantWorkspace() {
             <Divider />
             <RequestDetailsDrawer result={assistant.lastResult} />
           </Card>
-        ) : null}
+        ) : null} */}
       </Space>
     </div>
   )
