@@ -135,7 +135,7 @@ export function AssistantChatMessages({
             )
           )}
 
-          {!isRunning ? (
+          {isRunning ? (
             <div className={styles.messageRow}>
               <ShimmerText
                 className={styles.loadingStatus}
