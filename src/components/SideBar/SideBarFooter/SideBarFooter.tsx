@@ -4,10 +4,12 @@ import {
   BulbOutlined,
   EllipsisOutlined,
   QuestionCircleOutlined,
+  SettingOutlined,
   UserOutlined
 } from '@ant-design/icons'
 import { Avatar, Dropdown } from 'antd'
 import classNames from 'classnames'
+import Link from 'next/link'
 import { useState } from 'react'
 
 import { ThemeSwitch } from '@/components/ThemeSwitch/ThemeSwitch'
@@ -30,6 +32,10 @@ export function SideBarFooter({ isCollapsed = false }: SideBarFooterProps) {
     setInfoModalOpen(true)
   }
 
+  const handleMenuLinkClick = () => {
+    setMenuOpen(false)
+  }
+
   const menuPanel = (
     <div className={styles.menuPanel} role="menu">
       <div
@@ -41,17 +47,31 @@ export function SideBarFooter({ isCollapsed = false }: SideBarFooterProps) {
         <BulbOutlined className={styles.menuIcon} />
         <span>Тема</span>
         <span
-          className={styles.menuItemAction}
+          className={styles.menuItemSwitch}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
           <ThemeSwitch size="small" />
         </span>
       </div>
-      <button type="button" className={styles.menuItem} role="menuitem" onClick={handleInfoClick}>
+      <button
+        type="button"
+        className={classNames(styles.menuItem, styles.menuItemAction)}
+        role="menuitem"
+        onClick={handleInfoClick}
+      >
         <QuestionCircleOutlined className={styles.menuIcon} />
         <span>Инфо</span>
       </button>
+      <Link
+        href="/admin"
+        className={classNames(styles.menuItem, styles.menuItemAction)}
+        role="menuitem"
+        onClick={handleMenuLinkClick}
+      >
+        <SettingOutlined className={styles.menuIcon} />
+        <span>Админка</span>
+      </Link>
     </div>
   )
 

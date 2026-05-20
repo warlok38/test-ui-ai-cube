@@ -92,7 +92,6 @@
 .menuPanel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
   min-width: 11rem;
   padding: var(--space-2);
   border-radius: var(--radius-5);
@@ -107,34 +106,44 @@
   gap: var(--space-2);
   width: 100%;
   padding: var(--space-2);
-  border: 0;
   border-radius: var(--radius-5);
-  color: var(--color-text-sidebar);
-  background: transparent;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  text-align: left;
-  cursor: pointer;
 }
 
-.menuItem:hover {
+.menuItemAction {
+  border: 0;
+  color: var(--color-text-sidebar);
+  background: transparent;
+  font-family: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.menuItemAction:hover {
+  color: var(--color-text-sidebar);
   background: var(--color-bg-sidebar-hover);
 }
 
-.menuItem:focus-visible {
+.menuItemAction:active,
+.menuItemAction:visited {
+  color: var(--color-text-sidebar);
+}
+
+.menuItemAction:focus-visible {
   outline: var(--border-width-strong) solid var(--color-text-sidebar);
   outline-offset: var(--border-width-hairline);
 }
 
 .menuItemTheme {
+  color: var(--color-text-sidebar);
   cursor: default;
 }
 
-.menuItemTheme:hover {
-  background: transparent;
-}
-
-.menuItemAction {
+.menuItemSwitch {
   display: inline-flex;
   margin-left: auto;
   flex-shrink: 0;
