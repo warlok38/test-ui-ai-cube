@@ -22,6 +22,7 @@ import { QuestionCircleOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useMemo, useState } from 'react'
 import { useExportLogsBinaryMutation, useLogsQuery, useMetricsQuery } from '@/store/api/cubeApi'
 import { triggerBlobDownload } from '@/features/assistant/utils/exportTable'
+import { formatCompactDateTime } from '@/utils/formatDateTime'
 
 import styles from './AdminDashboard.module.css'
 
@@ -40,6 +41,8 @@ export function AdminDashboard() {
         title: 'Время',
         dataIndex: 'createdAt',
         key: 'createdAt',
+        width: 140,
+        render: (value: string) => formatCompactDateTime(value),
         sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
         defaultSortOrder: 'descend',
         responsive: ['md']
