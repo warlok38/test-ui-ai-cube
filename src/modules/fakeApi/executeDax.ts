@@ -5,7 +5,7 @@ import type {
   CubeQueryEntity,
   CubeQueryParams
 } from '@/services/assistantWorkflow/types'
-import { fakeDelay } from './delay'
+import { fakeDelay, throwIfAborted } from './delay'
 
 export type OlapExecutionKind = 'success' | 'empty' | 'soap_error'
 
@@ -96,13 +96,16 @@ export function resolveExecutionForAttempt(input: {
   }
 }
 
-export async function executeDaxQuery(input: {
-  scenario: FakeScenarioKind
-  attempt: number
-  dax: string
-  userPrompt: string
-}): Promise<OlapExecutionResult> {
-  await fakeDelay(220 + Math.floor(Math.random() * 200))
+export async function executeDaxQuery(
+  input: {
+    scenario: FakeScenarioKind
+    attempt: number
+    dax: string
+    userPrompt: string
+  },
+  signal?: AbortSignal
+): Promise<OlapExecutionResult> {
+  await fakeDelay(220 + Math.floor(Math.random() * 200), signal)
   return resolveExecutionForAttempt(input)
 }
 
@@ -152,7 +155,8 @@ function buildChartConfig(
 
 export async function executeCubeQuery(
   params: CubeQueryParams,
-  scenario: FakeScenarioKind
+  scenario: FakeScenarioKind,
+  signal?: AbortSignal
 ): Promise<CubeQueryEntity> {
   const query = params.query.trim()
   const maxAttempts = params.max_attempts ?? 3
@@ -183,17 +187,22 @@ export async function executeCubeQuery(
     }
   }
 
-  await fakeDelay(LLM_RESPONSE_DELAY_MS)
+  await fakeDelay(LLM_RESPONSE_DELAY_MS, signal)
 
   let lastDax = buildDax(query, 1)
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     lastDax = buildDax(query, attempt)
-    const result = await executeDaxQuery({
-      scenario,
-      attempt,
-      dax: lastDax,
-      userPrompt: query
-    })
+    const result = await executeDaxQuery(
+      {
+        scenario,
+        attempt,
+        dax: lastDax,
+        userPrompt: query
+      },
+      signal
+    )
+
+    throwIfAborted(signal)
 
     if (result.kind === 'success' && result.rows.length > 0) {
       const data = result.rows

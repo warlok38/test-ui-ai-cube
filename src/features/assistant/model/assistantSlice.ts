@@ -146,6 +146,11 @@ export const assistantSlice = createSlice({
         text: action.payload
       })
     },
+    queryCancelled(state) {
+      state.isRunning = false
+      state.phase = 'idle'
+      state.currentAttempt = 1
+    },
     resetFeedbackPreview(state) {
       state.feedbackChoice = null
     },

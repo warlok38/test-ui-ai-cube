@@ -1,7 +1,7 @@
 'use client'
 
 import { App } from 'antd'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { appendRequestLog } from '@/modules/fakeDb/repo'
 import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
@@ -14,14 +14,48 @@ import { AssistantEmptyLanding } from './AssistantEmptyLanding'
 
 import styles from './AssistantChat.module.css'
 
+function isRequestAborted(error: unknown): boolean {
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return true
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    (error as { name?: string }).name === 'AbortError'
+  ) {
+    return true
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    (error as { status?: string }).status === 'ABORTED'
+  ) {
+    return true
+  }
+  return false
+}
+
 export function AssistantChat() {
   const dispatch = useAppDispatch()
   const assistant = useAppSelector((s) => s.assistant)
   const { message } = App.useApp()
   const [executeQuery] = useExecuteQueryMutation()
+  const requestRef = useRef<ReturnType<typeof executeQuery> | null>(null)
 
   const [draft, setDraft] = useState('')
   const isEmptyChat = assistant.messages.length === 0
+
+  useEffect(() => {
+    return () => {
+      requestRef.current?.abort()
+    }
+  }, [])
+
+  const handleAbort = () => {
+    requestRef.current?.abort()
+  }
 
   const handleRun = async () => {
     const text = draft.trim()
@@ -34,6 +68,9 @@ export function AssistantChat() {
     dispatch(assistantActions.startQuery({ prompt: text, maxAttempts }))
 
     const startedAt = performance.now()
+    const request = executeQuery({ query: text, max_attempts: maxAttempts })
+    requestRef.current = request
+
     try {
       dispatch(
         assistantActions.setPhase({
@@ -42,7 +79,7 @@ export function AssistantChat() {
           maxAttempts
         })
       )
-      const result = await executeQuery({ query: text, max_attempts: maxAttempts }).unwrap()
+      const result = await request.unwrap()
       dispatch(
         assistantActions.setPhase({
           phase: 'interpreting',
@@ -77,12 +114,18 @@ export function AssistantChat() {
         })
       )
       dispatch(cubeApi.util.invalidateTags(['Metrics', 'Logs']))
+      setDraft('')
     } catch (error) {
+      if (isRequestAborted(error)) {
+        dispatch(assistantActions.queryCancelled())
+        return
+      }
       const errorMessage = error instanceof Error ? error.message : 'Сбой выполнения запроса'
       dispatch(assistantActions.queryFailed(errorMessage))
+      setDraft('')
+    } finally {
+      requestRef.current = null
     }
-
-    setDraft('')
   }
 
   const composer = (
@@ -92,6 +135,7 @@ export function AssistantChat() {
       isRunning={assistant.isRunning}
       onDraftChange={setDraft}
       onRun={handleRun}
+      onAbort={handleAbort}
     />
   )
 

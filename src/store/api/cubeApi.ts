@@ -19,9 +19,9 @@ export const cubeApi = createApi({
   tagTypes: ['Metrics', 'Logs'],
   endpoints: (builder) => ({
     executeQuery: builder.mutation<CubeQueryEntity, CubeQueryParams>({
-      async queryFn(body) {
+      async queryFn(body, { signal }) {
         const settings = loadTechnicalSettings()
-        const data = await executeCubeQuery(body, settings.scenario)
+        const data = await executeCubeQuery(body, settings.scenario, signal)
         return { data }
       }
     }),

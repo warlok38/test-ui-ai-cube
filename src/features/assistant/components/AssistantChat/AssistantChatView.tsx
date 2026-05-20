@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowUpOutlined } from '@ant-design/icons'
+import { ArrowUpOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button, Input } from 'antd'
 
 import styles from './AssistantChat.module.css'
@@ -11,6 +11,7 @@ type AssistantChatViewProps = {
   isRunning: boolean
   onDraftChange: (value: string) => void
   onRun: () => void
+  onAbort: () => void
 }
 
 export function AssistantChatView({
@@ -18,7 +19,8 @@ export function AssistantChatView({
   draft,
   isRunning,
   onDraftChange,
-  onRun
+  onRun,
+  onAbort
 }: AssistantChatViewProps) {
   const canSend = draft.trim().length > 0 && !isRunning
   const minRows = variant === 'empty' ? 4 : 2
@@ -49,16 +51,25 @@ export function AssistantChatView({
         <footer className={styles.composerFooter}>
           <div className={styles.composerFooterStart} />
           <div className={styles.composerFooterEnd}>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<ArrowUpOutlined />}
-              className={styles.composerSend}
-              loading={isRunning}
-              disabled={!canSend}
-              onClick={onRun}
-              aria-label="Отправить запрос"
-            />
+            {isRunning ? (
+              <Button
+                type="primary"
+                shape="circle"
+                icon={<CloseOutlined />}
+                className={styles.composerSend}
+                onClick={onAbort}
+                title="Отменить запрос"
+              />
+            ) : (
+              <Button
+                type="primary"
+                shape="circle"
+                icon={<ArrowUpOutlined />}
+                className={styles.composerSend}
+                disabled={!canSend}
+                onClick={onRun}
+              />
+            )}
           </div>
         </footer>
       </div>
