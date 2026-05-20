@@ -1,0 +1,32 @@
+.root {
+  display: inline-block;
+  color: var(--color-text-muted);
+}
+
+.char {
+  display: inline-block;
+  opacity: 0.4;
+  animation: shimmerTextCharWave var(--shimmer-cycle, 1.3s) linear infinite;
+}
+
+@keyframes shimmerTextCharWave {
+  0%,
+  18%,
+  100% {
+    opacity: 0.4;
+    color: var(--color-text-muted);
+  }
+
+  10% {
+    opacity: 1;
+    color: var(--color-text-default);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .char {
+    animation: none;
+    opacity: 1;
+    color: var(--color-text-muted);
+  }
+}

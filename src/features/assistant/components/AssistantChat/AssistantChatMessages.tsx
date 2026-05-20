@@ -1,11 +1,11 @@
 'use client'
 
-import { Typography } from 'antd'
 import { useLayoutEffect, useRef, type Ref } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import { ScrollToBottom } from '@/components/ScrollToBottom'
+import { ShimmerText } from '@/components/ShimmerText'
 import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
 import { AnalyticsChart } from '@/features/assistant/components/AnalyticsChart'
 import { AnalyticsTable } from '@/features/assistant/components/AnalyticsTable'
@@ -135,11 +135,12 @@ export function AssistantChatMessages({
             )
           )}
 
-          {isRunning ? (
+          {!isRunning ? (
             <div className={styles.messageRow}>
-              <Typography.Text type="secondary" className={styles.loadingStatus}>
-                Попытка {currentAttempt} из {maxAttempts}
-              </Typography.Text>
+              <ShimmerText
+                className={styles.loadingStatus}
+                text={`Попытка ${currentAttempt} из ${maxAttempts}`}
+              />
             </div>
           ) : null}
         </div>
