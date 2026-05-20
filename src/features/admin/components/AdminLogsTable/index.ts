@@ -1,0 +1,1 @@
+export { AdminLogsTable } from './AdminLogsTable'

@@ -1,0 +1,10 @@
+.code {
+  background: rgb(61 70 84 / 5%);
+  border-radius: var(--radius-8);
+  padding: var(--space-3);
+  white-space: pre-wrap;
+}
+
+html[data-theme='dark'] .code {
+  background: rgb(255 255 255 / 6%);
+}

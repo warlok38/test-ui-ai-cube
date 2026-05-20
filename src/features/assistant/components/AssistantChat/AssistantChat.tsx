@@ -113,7 +113,7 @@ export function AssistantChat() {
           logId: log.id
         })
       )
-      dispatch(cubeApi.util.invalidateTags(['Metrics', 'Logs']))
+      dispatch(cubeApi.util.invalidateTags(['CubeStats', 'QueryLogs']))
       setDraft('')
     } catch (error) {
       if (isRequestAborted(error)) {

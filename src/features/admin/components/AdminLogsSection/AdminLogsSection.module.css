@@ -1,0 +1,14 @@
+.logsCard {
+  margin-top: var(--space-4);
+  box-shadow:
+    0 var(--border-width-hairline) 0 rgb(20 24 30 / 5%),
+    0 0.75rem 2.125rem rgb(20 24 30 / 8%);
+}
+
+.logsCard :global(.ant-card-body) {
+  padding: 0;
+}
+
+.exportBar {
+  margin-bottom: var(--space-4);
+}

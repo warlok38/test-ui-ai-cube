@@ -1,3 +1,4 @@
+import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
 import type { MetricsAggregate, RequestFeedback, RequestLogRecord } from './schema'
 import seed from './seed.json'
 import { loadFromStorage, saveToStorage } from './persistence'
@@ -89,6 +90,47 @@ export function aggregateMetrics(): MetricsAggregate {
     successfulRuns,
     successRatePercent
   }
+}
+
+export function aggregateCubeStats(): CubeStats {
+  const logs = hydrate()
+  const finished = logs.filter(
+    (l) => l.status === 'success' || l.status === 'failed_max' || l.status === 'server_unreachable'
+  )
+  const successful = logs.filter((l) => l.status === 'success')
+  const todayStart = startOfTodayIso()
+  const daily_queries = logs.filter((l) => new Date(l.createdAt).getTime() >= todayStart).length
+  const finishedCount = finished.length
+  const success_rate =
+    finishedCount === 0 ? 0 : Math.round((successful.length / finishedCount) * 1000) / 10
+
+  return {
+    total_queries: logs.length,
+    daily_queries,
+    likes: logs.filter((l) => l.feedback === 'like').length,
+    dislikes: logs.filter((l) => l.feedback === 'dislike').length,
+    success_rate
+  }
+}
+
+const ADMIN_QUERY_EVENT = 'cube.query'
+
+function toAdminQueryLog(record: RequestLogRecord): AdminQueryLog {
+  return {
+    event_tech_id: record.id,
+    start_time: record.createdAt,
+    user: null,
+    event: ADMIN_QUERY_EVENT,
+    status: record.status,
+    query: record.userPrompt
+  }
+}
+
+export function listAdminQueryLogs({
+  limit = 100,
+  offset = 0
+}: LogQueryArgs = {}): AdminQueryLog[] {
+  return listLogs({ limit, offset }).map(toAdminQueryLog)
 }
 
 /** Для модульных тестов / расширения — сброс в начальное состояние. */

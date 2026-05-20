@@ -1,9 +1,15 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import { aggregateMetrics, listLogs, patchRequestFeedback } from '@/modules/fakeDb/repo'
+import {
+  aggregateCubeStats,
+  listAdminQueryLogs,
+  listLogs,
+  patchRequestFeedback
+} from '@/modules/fakeDb/repo'
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
-import type { MetricsAggregate, RequestLogRecord, RequestFeedback } from '@/modules/fakeDb/schema'
+import type { RequestFeedback } from '@/modules/fakeDb/schema'
+import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
 import type { CubeQueryEntity, CubeQueryParams } from '@/services/assistantWorkflow/types'
 import { randomDelay } from '@/modules/fakeApi/delay'
 
@@ -16,7 +22,7 @@ export type ExportLogsBody = {
 export const cubeApi = createApi({
   reducerPath: 'cubeApi',
   baseQuery: noopBaseQuery,
-  tagTypes: ['Metrics', 'Logs'],
+  tagTypes: ['CubeStats', 'QueryLogs'],
   endpoints: (builder) => ({
     executeQuery: builder.mutation<CubeQueryEntity, CubeQueryParams>({
       async queryFn(body, { signal }) {
@@ -26,23 +32,23 @@ export const cubeApi = createApi({
       }
     }),
 
-    metrics: builder.query<MetricsAggregate, void>({
+    cubeStats: builder.query<CubeStats, void>({
       async queryFn() {
         await randomDelay(180, 400)
-        return { data: aggregateMetrics() }
+        return { data: aggregateCubeStats() }
       },
-      providesTags: ['Metrics']
+      providesTags: ['CubeStats']
     }),
 
-    logs: builder.query<RequestLogRecord[], { limit?: number; offset?: number } | void>({
+    queryLogs: builder.query<AdminQueryLog[], { limit?: number; offset?: number } | void>({
       async queryFn(arg) {
         await randomDelay(150, 350)
         const limit = typeof arg === 'object' ? arg.limit : undefined
         const offset = typeof arg === 'object' ? arg.offset : undefined
-        const data = listLogs({ limit, offset })
+        const data = listAdminQueryLogs({ limit, offset })
         return { data }
       },
-      providesTags: ['Logs']
+      providesTags: ['QueryLogs']
     }),
 
     exportLogsBinary: builder.mutation<Blob, ExportLogsBody>({
@@ -102,15 +108,15 @@ export const cubeApi = createApi({
         const ok = patchRequestFeedback(logId, feedback)
         return { data: ok }
       },
-      invalidatesTags: ['Logs', 'Metrics']
+      invalidatesTags: ['QueryLogs', 'CubeStats']
     })
   })
 })
 
 export const {
   useExecuteQueryMutation,
-  useMetricsQuery,
-  useLogsQuery,
+  useCubeStatsQuery,
+  useQueryLogsQuery,
   useExportLogsBinaryMutation,
   useSubmitFeedbackMutation
 } = cubeApi

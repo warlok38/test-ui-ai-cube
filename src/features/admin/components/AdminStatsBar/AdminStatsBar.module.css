@@ -1,0 +1,12 @@
+.statsBar {
+  margin-bottom: var(--space-4);
+  box-shadow: 0 var(--border-width-hairline) 0 rgb(20 24 30 / 5%);
+}
+
+.statsBar :global(.ant-statistic-title) {
+  font-size: 0.75rem;
+}
+
+.statsBar :global(.ant-statistic-content) {
+  font-size: 1.125rem;
+}
