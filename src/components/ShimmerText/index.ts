@@ -1,1 +1,1 @@
-export { ShimmerText, type ShimmerTextProps } from './ShimmerText'
+export { ShimmerText, type ShimmerPeakTone, type ShimmerTextProps } from './ShimmerText'

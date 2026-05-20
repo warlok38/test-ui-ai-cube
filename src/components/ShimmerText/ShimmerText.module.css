@@ -3,8 +3,17 @@
   color: var(--color-text-muted);
 }
 
+.peakBrighter {
+  --shimmer-peak: color-mix(in srgb, currentColor 80%, white 20%);
+}
+
+.peakDarker {
+  --shimmer-peak: color-mix(in srgb, currentColor 80%, black 20%);
+}
+
 .char {
   display: inline-block;
+  color: inherit;
   opacity: 0.4;
   animation: shimmerTextCharWave var(--shimmer-cycle, 1.3s) linear infinite;
 }
@@ -14,12 +23,12 @@
   18%,
   100% {
     opacity: 0.4;
-    color: var(--color-text-muted);
+    color: inherit;
   }
 
   10% {
     opacity: 1;
-    color: var(--color-text-default);
+    color: var(--shimmer-peak);
   }
 }
 
@@ -27,6 +36,6 @@
   .char {
     animation: none;
     opacity: 1;
-    color: var(--color-text-muted);
+    color: inherit;
   }
 }

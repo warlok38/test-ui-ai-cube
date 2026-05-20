@@ -17,25 +17,27 @@ function getWaveCycleS(charCount: number): number {
   return ((charCount - 1) * WAVE_STAGGER_S + WAVE_PAUSE_S) / (1 - WAVE_PEAK_END_RATIO)
 }
 
+export type ShimmerPeakTone = 'brighter' | 'darker'
+
 export type ShimmerTextProps = {
   text: string
   className?: string
-  'aria-live'?: 'polite' | 'assertive' | 'off'
+  /** На пике волны: осветлить или затемнить базовый цвет на 20%. По умолчанию — ярче. */
+  peakTone?: ShimmerPeakTone
 }
 
-export function ShimmerText({
-  text,
-  className,
-  'aria-live': ariaLive = 'polite'
-}: ShimmerTextProps) {
+export function ShimmerText({ text, className, peakTone = 'brighter' }: ShimmerTextProps) {
   const chars = Array.from(text)
   const cycleS = getWaveCycleS(chars.length)
 
   return (
     <span
-      className={classNames(styles.root, className)}
+      className={classNames(
+        styles.root,
+        peakTone === 'darker' ? styles.peakDarker : styles.peakBrighter,
+        className
+      )}
       style={{ '--shimmer-cycle': `${cycleS}s` } as CSSProperties}
-      aria-live={ariaLive}
     >
       {chars.map((char, index) => (
         <span
