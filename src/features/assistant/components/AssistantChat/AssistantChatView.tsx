@@ -23,7 +23,7 @@ export function AssistantChatView({
   onAbort
 }: AssistantChatViewProps) {
   const canSend = draft.trim().length > 0 && !isRunning
-  const minRows = variant === 'empty' ? 4 : 2
+  const minRows = variant === 'empty' ? 4 : 1
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
