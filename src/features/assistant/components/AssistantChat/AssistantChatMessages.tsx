@@ -161,10 +161,12 @@ export function AssistantChatMessages({
 
           {isRunning ? (
             <div className={styles.messageRow}>
-              <ShimmerText
-                className={styles.loadingStatus}
-                text={`Попытка ${currentAttempt} из ${maxAttempts}`}
-              />
+              <div className={styles.messageAssistant}>
+                <ShimmerText
+                  className={styles.loadingStatus}
+                  text={`Попытка ${currentAttempt} из ${maxAttempts}`}
+                />
+              </div>
             </div>
           ) : null}
         </div>
