@@ -40,6 +40,16 @@
   scrollbar-width: thin;
 }
 
+.turn {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-4);
+}
+
+.turn:last-child {
+  margin-bottom: 0;
+}
+
 .messageRow {
   display: flex;
   margin-bottom: var(--space-4);
