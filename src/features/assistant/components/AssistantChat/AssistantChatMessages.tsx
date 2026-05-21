@@ -1,6 +1,6 @@
 'use client'
 
-import { useLayoutEffect, useRef, type Ref } from 'react'
+import { useLayoutEffect, useMemo, useRef, type Ref } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -10,7 +10,11 @@ import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
 import { AnalyticsChart } from '@/features/assistant/components/AnalyticsChart'
 import { AnalyticsTable } from '@/features/assistant/components/AnalyticsTable'
 import { FeedbackBar } from '@/features/assistant/components/FeedbackBar'
+import { usePinnedQuestionHandoff } from '@/features/assistant/hooks/usePinnedQuestionHandoff'
+import { groupMessagesIntoTurns } from '@/features/assistant/utils/groupMessagesIntoTurns'
 import { exportRowsToExcel } from '@/features/assistant/utils/exportTable'
+
+import { PinnedUserQuestion } from './PinnedUserQuestion'
 
 import styles from './AssistantChat.module.css'
 
@@ -25,13 +29,7 @@ type MessageRowProps = {
   innerRef?: Ref<HTMLDivElement>
 }
 
-function UserMessage({ text, innerRef }: MessageRowProps & { text: string }) {
-  return (
-    <div ref={innerRef} className={styles.messageRow}>
-      <div className={`${styles.messageBubble} ${styles.messageUser}`}>{text}</div>
-    </div>
-  )
-}
+const DEFAULT_PIN_STATE = { pinDisabled: false }
 
 function AssistantMessage({ message, innerRef }: MessageRowProps & { message: ChatMessage }) {
   const { result, logId } = message
@@ -79,7 +77,17 @@ export function AssistantChatMessages({
 }: AssistantChatMessagesProps) {
   const messageListRef = useRef<HTMLDivElement>(null)
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const userRefs = useRef<Map<string, HTMLDivElement>>(new Map())
   const lastScrolledIdRef = useRef<string | null>(null)
+
+  const turns = useMemo(() => groupMessagesIntoTurns(messages), [messages])
+  const turnUserIds = useMemo(() => turns.map((turn) => turn.userMessage.id), [turns])
+
+  const { pinStates, activePinnedMessageId } = usePinnedQuestionHandoff({
+    scrollContainerRef: messageListRef,
+    turnUserIds,
+    userRefs
+  })
 
   useLayoutEffect(() => {
     if (messages.length === 0) {
@@ -115,25 +123,41 @@ export function AssistantChatMessages({
     messageRefs.current.delete(id)
   }
 
+  const setUserRef = (id: string) => (node: HTMLDivElement | null) => {
+    if (node) {
+      userRefs.current.set(id, node)
+      return
+    }
+
+    userRefs.current.delete(id)
+  }
+
   return (
     <div className={styles.messagesStage}>
-      <div ref={messageListRef} className={styles.messageList}>
+      <div ref={messageListRef} className={styles.messageList} data-chat-scroll-container>
         <div className={styles.chatColumn}>
-          {messages.map((message) =>
-            message.role === 'user' ? (
-              <UserMessage
-                key={message.id}
-                text={message.text}
-                innerRef={setMessageRef(message.id)}
-              />
-            ) : (
-              <AssistantMessage
-                key={message.id}
-                message={message}
-                innerRef={setMessageRef(message.id)}
-              />
+          {turns.map((turn) => {
+            const pinState = pinStates.get(turn.userMessage.id) ?? DEFAULT_PIN_STATE
+
+            return (
+              <div key={turn.userMessage.id} className={styles.turn}>
+                <PinnedUserQuestion
+                  messageId={turn.userMessage.id}
+                  activePinnedMessageId={pinState.pinDisabled ? null : activePinnedMessageId}
+                  text={turn.userMessage.text}
+                  innerRef={setUserRef(turn.userMessage.id)}
+                />
+
+                {turn.assistantMessages.map((message) => (
+                  <AssistantMessage
+                    key={message.id}
+                    message={message}
+                    innerRef={setMessageRef(message.id)}
+                  />
+                ))}
+              </div>
             )
-          )}
+          })}
 
           {isRunning ? (
             <div className={styles.messageRow}>
