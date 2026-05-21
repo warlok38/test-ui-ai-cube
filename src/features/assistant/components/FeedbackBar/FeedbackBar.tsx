@@ -1,7 +1,7 @@
 'use client'
 
 import { LikeOutlined, DislikeOutlined } from '@ant-design/icons'
-import { App, Button, Space, Typography } from 'antd'
+import { App, Button, Space, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { useState } from 'react'
 import { useSubmitFeedbackMutation } from '@/store/api/cubeApi'
@@ -32,26 +32,29 @@ export function FeedbackBar({ logId }: FeedbackBarProps) {
   }
 
   return (
-    <div>
-      <Typography.Text>Оцените результат:</Typography.Text>
-      <Space style={{ marginLeft: 8 }}>
+    <Space size={4}>
+      <Tooltip title="Полезно">
         <Button
+          type="text"
+          size="small"
+          aria-label="Полезно"
           className={classNames(choice === 'like' && styles.btnSelectedLike)}
           icon={<LikeOutlined />}
           disabled={!!choice || isLoading}
           onClick={() => void handle('like')}
-        >
-          Полезно
-        </Button>
+        />
+      </Tooltip>
+      <Tooltip title="Не помогло">
         <Button
+          type="text"
+          size="small"
+          aria-label="Не помогло"
           className={classNames(choice === 'dislike' && styles.btnSelectedDislike)}
           icon={<DislikeOutlined />}
           disabled={!!choice || isLoading}
           onClick={() => void handle('dislike')}
-        >
-          Не помогло
-        </Button>
-      </Space>
-    </div>
+        />
+      </Tooltip>
+    </Space>
   )
 }

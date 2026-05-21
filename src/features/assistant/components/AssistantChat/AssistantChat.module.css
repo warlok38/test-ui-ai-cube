@@ -154,6 +154,8 @@ html[data-theme='dark'] .messageAssistant {
 
 .messageFeedback {
   margin-top: var(--space-3);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .loadingStatus {
