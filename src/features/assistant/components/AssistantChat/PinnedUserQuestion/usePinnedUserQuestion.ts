@@ -2,58 +2,30 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type Ref } from 'react'
 
-import { getScrollContainerVisibleBounds } from '@/features/assistant/hooks/scrollContainerBounds'
-
 export type UsePinnedUserQuestionOptions = {
   text: string
-  pinDisabled: boolean
+  isActivePin: boolean
   innerRef?: Ref<HTMLDivElement>
 }
 
 export function usePinnedUserQuestion({
   text,
-  pinDisabled,
+  isActivePin,
   innerRef
 }: UsePinnedUserQuestionOptions) {
   const measureRef = useRef<HTMLDivElement>(null)
   const flowRef = useRef<HTMLDivElement | null>(null)
-  const scrollContainerRef = useRef<HTMLElement | null>(null)
   const keepExpandedWhilePinnedRef = useRef(false)
-  const [isAboveViewport, setIsAboveViewport] = useState(false)
+  const handoffFrameRef = useRef<number | null>(null)
   const [isMultiline, setIsMultiline] = useState(false)
   const [isExpanded, setIsExpanded] = useState(true)
+  const [showFlowBubble, setShowFlowBubble] = useState(true)
 
-  const showOverlay = isAboveViewport && !pinDisabled
+  const showOverlay = isActivePin
+  const hideFlowBubble = showOverlay || !showFlowBubble
 
   useEffect(() => {
-    const flow = flowRef.current
-    if (!flow) return
-
-    const root =
-      scrollContainerRef.current ??
-      (flow.closest('[data-chat-scroll-container]') as HTMLElement | null)
-    if (!root) return
-
-    scrollContainerRef.current = root
-
-    const updateVisibility = () => {
-      const bounds = getScrollContainerVisibleBounds(root)
-      const flowRect = flow.getBoundingClientRect()
-      setIsAboveViewport(flowRect.bottom <= bounds.top)
-    }
-
-    updateVisibility()
-
-    root.addEventListener('scroll', updateVisibility, { passive: true })
-
-    const resizeObserver = new ResizeObserver(updateVisibility)
-    resizeObserver.observe(root)
-    resizeObserver.observe(flow)
-
-    return () => {
-      root.removeEventListener('scroll', updateVisibility)
-      resizeObserver.disconnect()
-    }
+    setShowFlowBubble(true)
   }, [text])
 
   useLayoutEffect(() => {
@@ -76,6 +48,29 @@ export function usePinnedUserQuestion({
 
     return () => resizeObserver.disconnect()
   }, [text])
+
+  useEffect(() => {
+    if (showOverlay) {
+      if (handoffFrameRef.current !== null) {
+        cancelAnimationFrame(handoffFrameRef.current)
+        handoffFrameRef.current = null
+      }
+      setShowFlowBubble(false)
+      return
+    }
+
+    handoffFrameRef.current = requestAnimationFrame(() => {
+      handoffFrameRef.current = null
+      setShowFlowBubble(true)
+    })
+
+    return () => {
+      if (handoffFrameRef.current !== null) {
+        cancelAnimationFrame(handoffFrameRef.current)
+        handoffFrameRef.current = null
+      }
+    }
+  }, [showOverlay])
 
   useEffect(() => {
     if (!showOverlay) {
@@ -107,6 +102,7 @@ export function usePinnedUserQuestion({
     measureRef,
     setFlowRef,
     showOverlay,
+    hideFlowBubble,
     isMultiline,
     isExpanded,
     handleToggleExpanded

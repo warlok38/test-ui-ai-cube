@@ -7,6 +7,7 @@ import styles from './PinnedUserQuestion.module.css'
 import { QuestionBubbleContent } from './QuestionBubbleContent'
 
 type PinnedQuestionOverlayProps = {
+  messageId: string
   text: string
   visible: boolean
   measureRef: Ref<HTMLDivElement>
@@ -16,6 +17,7 @@ type PinnedQuestionOverlayProps = {
 }
 
 export function PinnedQuestionOverlay({
+  messageId,
   text,
   visible,
   measureRef,
@@ -25,24 +27,25 @@ export function PinnedQuestionOverlay({
 }: PinnedQuestionOverlayProps) {
   return (
     <div className={styles.pinnedAnchor} aria-hidden={!visible}>
-      <div
-        className={classNames(
-          styles.pinnedOverlay,
-          visible ? styles.pinnedVisible : styles.pinnedHidden
-        )}
-      >
-        <div ref={measureRef} className={styles.measureText} aria-hidden>
-          {text}
-        </div>
-
-        <QuestionBubbleContent
-          text={text}
-          isCollapsed={isMultiline}
-          showToggle={visible && isMultiline}
-          isExpanded={isExpanded}
-          onToggleExpanded={onToggleExpanded}
-        />
+      <div ref={measureRef} className={styles.measureText} aria-hidden>
+        {text}
       </div>
+
+      {visible ? (
+        <div
+          key={messageId}
+          data-message-id={messageId}
+          className={classNames(styles.pinnedOverlay, styles.pinnedVisible)}
+        >
+          <QuestionBubbleContent
+            text={text}
+            isCollapsed={isMultiline}
+            showToggle={isMultiline}
+            isExpanded={isExpanded}
+            onToggleExpanded={onToggleExpanded}
+          />
+        </div>
+      ) : null}
     </div>
   )
 }

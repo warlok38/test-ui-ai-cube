@@ -83,7 +83,7 @@ export function AssistantChatMessages({
   const turns = useMemo(() => groupMessagesIntoTurns(messages), [messages])
   const turnUserIds = useMemo(() => turns.map((turn) => turn.userMessage.id), [turns])
 
-  const { pinStates } = usePinnedQuestionHandoff({
+  const { pinStates, activePinnedMessageId } = usePinnedQuestionHandoff({
     scrollContainerRef: messageListRef,
     turnUserIds,
     userRefs
@@ -142,8 +142,9 @@ export function AssistantChatMessages({
             return (
               <div key={turn.userMessage.id} className={styles.turn}>
                 <PinnedUserQuestion
+                  messageId={turn.userMessage.id}
+                  activePinnedMessageId={pinState.pinDisabled ? null : activePinnedMessageId}
                   text={turn.userMessage.text}
-                  pinDisabled={pinState.pinDisabled}
                   innerRef={setUserRef(turn.userMessage.id)}
                 />
 

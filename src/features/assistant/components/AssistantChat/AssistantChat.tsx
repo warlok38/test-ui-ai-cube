@@ -45,6 +45,7 @@ export function AssistantChat() {
   const requestRef = useRef<ReturnType<typeof executeQuery> | null>(null)
 
   const [draft, setDraft] = useState('')
+  const chatShellRef = useRef<HTMLDivElement>(null)
   const isEmptyChat = assistant.messages.length === 0
 
   useEffect(() => {
@@ -52,6 +53,27 @@ export function AssistantChat() {
       requestRef.current?.abort()
     }
   }, [])
+
+  useEffect(() => {
+    if (isEmptyChat) return
+
+    const shell = chatShellRef.current
+    if (!shell) return
+
+    let node: HTMLElement | null = shell.parentElement
+    while (node) {
+      const { overflowY, overflow } = getComputedStyle(node)
+      if (
+        overflowY === 'auto' ||
+        overflowY === 'scroll' ||
+        overflow === 'auto' ||
+        overflow === 'scroll'
+      ) {
+        node.scrollTop = 0
+      }
+      node = node.parentElement
+    }
+  }, [isEmptyChat])
 
   const handleAbort = () => {
     requestRef.current?.abort()
@@ -139,27 +161,31 @@ export function AssistantChat() {
     />
   )
 
-  if (isEmptyChat) {
-    return (
-      <div className={`${styles.chatShell} ${styles.chatShellEmpty}`}>
-        <div className={styles.chatColumn}>
-          <AssistantEmptyLanding>{composer}</AssistantEmptyLanding>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className={`${styles.chatShell} ${styles.chatShellActive}`}>
-      <AssistantChatMessages
-        messages={assistant.messages}
-        isRunning={assistant.isRunning}
-        currentAttempt={assistant.currentAttempt}
-        maxAttempts={assistant.maxAttempts}
-      />
-      <div className={styles.composerDock}>
-        <div className={styles.chatColumn}>{composer}</div>
-      </div>
+    <div
+      key={isEmptyChat ? 'empty' : 'active'}
+      ref={chatShellRef}
+      className={`${styles.chatShell} ${styles.chatShellActive}`}
+    >
+      {isEmptyChat ? (
+        <div className={styles.emptyStage}>
+          <div className={styles.chatColumn}>
+            <AssistantEmptyLanding>{composer}</AssistantEmptyLanding>
+          </div>
+        </div>
+      ) : (
+        <>
+          <AssistantChatMessages
+            messages={assistant.messages}
+            isRunning={assistant.isRunning}
+            currentAttempt={assistant.currentAttempt}
+            maxAttempts={assistant.maxAttempts}
+          />
+          <div className={styles.composerDock}>
+            <div className={styles.chatColumn}>{composer}</div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

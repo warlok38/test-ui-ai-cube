@@ -7,20 +7,36 @@ import { usePinnedUserQuestion } from './usePinnedUserQuestion'
 import { UserQuestionFlowBubble } from './UserQuestionFlowBubble'
 
 export type PinnedUserQuestionProps = {
+  messageId: string
+  activePinnedMessageId: string | null
   text: string
-  pinDisabled: boolean
   innerRef?: Ref<HTMLDivElement>
 }
 
-export function PinnedUserQuestion({ text, pinDisabled, innerRef }: PinnedUserQuestionProps) {
-  const { measureRef, setFlowRef, showOverlay, isMultiline, isExpanded, handleToggleExpanded } =
-    usePinnedUserQuestion({ text, pinDisabled, innerRef })
+export function PinnedUserQuestion({
+  messageId,
+  activePinnedMessageId,
+  text,
+  innerRef
+}: PinnedUserQuestionProps) {
+  const isActivePin = messageId === activePinnedMessageId
+
+  const {
+    measureRef,
+    setFlowRef,
+    showOverlay,
+    hideFlowBubble,
+    isMultiline,
+    isExpanded,
+    handleToggleExpanded
+  } = usePinnedUserQuestion({ text, isActivePin, innerRef })
 
   return (
     <>
-      <UserQuestionFlowBubble text={text} hidden={showOverlay} innerRef={setFlowRef} />
+      <UserQuestionFlowBubble text={text} hidden={hideFlowBubble} innerRef={setFlowRef} />
 
       <PinnedQuestionOverlay
+        messageId={messageId}
         text={text}
         visible={showOverlay}
         measureRef={measureRef}
