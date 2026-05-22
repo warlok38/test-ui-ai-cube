@@ -5,6 +5,12 @@ import type { TableColumnsType, TableProps } from 'antd'
 import { useMemo, useState } from 'react'
 import { Button, Space, Table, Typography } from 'antd'
 import type { FilterValue } from 'antd/es/table/interface'
+import {
+  formatAnalyticsCell,
+  formatSmartDateTime,
+  isDateColumn,
+  parseIsoToTimestamp
+} from '@/utils/formatDateTime'
 
 type Row = Record<string, string | number | null>
 
@@ -53,12 +59,15 @@ export function AnalyticsTable({
     }
     if (!keys.length) return []
     return keys.map((key) => {
-      const uniq = Array.from(new Set(rows.map((r) => String(r[key] ?? ''))))
+      const isDate = isDateColumn(rows, key)
+      const uniqRaw = Array.from(
+        new Set(rows.map((r) => (r[key] !== null && r[key] !== undefined ? String(r[key]) : '')))
+      ).filter(Boolean)
       const filters =
-        uniq.length > 40
+        uniqRaw.length > 40
           ? undefined
-          : uniq.map((value) => ({
-              text: value,
+          : uniqRaw.map((value) => ({
+              text: isDate ? formatSmartDateTime(value) : value,
               value
             }))
       return {
@@ -66,19 +75,25 @@ export function AnalyticsTable({
         dataIndex: key,
         key,
         ellipsis: true,
+        render: isDate
+          ? (_: unknown, record: RowWithStableKey) => formatAnalyticsCell(record[key])
+          : undefined,
         sorter: (a: RowWithStableKey, b: RowWithStableKey) => {
           const va = a[key]
           const vb = b[key]
+          if (isDate) {
+            const ta = parseIsoToTimestamp(va)
+            const tb = parseIsoToTimestamp(vb)
+            if (!Number.isNaN(ta) && !Number.isNaN(tb)) return ta - tb
+          }
           if (typeof va === 'number' && typeof vb === 'number') return va - vb
           return String(va ?? '').localeCompare(String(vb ?? ''), undefined, { numeric: true })
         },
         filters,
         filteredValue: filteredInfo[key] ?? null,
-        filterSearch: uniq.length > 8,
+        filterSearch: uniqRaw.length > 8,
         onFilter: (value: boolean | Key, record: RowWithStableKey) =>
-          String(record[key] ?? '')
-            .toLowerCase()
-            .includes(String(value).toLowerCase())
+          String(record[key] ?? '') === String(value)
       }
     })
   }, [columnsFromApi, filteredInfo, rows])
@@ -97,7 +112,7 @@ export function AnalyticsTable({
   return (
     <div>
       <Space align="center" style={{ marginBottom: 12 }} wrap>
-        <Typography.Title level={5} style={{ margin: 0 }}>
+        <Typography.Title level={5} style={{ margin: 0, fontSize: '1rem' }}>
           Таблица результата
         </Typography.Title>
         {onExportExcel ? (

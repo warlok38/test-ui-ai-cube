@@ -33,7 +33,7 @@ const demoRowsBar: Record<string, string | number | null>[] = Array.from(
 const demoRowsLine: Record<string, string | number | null>[] = Array.from(
   { length: 20 },
   (_, index) => {
-    const month = `Месяц ${index + 1}`
+    const month = `2024-${String(index + 1).padStart(2, '0')}-01`
     const revenue = 1100 + index * 36
     const orders = 180 + index * 9
     const avgCheck = Math.round((revenue * 1000) / orders) / 10
