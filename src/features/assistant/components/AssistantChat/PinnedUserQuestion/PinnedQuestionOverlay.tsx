@@ -32,18 +32,17 @@ export function PinnedQuestionOverlay({
       </div>
 
       {visible ? (
-        <div
-          key={messageId}
-          data-message-id={messageId}
-          className={classNames(styles.pinnedOverlay, styles.pinnedVisible)}
-        >
-          <QuestionBubbleContent
-            text={text}
-            isCollapsed={isMultiline}
-            showToggle={isMultiline}
-            isExpanded={isExpanded}
-            onToggleExpanded={onToggleExpanded}
-          />
+        <div key={messageId} className={classNames(styles.pinnedZone, styles.pinnedVisible)}>
+          <div className={styles.pinnedBackdrop} aria-hidden />
+          <div data-message-id={messageId} className={styles.pinnedOverlay}>
+            <QuestionBubbleContent
+              text={text}
+              isCollapsed={isMultiline}
+              showToggle={isMultiline}
+              isExpanded={isExpanded}
+              onToggleExpanded={onToggleExpanded}
+            />
+          </div>
         </div>
       ) : null}
     </div>

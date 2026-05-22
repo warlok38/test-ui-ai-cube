@@ -25,38 +25,79 @@ html[data-theme='dark'] .flowBubble {
 .pinnedAnchor {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 3;
   height: 0;
   overflow: visible;
   pointer-events: none;
 }
 
-.pinnedOverlay {
-  max-width: 85%;
+.pinnedZone {
   position: absolute;
-  top: 0;
+  top: calc(var(--space-4) * -1);
+  left: 0;
   right: 0;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.pinnedBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-bg-default) 88%, transparent) 0%,
+    color-mix(in srgb, var(--color-bg-default) 72%, transparent) 72%,
+    transparent 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgb(41 41 41 / 8%);
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 100%) 55%, transparent 100%);
+  pointer-events: none;
+}
+
+html[data-theme='dark'] .pinnedBackdrop {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-bg-default) 92%, transparent) 0%,
+    color-mix(in srgb, var(--color-bg-default) 76%, transparent) 72%,
+    transparent 100%
+  );
+  box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+}
+
+.pinnedOverlay {
+  position: relative;
+  z-index: 1;
+  max-width: 85%;
+  margin-top: var(--space-2);
   padding: var(--space-3);
   border-radius: var(--radius-5);
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
   overflow-anchor: none;
-  background: var(--palette-bg-elevated);
+  background: color-mix(in srgb, var(--palette-bg-elevated) 88%, transparent);
   border: var(--border-width-hairline) solid var(--palette-border-soft);
   color: var(--color-text-default);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow:
-    0 var(--border-width-hairline) 0 #2929290a,
-    0 0.625rem 1.75rem #29292914;
-  opacity: 1;
-  transform: translateY(0);
-  visibility: visible;
+    0 0 0 1px rgb(41 41 41 / 6%),
+    0 4px 12px rgb(41 41 41 / 10%),
+    0 12px 28px rgb(41 41 41 / 8%);
   pointer-events: auto;
 }
 
 html[data-theme='dark'] .pinnedOverlay {
   border-color: rgb(255 255 255 / 12%);
-  background: rgb(255 255 255 / 8%);
+  background: rgb(255 255 255 / 14%);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 8%),
+    0 4px 12px rgb(0 0 0 / 24%),
+    0 12px 28px rgb(0 0 0 / 18%);
 }
 
 .pinnedVisible {
@@ -132,12 +173,35 @@ html[data-theme='dark'] .pinnedOverlay {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pinnedOverlay {
+  .pinnedZone {
     transition: none;
   }
 
   .toggle,
   .toggle :global(.anticon) {
     transition: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .pinnedBackdrop {
+    background: var(--color-bg-default);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    mask-image: none;
+  }
+
+  html[data-theme='dark'] .pinnedBackdrop {
+    background: var(--color-bg-default);
+  }
+
+  .pinnedOverlay {
+    background: var(--palette-bg-elevated);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  html[data-theme='dark'] .pinnedOverlay {
+    background: rgb(255 255 255 / 8%);
   }
 }

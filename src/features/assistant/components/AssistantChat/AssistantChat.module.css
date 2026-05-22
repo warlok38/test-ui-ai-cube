@@ -87,7 +87,7 @@ html[data-theme='dark'] .messageUser {
 }
 
 .messageAssistant {
-  max-width: 90%;
+  max-width: 100%;
   padding: var(--space-3);
   border-radius: var(--radius-5);
   line-height: 1.5;
