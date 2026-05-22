@@ -2,6 +2,7 @@
 
 import { ArrowUpOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button, Input } from 'antd'
+import { useEffect } from 'react'
 
 import styles from './AssistantChat.module.css'
 
@@ -24,6 +25,19 @@ export function AssistantChatView({
 }: AssistantChatViewProps) {
   const canSend = draft.trim().length > 0 && !isRunning
   const minRows = variant === 'empty' ? 4 : 1
+
+  useEffect(() => {
+    if (!isRunning) return
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      onAbort()
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [isRunning, onAbort])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
