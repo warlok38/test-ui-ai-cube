@@ -33,7 +33,7 @@ html[data-theme='dark'] .flowBubble {
 
 .pinnedZone {
   position: absolute;
-  top: calc(var(--space-4) * -1);
+  top: calc((var(--space-4) * -1) - 0.125rem);
   left: 0;
   right: 0;
   display: flex;
@@ -45,16 +45,7 @@ html[data-theme='dark'] .flowBubble {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-bg-default) 88%, transparent) 0%,
-    color-mix(in srgb, var(--color-bg-default) 72%, transparent) 72%,
-    transparent 100%
-  );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 20px rgb(41 41 41 / 8%);
-  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 100%) 55%, transparent 100%);
+  background: var(--color-bg-default);
   pointer-events: none;
 }
 
@@ -73,6 +64,7 @@ html[data-theme='dark'] .pinnedBackdrop {
   z-index: 1;
   max-width: 85%;
   margin-top: var(--space-2);
+  margin-bottom: var(--space-1);
   padding: var(--space-3);
   border-radius: var(--radius-5);
   line-height: 1.5;
