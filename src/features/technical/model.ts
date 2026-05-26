@@ -1,4 +1,4 @@
-import type { FakeScenarioKind } from '@/modules/fakeLlm/config'
+import type { FakeScenarioKind } from '@/fakeBackend/llm/config'
 
 export const TECHNICAL_DELAY_MIN_MS = 0
 export const TECHNICAL_DELAY_MAX_MS = 10_000

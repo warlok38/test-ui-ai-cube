@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm'
 
 import { ScrollToBottom } from '@/components/ScrollToBottom'
 import { ShimmerText } from '@/components/ShimmerText'
-import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
+import type { ChatMessage, StreamingStatus } from '@/features/assistant/model/assistantSlice'
 import { AnalyticsChart } from '@/features/assistant/components/AnalyticsChart'
 import { AnalyticsTable } from '@/features/assistant/components/AnalyticsTable'
 import { FeedbackBar } from '@/features/assistant/components/FeedbackBar'
@@ -21,8 +21,7 @@ import styles from './AssistantChat.module.css'
 type AssistantChatMessagesProps = {
   messages: ChatMessage[]
   isRunning: boolean
-  currentAttempt: number
-  maxAttempts: number
+  streamingStatus: StreamingStatus | null
 }
 
 type MessageRowProps = {
@@ -72,8 +71,7 @@ function AssistantMessage({ message, innerRef }: MessageRowProps & { message: Ch
 export function AssistantChatMessages({
   messages,
   isRunning,
-  currentAttempt,
-  maxAttempts
+  streamingStatus
 }: AssistantChatMessagesProps) {
   const messageListRef = useRef<HTMLDivElement>(null)
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map())
@@ -164,8 +162,11 @@ export function AssistantChatMessages({
               <div className={styles.messageAssistant}>
                 <ShimmerText
                   className={styles.loadingStatus}
-                  text={`Попытка ${currentAttempt} из ${maxAttempts}`}
+                  text={streamingStatus?.message ?? 'Обработка запроса…'}
                 />
+                {streamingStatus?.step ? (
+                  <span className={styles.streamingStep}>{streamingStatus.step}</span>
+                ) : null}
               </div>
             </div>
           ) : null}

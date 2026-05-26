@@ -5,13 +5,14 @@ import {
   listAdminQueryLogs,
   listLogs,
   patchRequestFeedback
-} from '@/modules/fakeDb/repo'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
-import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
-import type { RequestFeedback } from '@/modules/fakeDb/schema'
+} from '@/fakeBackend/db/repo'
+import { assistantActions } from '@/features/assistant/model/assistantSlice'
+import type { RequestFeedback } from '@/fakeBackend/db/schema'
+import { createExecuteQueryEventStream } from './createExecuteQueryEventStream'
+import { consumeExecuteQueryStream } from './consumeExecuteQueryStream'
 import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
 import type { CubeQueryEntity, CubeQueryParams } from '@/services/assistantWorkflow/types'
-import { randomDelay } from '@/modules/fakeApi/delay'
+import { randomDelay } from '@/fakeBackend/api/delay'
 
 const noopBaseQuery: BaseQueryFn = async () => ({ data: null })
 
@@ -25,10 +26,27 @@ export const cubeApi = createApi({
   tagTypes: ['CubeStats', 'QueryLogs'],
   endpoints: (builder) => ({
     executeQuery: builder.mutation<CubeQueryEntity, CubeQueryParams>({
-      async queryFn(body, { signal }) {
-        const settings = loadTechnicalSettings()
-        const data = await executeCubeQuery(body, settings.scenario, signal)
-        return { data }
+      async queryFn(body, { signal, dispatch }) {
+        try {
+          const stream = createExecuteQueryEventStream(body, { signal })
+          const data = await consumeExecuteQueryStream(stream, { dispatch })
+          return { data }
+        } catch (error) {
+          dispatch(assistantActions.clearStreaming())
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            throw error
+          }
+          const message = error instanceof Error ? error.message : 'Сбой выполнения запроса'
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: message,
+              data: message
+            }
+          }
+        } finally {
+          dispatch(assistantActions.clearStreaming())
+        }
       }
     }),
 

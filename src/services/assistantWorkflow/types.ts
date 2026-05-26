@@ -1,4 +1,7 @@
-import type { RequestLogStatus } from '@/modules/fakeDb/schema'
+import type { AssistantTechnicalSettings } from '@/features/technical/model'
+import type { RequestLogStatus } from '@/fakeBackend/db/schema'
+
+export type ExecuteQueryTechnicalParams = AssistantTechnicalSettings
 
 export type AssistantPhase = 'idle' | 'checking' | 'generating' | 'fetching' | 'interpreting'
 
@@ -31,7 +34,13 @@ export type ValidMaxAttempts = 1 | 2 | 3 | 4 | 5
 export type CubeQueryParams = {
   query: string
   max_attempts?: ValidMaxAttempts
+  /** Reserved for future chat-scoped requests. */
+  chat_id?: string
+  /** Dev/demo only; stripped before HTTP body. */
+  _technical?: ExecuteQueryTechnicalParams
 }
+
+export type CubeQueryApiBody = Omit<CubeQueryParams, '_technical'>
 
 export type ChartConfigPayload = {
   type: 'bar' | 'line'

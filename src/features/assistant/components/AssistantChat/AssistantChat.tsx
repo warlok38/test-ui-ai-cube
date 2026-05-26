@@ -3,7 +3,7 @@
 import { App } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
-import { appendRequestLog } from '@/modules/fakeDb/repo'
+import { appendRequestLog } from '@/fakeBackend/db/repo'
 import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { cubeApi, useExecuteQueryMutation } from '@/store/api/cubeApi'
@@ -90,25 +90,15 @@ export function AssistantChat() {
     dispatch(assistantActions.startQuery({ prompt: text, maxAttempts }))
 
     const startedAt = performance.now()
-    const request = executeQuery({ query: text, max_attempts: maxAttempts })
+    const request = executeQuery({
+      query: text,
+      max_attempts: maxAttempts,
+      _technical: assistant.technicalSettings
+    })
     requestRef.current = request
 
     try {
-      dispatch(
-        assistantActions.setPhase({
-          phase: 'fetching',
-          currentAttempt: 1,
-          maxAttempts
-        })
-      )
       const result = await request.unwrap()
-      dispatch(
-        assistantActions.setPhase({
-          phase: 'interpreting',
-          currentAttempt: 1,
-          maxAttempts
-        })
-      )
 
       const durationMs = Math.round(performance.now() - startedAt)
       let status: 'success' | 'server_unreachable' | 'failed_max' = 'failed_max'
@@ -178,8 +168,7 @@ export function AssistantChat() {
           <AssistantChatMessages
             messages={assistant.messages}
             isRunning={assistant.isRunning}
-            currentAttempt={assistant.currentAttempt}
-            maxAttempts={assistant.maxAttempts}
+            streamingStatus={assistant.streamingStatus}
           />
           <div className={styles.composerDock}>
             <div className={styles.chatColumn}>{composer}</div>

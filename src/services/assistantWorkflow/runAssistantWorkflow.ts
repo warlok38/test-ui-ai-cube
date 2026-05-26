@@ -1,14 +1,14 @@
 import { clampStageDelayMs } from '@/features/technical/model'
-import { fakeDelay } from '@/modules/fakeApi/delay'
-import type { FakeScenarioKind } from '@/modules/fakeLlm/config'
-import { executeDaxQuery } from '@/modules/fakeApi/executeDax'
-import { pingOlapServer } from '@/modules/fakeApi/olapPing'
+import { fakeDelay } from '@/fakeBackend/api/delay'
+import type { FakeScenarioKind } from '@/fakeBackend/llm/config'
+import { executeDaxQuery } from '@/fakeBackend/api/executeDax'
+import { pingOlapServer } from '@/fakeBackend/api/olapPing'
 import {
   buildChartJson,
   canChart,
   generateDaxText,
   generateInterpretation
-} from '@/modules/fakeLlm/templates'
+} from '@/fakeBackend/llm/templates'
 import type {
   AssistantFailurePayload,
   AssistantPhase,

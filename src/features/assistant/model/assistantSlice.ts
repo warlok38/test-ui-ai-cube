@@ -5,7 +5,7 @@ import {
   DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
   type AssistantTechnicalSettings
 } from '@/features/technical/model'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { loadTechnicalSettings } from '@/fakeBackend/db/technicalSettingsPersistence'
 import type {
   AssistantPhase,
   CubeQueryEntity,
@@ -20,6 +20,11 @@ export type ChatMessage = {
   createdAt: number
   result?: CubeQueryEntity | null
   logId?: string | null
+}
+
+export type StreamingStatus = {
+  message: string
+  step: string
 }
 
 export type AssistantUiState = {
@@ -37,6 +42,8 @@ export type AssistantUiState = {
   messages: ChatMessage[]
   currentAttempt: number
   maxAttempts: number
+  streamingStatus: StreamingStatus | null
+  currentTaskId: string | null
 }
 
 const initialTechnicalSettings = loadTechnicalSettings()
@@ -55,7 +62,9 @@ const initialState: AssistantUiState = {
   technicalSettings: { ...initialTechnicalSettings },
   messages: [],
   currentAttempt: 1,
-  maxAttempts: 3
+  maxAttempts: 3,
+  streamingStatus: null,
+  currentTaskId: null
 }
 
 function pushMessage(
@@ -91,6 +100,21 @@ export const assistantSlice = createSlice({
         state.maxAttempts = action.payload.maxAttempts
       }
     },
+    setStreamingStatus(state, action: PayloadAction<StreamingStatus>) {
+      state.streamingStatus = action.payload
+    },
+    updateStreamingStep(state, action: PayloadAction<{ step: string }>) {
+      if (state.streamingStatus) {
+        state.streamingStatus.step = action.payload.step
+      }
+    },
+    setCurrentTaskId(state, action: PayloadAction<string>) {
+      state.currentTaskId = action.payload
+    },
+    clearStreaming(state) {
+      state.streamingStatus = null
+      state.currentTaskId = null
+    },
     startQuery(state, action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts }>) {
       const prompt = action.payload.prompt.trim()
       state.isRunning = true
@@ -99,6 +123,8 @@ export const assistantSlice = createSlice({
       state.unreachableDetails = null
       state.unreachableCode = null
       state.feedbackChoice = null
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'generating'
       state.currentAttempt = 1
       state.maxAttempts = action.payload.maxAttempts
@@ -115,6 +141,8 @@ export const assistantSlice = createSlice({
       action: PayloadAction<{ prompt: string; result: CubeQueryEntity; logId: string | null }>
     ) {
       state.isRunning = false
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.currentAttempt = 1
       state.lastResult = action.payload.result
@@ -137,6 +165,8 @@ export const assistantSlice = createSlice({
     },
     queryFailed(state, action: PayloadAction<string>) {
       state.isRunning = false
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.currentAttempt = 1
       state.failedSummaryText = action.payload
@@ -148,6 +178,8 @@ export const assistantSlice = createSlice({
     },
     queryCancelled(state) {
       state.isRunning = false
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.currentAttempt = 1
     },
@@ -174,6 +206,8 @@ export const assistantSlice = createSlice({
     },
     resetChat(state) {
       state.messages = []
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.isRunning = false
       state.inputWarning = null
