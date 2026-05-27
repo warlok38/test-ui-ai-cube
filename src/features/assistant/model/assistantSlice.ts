@@ -8,18 +8,34 @@ import {
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import type {
   AssistantPhase,
-  CubeQueryEntity,
+  MessageEntity,
+  SendMessageResponse,
   ValidMaxAttempts
 } from '@/services/assistantWorkflow/types'
 import { createId } from '@/utils/createId'
 
-export type ChatMessage = {
-  id: string
-  role: 'user' | 'assistant'
-  text: string
-  createdAt: number
-  result?: CubeQueryEntity | null
-  logId?: string | null
+export type ChatMessage = MessageEntity
+
+function createMessageStub(queryText: string, chatId: string | null): MessageEntity {
+  return {
+    id: createId(),
+    chat_id: chatId ?? '',
+    prev_id: null,
+    query_text: queryText,
+    dax: null,
+    status: null,
+    attempts_made: null,
+    result_row_count: null,
+    execution_time_ms: null,
+    error_history: null,
+    q_columns: null,
+    q_data: null,
+    interpretation: null,
+    chart_config: null,
+    vote: null,
+    voted_at: null,
+    created_at: new Date().toISOString()
+  }
 }
 
 export type AssistantUiState = {
@@ -29,14 +45,17 @@ export type AssistantUiState = {
   unreachableDetails: string | null
   unreachableCode: string | null
   failedSummaryText: string | null
-  lastResult: CubeQueryEntity | null
+  lastResult: MessageEntity | null
   lastQuery: string | null
-  lastLogId: string | null
+  lastMessageId: string | null
   feedbackChoice: 'like' | 'dislike' | null
   technicalSettings: AssistantTechnicalSettings
   messages: ChatMessage[]
   currentAttempt: number
   maxAttempts: number
+  activeChatId: string | null
+  /** Блокирует loadChatMessages после «Новый чат», пока не уйдём с /chat/:id */
+  suppressChatLoad: boolean
 }
 
 const initialTechnicalSettings = loadTechnicalSettings()
@@ -50,25 +69,14 @@ const initialState: AssistantUiState = {
   failedSummaryText: null,
   lastResult: null,
   lastQuery: null,
-  lastLogId: null,
+  lastMessageId: null,
   feedbackChoice: null,
   technicalSettings: { ...initialTechnicalSettings },
   messages: [],
   currentAttempt: 1,
-  maxAttempts: 3
-}
-
-function pushMessage(
-  list: ChatMessage[],
-  msg: Omit<ChatMessage, 'createdAt'> & Partial<Pick<ChatMessage, 'createdAt'>>
-) {
-  return [
-    ...list,
-    {
-      ...msg,
-      createdAt: msg.createdAt ?? Date.now()
-    }
-  ]
+  maxAttempts: 3,
+  activeChatId: null,
+  suppressChatLoad: false
 }
 
 export const assistantSlice = createSlice({
@@ -91,7 +99,28 @@ export const assistantSlice = createSlice({
         state.maxAttempts = action.payload.maxAttempts
       }
     },
-    startQuery(state, action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts }>) {
+    setActiveChatId(state, action: PayloadAction<string | null>) {
+      state.activeChatId = action.payload
+    },
+    loadChatMessages(
+      state,
+      action: PayloadAction<{ chatId: string; messages: ChatMessage[] }>
+    ) {
+      state.activeChatId = action.payload.chatId
+      state.messages = action.payload.messages
+      state.phase = 'idle'
+      state.isRunning = false
+      state.inputWarning = null
+      state.failedSummaryText = null
+      state.unreachableDetails = null
+      state.unreachableCode = null
+      state.feedbackChoice = null
+      state.currentAttempt = 1
+    },
+    startQuery(
+      state,
+      action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts; chatId?: string | null }>
+    ) {
       const prompt = action.payload.prompt.trim()
       state.isRunning = true
       state.inputWarning = null
@@ -103,48 +132,51 @@ export const assistantSlice = createSlice({
       state.currentAttempt = 1
       state.maxAttempts = action.payload.maxAttempts
       if (prompt) {
-        state.messages = pushMessage(state.messages, {
-          id: createId(),
-          role: 'user',
-          text: prompt
-        })
+        state.messages = [
+          ...state.messages,
+          createMessageStub(prompt, action.payload.chatId ?? state.activeChatId)
+        ]
       }
     },
-    querySucceeded(
-      state,
-      action: PayloadAction<{ prompt: string; result: CubeQueryEntity; logId: string | null }>
-    ) {
+    querySucceeded(state, action: PayloadAction<{ prompt: string; result: SendMessageResponse }>) {
+      const { result } = action.payload
       state.isRunning = false
       state.phase = 'idle'
       state.currentAttempt = 1
-      state.lastResult = action.payload.result
+      state.lastResult = result
       state.lastQuery = action.payload.prompt
-      state.lastLogId = action.payload.logId
-      state.failedSummaryText = action.payload.result.error
-        ? action.payload.result.interpretation
-        : null
-      state.unreachableDetails = action.payload.result.interpretation.includes('недоступен')
-        ? action.payload.result.interpretation
-        : null
+      state.lastMessageId = result.id
+      state.activeChatId = result.chat_id
+      state.failedSummaryText =
+        result.status === 'failed_max' ? (result.interpretation ?? null) : null
+      state.unreachableDetails =
+        result.status === 'server_unreachable' ? (result.interpretation ?? null) : null
       state.unreachableCode = null
-      state.messages = pushMessage(state.messages, {
-        id: createId(),
-        role: 'assistant',
-        text: action.payload.result.interpretation,
-        result: action.payload.result,
-        logId: action.payload.logId
-      })
+
+      const lastIdx = state.messages.length - 1
+      if (lastIdx >= 0) {
+        state.messages[lastIdx] = {
+          ...result,
+          query_text: action.payload.prompt
+        }
+      } else {
+        state.messages.push(result)
+      }
     },
     queryFailed(state, action: PayloadAction<string>) {
       state.isRunning = false
       state.phase = 'idle'
       state.currentAttempt = 1
       state.failedSummaryText = action.payload
-      state.messages = pushMessage(state.messages, {
-        id: createId(),
-        role: 'assistant',
-        text: action.payload
-      })
+
+      const lastIdx = state.messages.length - 1
+      if (lastIdx >= 0) {
+        state.messages[lastIdx] = {
+          ...state.messages[lastIdx],
+          interpretation: action.payload,
+          status: 'failed_max'
+        }
+      }
     },
     queryCancelled(state) {
       state.isRunning = false
@@ -182,9 +214,30 @@ export const assistantSlice = createSlice({
       state.failedSummaryText = null
       state.lastResult = null
       state.lastQuery = null
-      state.lastLogId = null
+      state.lastMessageId = null
       state.feedbackChoice = null
       state.currentAttempt = 1
+      state.activeChatId = null
+      state.suppressChatLoad = false
+    },
+    startNewChat(state) {
+      state.messages = []
+      state.phase = 'idle'
+      state.isRunning = false
+      state.inputWarning = null
+      state.unreachableDetails = null
+      state.unreachableCode = null
+      state.failedSummaryText = null
+      state.lastResult = null
+      state.lastQuery = null
+      state.lastMessageId = null
+      state.feedbackChoice = null
+      state.currentAttempt = 1
+      state.activeChatId = null
+      state.suppressChatLoad = true
+    },
+    clearSuppressChatLoad(state) {
+      state.suppressChatLoad = false
     }
   }
 })

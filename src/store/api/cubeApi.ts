@@ -1,17 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import {
-  aggregateCubeStats,
-  listAdminQueryLogs,
-  listLogs,
-  patchRequestFeedback
-} from '@/modules/fakeDb/repo'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
-import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
-import type { RequestFeedback } from '@/modules/fakeDb/schema'
-import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
-import type { CubeQueryEntity, CubeQueryParams } from '@/services/assistantWorkflow/types'
+import { aggregateCubeStats, listAdminQueryLogs, listLogs } from '@/modules/fakeDb/repo'
 import { randomDelay } from '@/modules/fakeApi/delay'
+import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
 
 const noopBaseQuery: BaseQueryFn = async () => ({ data: null })
 
@@ -24,14 +15,6 @@ export const cubeApi = createApi({
   baseQuery: noopBaseQuery,
   tagTypes: ['CubeStats', 'QueryLogs'],
   endpoints: (builder) => ({
-    executeQuery: builder.mutation<CubeQueryEntity, CubeQueryParams>({
-      async queryFn(body, { signal }) {
-        const settings = loadTechnicalSettings()
-        const data = await executeCubeQuery(body, settings.scenario, signal)
-        return { data }
-      }
-    }),
-
     cubeStats: builder.query<CubeStats, void>({
       async queryFn() {
         await randomDelay(180, 400)
@@ -100,23 +83,8 @@ export const cubeApi = createApi({
           })
         }
       }
-    }),
-
-    submitFeedback: builder.mutation<boolean, { logId: string; feedback: RequestFeedback }>({
-      async queryFn({ logId, feedback }) {
-        await randomDelay(120, 250)
-        const ok = patchRequestFeedback(logId, feedback)
-        return { data: ok }
-      },
-      invalidatesTags: ['QueryLogs', 'CubeStats']
     })
   })
 })
 
-export const {
-  useExecuteQueryMutation,
-  useCubeStatsQuery,
-  useQueryLogsQuery,
-  useExportLogsBinaryMutation,
-  useSubmitFeedbackMutation
-} = cubeApi
+export const { useCubeStatsQuery, useQueryLogsQuery, useExportLogsBinaryMutation } = cubeApi

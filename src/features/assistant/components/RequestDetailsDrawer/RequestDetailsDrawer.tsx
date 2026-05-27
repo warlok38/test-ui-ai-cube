@@ -2,14 +2,16 @@
 
 import { Button, Descriptions, Drawer, Space, Typography } from 'antd'
 import { useState } from 'react'
-import type { CubeQueryEntity } from '@/services/assistantWorkflow/types'
+import type { MessageEntity } from '@/services/assistantWorkflow/types'
 
 type RequestDetailsProps = {
-  result: CubeQueryEntity
+  result: MessageEntity
 }
 
 export function RequestDetailsDrawer({ result }: RequestDetailsProps) {
   const [open, setOpen] = useState(false)
+  const columnCount = result.q_columns?.length ?? 0
+  const rowCount = result.q_data?.length ?? 0
 
   return (
     <>
@@ -20,10 +22,10 @@ export function RequestDetailsDrawer({ result }: RequestDetailsProps) {
         <Space orientation="vertical" size="large" style={{ width: '100%' }}>
           <Descriptions column={1} bordered size="small">
             <Descriptions.Item label="Статус">
-              {result.success ? 'Успех' : 'Ошибка'}
+              {result.status === 'success' ? 'Успех' : 'Ошибка'}
             </Descriptions.Item>
-            <Descriptions.Item label="Колонок">{result.columns.length}</Descriptions.Item>
-            <Descriptions.Item label="Строк данных">{result.data.length}</Descriptions.Item>
+            <Descriptions.Item label="Колонок">{columnCount}</Descriptions.Item>
+            <Descriptions.Item label="Строк данных">{rowCount}</Descriptions.Item>
           </Descriptions>
 
           <div>

@@ -29,44 +29,50 @@ type MessageRowProps = {
   innerRef?: Ref<HTMLDivElement>
 }
 
-const DEFAULT_PIN_STATE = { pinDisabled: false }
-
 function AssistantMessage({ message, innerRef }: MessageRowProps & { message: ChatMessage }) {
-  const { result, logId } = message
-  const hasTable = result && result.data.length > 0
-  const hasChart = hasTable && result.chart_config
+  const { id, interpretation, q_data, q_columns, chart_config, vote } = message
+  const hasTable = Boolean(q_data && q_data.length > 0)
+  const hasChart = hasTable && chart_config
+
+  if (!interpretation) {
+    return null
+  }
 
   return (
     <div ref={innerRef} className={styles.messageRow}>
       <div className={styles.messageAssistant}>
         <div className={styles.markdownBody}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{interpretation}</ReactMarkdown>
         </div>
 
-        {hasTable ? (
+        {hasTable && q_data && q_columns ? (
           <div className={styles.messageAnalytics}>
             <AnalyticsTable
-              rows={result.data}
-              columns={result.columns}
-              onExportExcel={() => exportRowsToExcel(result.data, `cube-result-${Date.now()}.xlsx`)}
+              rows={q_data}
+              columns={q_columns}
+              onExportExcel={() => exportRowsToExcel(q_data, `cube-result-${Date.now()}.xlsx`)}
             />
           </div>
         ) : null}
 
-        {hasChart ? (
+        {hasChart && chart_config && q_data ? (
           <div className={styles.messageAnalytics}>
-            <AnalyticsChart config={result.chart_config} rows={result.data} />
+            <AnalyticsChart config={chart_config} rows={q_data} />
           </div>
         ) : null}
 
-        {logId ? (
+        {id ? (
           <div className={styles.messageFeedback}>
-            <FeedbackBar logId={logId} />
+            <FeedbackBar messageId={id} initialVote={vote} />
           </div>
         ) : null}
       </div>
     </div>
   )
+}
+
+function getAssistantScrollKey(message: ChatMessage): string {
+  return `${message.id ?? 'pending'}-assistant`
 }
 
 export function AssistantChatMessages({
@@ -81,7 +87,10 @@ export function AssistantChatMessages({
   const lastScrolledIdRef = useRef<string | null>(null)
 
   const turns = useMemo(() => groupMessagesIntoTurns(messages), [messages])
-  const turnUserIds = useMemo(() => turns.map((turn) => turn.userMessage.id), [turns])
+  const turnUserIds = useMemo(
+    () => turns.map((turn) => turn.message.id ?? turn.message.created_at),
+    [turns]
+  )
 
   const { pinStates, activePinnedMessageId } = usePinnedQuestionHandoff({
     scrollContainerRef: messageListRef,
@@ -96,18 +105,21 @@ export function AssistantChatMessages({
     }
 
     const last = messages.at(-1)
-    if (!last || last.id === lastScrolledIdRef.current) return
+    if (!last) return
 
-    lastScrolledIdRef.current = last.id
+    const scrollKey = last.interpretation ? getAssistantScrollKey(last) : (last.id ?? last.created_at)
+    if (scrollKey === lastScrolledIdRef.current) return
+
+    lastScrolledIdRef.current = scrollKey
     const container = messageListRef.current
     if (!container) return
 
-    if (last.role === 'user') {
+    if (!last.interpretation) {
       container.scrollTop = container.scrollHeight
       return
     }
 
-    const el = messageRefs.current.get(last.id)
+    const el = messageRefs.current.get(getAssistantScrollKey(last))
     if (!el) return
 
     const offset = el.getBoundingClientRect().top - container.getBoundingClientRect().top
@@ -137,24 +149,22 @@ export function AssistantChatMessages({
       <div ref={messageListRef} className={styles.messageList} data-chat-scroll-container>
         <div className={styles.chatColumn}>
           {turns.map((turn) => {
-            const pinState = pinStates.get(turn.userMessage.id) ?? DEFAULT_PIN_STATE
+            const messageKey = turn.message.id ?? turn.message.created_at
+            const pinState = pinStates.get(messageKey) ?? { pinDisabled: false }
 
             return (
-              <div key={turn.userMessage.id} className={styles.turn}>
+              <div key={messageKey} className={styles.turn}>
                 <PinnedUserQuestion
-                  messageId={turn.userMessage.id}
+                  messageId={messageKey}
                   activePinnedMessageId={pinState.pinDisabled ? null : activePinnedMessageId}
-                  text={turn.userMessage.text}
-                  innerRef={setUserRef(turn.userMessage.id)}
+                  text={turn.message.query_text}
+                  innerRef={setUserRef(messageKey)}
                 />
 
-                {turn.assistantMessages.map((message) => (
-                  <AssistantMessage
-                    key={message.id}
-                    message={message}
-                    innerRef={setMessageRef(message.id)}
-                  />
-                ))}
+                <AssistantMessage
+                  message={turn.message}
+                  innerRef={setMessageRef(getAssistantScrollKey(turn.message))}
+                />
               </div>
             )
           })}

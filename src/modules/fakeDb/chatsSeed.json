@@ -1,0 +1,78 @@
+{
+  "chats": [
+    {
+      "id": "chat-seed-1",
+      "title": "Аналитика продаж Q1",
+      "createdAt": "2026-05-27T08:00:00.000Z",
+      "updatedAt": "2026-05-27T08:05:00.000Z",
+      "messageCount": 1,
+      "lastQueryStatus": "success"
+    },
+    {
+      "id": "chat-seed-2",
+      "title": "Сравнение регионов",
+      "createdAt": "2026-05-26T14:30:00.000Z",
+      "updatedAt": "2026-05-26T14:32:00.000Z",
+      "messageCount": 1,
+      "lastQueryStatus": "success"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg-seed-1",
+      "chatId": "chat-seed-1",
+      "prevId": null,
+      "queryText": "Выручка по регионам за прошлый квартал",
+      "dax": "EVALUATE FILTER(Sales, Sales[Quarter] = \"Q1\")",
+      "status": "success",
+      "attemptsMade": 1,
+      "resultRowCount": 2,
+      "executionTimeMs": 1200,
+      "errorHistory": null,
+      "qColumns": ["period", "revenue", "cost", "margin", "region"],
+      "qData": [
+        { "period": "Q1-W1", "revenue": 900, "cost": 560, "margin": 340, "region": "Север" },
+        { "period": "Q1-W2", "revenue": 947, "cost": 589, "margin": 358, "region": "Юг" }
+      ],
+      "interpretation": "Выручка сосредоточена в ключевых регионах (демо-сид).",
+      "chartConfig": {
+        "chart_type": "bar",
+        "x_axis": "region",
+        "y_axis": "revenue",
+        "title": "Результат по запросу: Выручка по регионам за прошлый квартал",
+        "series": "revenue"
+      },
+      "vote": "like",
+      "votedAt": "2026-05-27T08:05:30.000Z",
+      "createdAt": "2026-05-27T08:00:00.000Z"
+    },
+    {
+      "id": "msg-seed-2",
+      "chatId": "chat-seed-2",
+      "prevId": null,
+      "queryText": "Сравнение регионов по марже",
+      "dax": "EVALUATE SUMMARIZE(Sales, Sales[Region], \"Margin\", SUM(Sales[Margin]))",
+      "status": "success",
+      "attemptsMade": 1,
+      "resultRowCount": 2,
+      "executionTimeMs": 980,
+      "errorHistory": null,
+      "qColumns": ["period", "revenue", "cost", "margin", "region"],
+      "qData": [
+        { "period": "Q1-W1", "revenue": 900, "cost": 560, "margin": 340, "region": "Север" },
+        { "period": "Q1-W3", "revenue": 994, "cost": 618, "margin": 376, "region": "Запад" }
+      ],
+      "interpretation": "Маржа выше в регионе Запад (демо-сид).",
+      "chartConfig": {
+        "chart_type": "bar",
+        "x_axis": "region",
+        "y_axis": "margin",
+        "title": "Результат по запросу: Сравнение регионов по марже",
+        "series": "margin"
+      },
+      "vote": null,
+      "votedAt": null,
+      "createdAt": "2026-05-26T14:30:00.000Z"
+    }
+  ]
+}

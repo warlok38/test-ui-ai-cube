@@ -4,31 +4,33 @@ import { LikeOutlined, DislikeOutlined } from '@ant-design/icons'
 import { App, Button, Space, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { useState } from 'react'
-import { useSubmitFeedbackMutation } from '@/store/api/cubeApi'
+import type { RequestFeedback } from '@/modules/fakeDb/schema'
+import { useVoteMessageMutation } from '@/store/api/chatsApi'
 
 import styles from './FeedbackBar.module.css'
 
 type FeedbackBarProps = {
-  logId: string | null
+  messageId: string | null
+  initialVote?: RequestFeedback | null
 }
 
-export function FeedbackBar({ logId }: FeedbackBarProps) {
+export function FeedbackBar({ messageId, initialVote = null }: FeedbackBarProps) {
   const { message } = App.useApp()
-  const [submitFeedback, { isLoading }] = useSubmitFeedbackMutation()
-  const [choice, setChoice] = useState<'like' | 'dislike' | null>(null)
+  const [voteMessage, { isLoading }] = useVoteMessageMutation()
+  const [choice, setChoice] = useState<RequestFeedback | null>(initialVote)
 
-  if (!logId) {
+  if (!messageId) {
     return null
   }
 
-  const handle = async (feedback: 'like' | 'dislike') => {
-    const ok = await submitFeedback({ logId, feedback }).unwrap()
-    if (!ok) {
+  const handle = async (vote: RequestFeedback) => {
+    try {
+      await voteMessage({ message_id: messageId, vote }).unwrap()
+      setChoice(vote)
+      message.success('Спасибо за обратную связь')
+    } catch {
       message.error('Не удалось сохранить оценку')
-      return
     }
-    setChoice(feedback)
-    message.success('Спасибо за обратную связь')
   }
 
   return (
