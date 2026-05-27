@@ -2,10 +2,10 @@
 
 import { Button, Descriptions, Drawer, Space, Typography } from 'antd'
 import { useState } from 'react'
-import type { CubeQueryEntity } from '@/services/assistantWorkflow/types'
+import type { MessageEntity } from '@/services/assistantWorkflow/types'
 
 type RequestDetailsProps = {
-  result: CubeQueryEntity
+  result: MessageEntity
 }
 
 export function RequestDetailsDrawer({ result }: RequestDetailsProps) {

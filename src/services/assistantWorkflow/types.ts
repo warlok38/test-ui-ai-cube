@@ -1,10 +1,10 @@
-import type { RequestLogStatus } from '@/modules/fakeDb/schema'
+import type { RequestFeedback, RequestLogStatus } from '@/modules/fakeDb/schema'
 
 export type AssistantPhase = 'idle' | 'checking' | 'generating' | 'fetching' | 'interpreting'
 
 export type ChartType = 'bar' | 'line'
 
-export type CubeQueryChartConfig = {
+export type MessageChartConfig = {
   chart_type: ChartType
   x_axis: string
   y_axis: string
@@ -12,26 +12,87 @@ export type CubeQueryChartConfig = {
   series: string
 }
 
-export type CubeQueryDataEntity = {
+export type MessageDataRow = {
   [key: string]: string | number | null
 }
 
-export type CubeQueryEntity = {
+export type MessageEntity = {
   success: boolean
   error: boolean
-  data: CubeQueryDataEntity[]
+  data: MessageDataRow[]
   columns: string[]
   dax: string
   interpretation: string
-  chart_config: CubeQueryChartConfig
+  chart_config: MessageChartConfig
+  chat_id: string
+  message_id: string
+}
+
+export type SendMessageResponse = MessageEntity & {
+  task_id: string
 }
 
 export type ValidMaxAttempts = 1 | 2 | 3 | 4 | 5
 
-export type CubeQueryParams = {
+export type MessageSendParams = {
   query: string
   max_attempts?: ValidMaxAttempts
+  chat_id?: string
+  /** Клиент может передать id для cancel во время in-flight запроса */
+  task_id?: string
 }
+
+export type ChatEntity = {
+  id: string
+  title: string
+  created_at: string
+  updated_at: string
+  message_count: number
+  last_query_status?: RequestLogStatus
+}
+
+export type ChatMessageRecord = {
+  message_id: string
+  chat_id: string
+  role: 'user' | 'assistant'
+  created_at: string
+  query?: string
+  feedback?: RequestFeedback | null
+  success?: boolean
+  error?: boolean
+  data?: MessageDataRow[]
+  columns?: string[]
+  dax?: string
+  interpretation?: string
+  chart_config?: MessageChartConfig
+}
+
+export type ChatDetailEntity = ChatEntity & {
+  messages: ChatMessageRecord[]
+}
+
+export type PatchMessageFeedbackBody = {
+  feedback: RequestFeedback
+}
+
+export type DeleteChatResponse = {
+  ok: string
+  message: string
+}
+
+export type CancelTaskResponse = {
+  cancelled: boolean
+  task_id: string
+}
+
+/** @deprecated Use MessageChartConfig */
+export type CubeQueryChartConfig = MessageChartConfig
+/** @deprecated Use MessageDataRow */
+export type CubeQueryDataEntity = MessageDataRow
+/** @deprecated Use MessageEntity */
+export type CubeQueryEntity = MessageEntity
+/** @deprecated Use MessageSendParams */
+export type CubeQueryParams = MessageSendParams
 
 export type ChartConfigPayload = {
   type: 'bar' | 'line'

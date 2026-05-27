@@ -12,14 +12,14 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
-import type { CubeQueryChartConfig } from '@/services/assistantWorkflow/types'
+import type { MessageChartConfig } from '@/services/assistantWorkflow/types'
 import { PALETTE_PRIMARY, PALETTE_PRIMARY_DARK, CHART_GRID_STROKE } from '@/constants/theme'
 import { useTheme } from '@/hooks'
 import { Card, Typography } from 'antd'
 import { formatSmartDateTime, isDateColumn, parseIsoToTimestamp } from '@/utils/formatDateTime'
 
 type AnalyticsChartProps = {
-  config: CubeQueryChartConfig
+  config: MessageChartConfig
   rows: Record<string, string | number | null>[]
 }
 

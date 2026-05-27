@@ -192,9 +192,50 @@
   letter-spacing: normal;
 }
 
+.chatItemWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.chatItemWrap:hover .chatDeleteButton,
+.chatItemWrap:focus-within .chatDeleteButton {
+  opacity: 1;
+}
+
+.chatItemWrapActive .chatItem {
+  background: var(--color-bg-sidebar-accent);
+  border-color: var(--color-border-sidebar);
+}
+
+.chatDeleteButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-sidebar);
+  background: transparent;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.chatDeleteButton:hover {
+  background: var(--color-bg-sidebar-hover);
+  color: var(--color-danger, #ff4d4f);
+}
+
 .chatItem {
   display: block;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: var(--space-2);
   border: var(--border-width-hairline) solid transparent;
   border-radius: var(--radius-5);

@@ -32,7 +32,7 @@ type MessageRowProps = {
 const DEFAULT_PIN_STATE = { pinDisabled: false }
 
 function AssistantMessage({ message, innerRef }: MessageRowProps & { message: ChatMessage }) {
-  const { result, logId } = message
+  const { result, messageId, feedback } = message
   const hasTable = result && result.data.length > 0
   const hasChart = hasTable && result.chart_config
 
@@ -59,9 +59,9 @@ function AssistantMessage({ message, innerRef }: MessageRowProps & { message: Ch
           </div>
         ) : null}
 
-        {logId ? (
+        {messageId ? (
           <div className={styles.messageFeedback}>
-            <FeedbackBar logId={logId} />
+            <FeedbackBar messageId={messageId} initialFeedback={feedback} />
           </div>
         ) : null}
       </div>

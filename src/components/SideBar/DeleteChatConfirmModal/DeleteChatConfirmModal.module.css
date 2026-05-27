@@ -1,0 +1,95 @@
+.modal :global(.ant-modal-content) {
+  padding: 0;
+  border-radius: var(--radius-12);
+  background: var(--palette-bg-elevated);
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 12%);
+}
+
+.modal :global(.ant-modal-body) {
+  padding: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.description {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.cancelButton,
+.deleteButton {
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.cancelButton {
+  border: var(--border-width-hairline) solid var(--color-border-interactive);
+  color: var(--color-text-default);
+  background: transparent;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: var(--color-bg-interactive-hover);
+}
+
+.deleteButton {
+  border: 0;
+  color: var(--color-text-inverse);
+  background: #c0392b;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #a93226;
+}
+
+.cancelButton:disabled,
+.deleteButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cancelButton:focus-visible,
+.deleteButton:focus-visible {
+  outline: var(--border-width-strong) solid var(--palette-accent-primary);
+  outline-offset: var(--border-width-hairline);
+}
+
+html[data-theme='dark'] .deleteButton {
+  background: #d64541;
+}
+
+html[data-theme='dark'] .deleteButton:hover:not(:disabled) {
+  background: #b83a36;
+}

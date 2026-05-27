@@ -1,9 +1,9 @@
 import { LLM_RESPONSE_DELAY_MS, type FakeScenarioKind } from '@/modules/fakeLlm/config'
 import type {
-  CubeQueryChartConfig,
-  CubeQueryDataEntity,
-  CubeQueryEntity,
-  CubeQueryParams
+  MessageChartConfig,
+  MessageDataRow,
+  MessageEntity,
+  MessageSendParams
 } from '@/services/assistantWorkflow/types'
 import { fakeDelay, throwIfAborted } from './delay'
 
@@ -113,7 +113,7 @@ function buildDax(query: string, attempt: number): string {
   return `-- attempt ${attempt}\nEVALUATE\nSUMMARIZECOLUMNS(\n  Metrics[metric],\n  "value", SUM(Facts[amount])\n)\n-- prompt: ${query}`
 }
 
-function buildColumns(rows: CubeQueryDataEntity[]): string[] {
+function buildColumns(rows: MessageDataRow[]): string[] {
   const uniq = new Set<string>()
   for (const row of rows) {
     Object.keys(row).forEach((key) => uniq.add(key))
@@ -121,7 +121,7 @@ function buildColumns(rows: CubeQueryDataEntity[]): string[] {
   return Array.from(uniq)
 }
 
-function fallbackChartConfig(): CubeQueryChartConfig {
+function fallbackChartConfig(): MessageChartConfig {
   return {
     chart_type: 'bar',
     x_axis: 'category',
@@ -132,10 +132,10 @@ function fallbackChartConfig(): CubeQueryChartConfig {
 }
 
 function buildChartConfig(
-  rows: CubeQueryDataEntity[],
+  rows: MessageDataRow[],
   scenario: FakeScenarioKind,
   query: string
-): CubeQueryChartConfig {
+): MessageChartConfig {
   const first = rows[0]
   if (!first) return fallbackChartConfig()
 
@@ -154,10 +154,10 @@ function buildChartConfig(
 }
 
 export async function executeCubeQuery(
-  params: CubeQueryParams,
+  params: MessageSendParams,
   scenario: FakeScenarioKind,
   signal?: AbortSignal
-): Promise<CubeQueryEntity> {
+): Promise<Omit<MessageEntity, 'chat_id' | 'message_id'>> {
   const query = params.query.trim()
   const maxAttempts = params.max_attempts ?? 3
 

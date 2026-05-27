@@ -6,11 +6,8 @@ import {
   type AssistantTechnicalSettings
 } from '@/features/technical/model'
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
-import type {
-  AssistantPhase,
-  CubeQueryEntity,
-  ValidMaxAttempts
-} from '@/services/assistantWorkflow/types'
+import type { AssistantPhase, MessageEntity, ValidMaxAttempts } from '@/services/assistantWorkflow/types'
+import type { RequestFeedback } from '@/modules/fakeDb/schema'
 import { createId } from '@/utils/createId'
 
 export type ChatMessage = {
@@ -18,8 +15,9 @@ export type ChatMessage = {
   role: 'user' | 'assistant'
   text: string
   createdAt: number
-  result?: CubeQueryEntity | null
-  logId?: string | null
+  result?: MessageEntity | null
+  messageId?: string | null
+  feedback?: RequestFeedback | null
 }
 
 export type AssistantUiState = {
@@ -29,14 +27,17 @@ export type AssistantUiState = {
   unreachableDetails: string | null
   unreachableCode: string | null
   failedSummaryText: string | null
-  lastResult: CubeQueryEntity | null
+  lastResult: MessageEntity | null
   lastQuery: string | null
-  lastLogId: string | null
+  lastMessageId: string | null
   feedbackChoice: 'like' | 'dislike' | null
   technicalSettings: AssistantTechnicalSettings
   messages: ChatMessage[]
   currentAttempt: number
   maxAttempts: number
+  activeChatId: string | null
+  /** Блокирует loadChatMessages после «Новый чат», пока не уйдём с /chat/:id */
+  suppressChatLoad: boolean
 }
 
 const initialTechnicalSettings = loadTechnicalSettings()
@@ -50,12 +51,14 @@ const initialState: AssistantUiState = {
   failedSummaryText: null,
   lastResult: null,
   lastQuery: null,
-  lastLogId: null,
+  lastMessageId: null,
   feedbackChoice: null,
   technicalSettings: { ...initialTechnicalSettings },
   messages: [],
   currentAttempt: 1,
-  maxAttempts: 3
+  maxAttempts: 3,
+  activeChatId: null,
+  suppressChatLoad: false
 }
 
 function pushMessage(
@@ -91,6 +94,24 @@ export const assistantSlice = createSlice({
         state.maxAttempts = action.payload.maxAttempts
       }
     },
+    setActiveChatId(state, action: PayloadAction<string | null>) {
+      state.activeChatId = action.payload
+    },
+    loadChatMessages(
+      state,
+      action: PayloadAction<{ chatId: string; messages: ChatMessage[] }>
+    ) {
+      state.activeChatId = action.payload.chatId
+      state.messages = action.payload.messages
+      state.phase = 'idle'
+      state.isRunning = false
+      state.inputWarning = null
+      state.failedSummaryText = null
+      state.unreachableDetails = null
+      state.unreachableCode = null
+      state.feedbackChoice = null
+      state.currentAttempt = 1
+    },
     startQuery(state, action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts }>) {
       const prompt = action.payload.prompt.trim()
       state.isRunning = true
@@ -112,14 +133,20 @@ export const assistantSlice = createSlice({
     },
     querySucceeded(
       state,
-      action: PayloadAction<{ prompt: string; result: CubeQueryEntity; logId: string | null }>
+      action: PayloadAction<{
+        prompt: string
+        result: MessageEntity
+        messageId: string
+        chatId: string
+      }>
     ) {
       state.isRunning = false
       state.phase = 'idle'
       state.currentAttempt = 1
       state.lastResult = action.payload.result
       state.lastQuery = action.payload.prompt
-      state.lastLogId = action.payload.logId
+      state.lastMessageId = action.payload.messageId
+      state.activeChatId = action.payload.chatId
       state.failedSummaryText = action.payload.result.error
         ? action.payload.result.interpretation
         : null
@@ -132,7 +159,8 @@ export const assistantSlice = createSlice({
         role: 'assistant',
         text: action.payload.result.interpretation,
         result: action.payload.result,
-        logId: action.payload.logId
+        messageId: action.payload.messageId,
+        feedback: null
       })
     },
     queryFailed(state, action: PayloadAction<string>) {
@@ -182,9 +210,30 @@ export const assistantSlice = createSlice({
       state.failedSummaryText = null
       state.lastResult = null
       state.lastQuery = null
-      state.lastLogId = null
+      state.lastMessageId = null
       state.feedbackChoice = null
       state.currentAttempt = 1
+      state.activeChatId = null
+      state.suppressChatLoad = false
+    },
+    startNewChat(state) {
+      state.messages = []
+      state.phase = 'idle'
+      state.isRunning = false
+      state.inputWarning = null
+      state.unreachableDetails = null
+      state.unreachableCode = null
+      state.failedSummaryText = null
+      state.lastResult = null
+      state.lastQuery = null
+      state.lastMessageId = null
+      state.feedbackChoice = null
+      state.currentAttempt = 1
+      state.activeChatId = null
+      state.suppressChatLoad = true
+    },
+    clearSuppressChatLoad(state) {
+      state.suppressChatLoad = false
     }
   }
 })
