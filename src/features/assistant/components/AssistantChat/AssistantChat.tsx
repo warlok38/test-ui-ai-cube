@@ -308,6 +308,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
         <>
           <AssistantChatMessages
             messages={visibleMessages}
+            chatId={routeChatId}
             isRunning={assistant.isRunning}
             currentAttempt={assistant.currentAttempt}
             maxAttempts={assistant.maxAttempts}
