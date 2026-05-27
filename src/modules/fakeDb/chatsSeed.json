@@ -5,7 +5,7 @@
       "title": "Аналитика продаж Q1",
       "createdAt": "2026-05-27T08:00:00.000Z",
       "updatedAt": "2026-05-27T08:05:00.000Z",
-      "messageCount": 2,
+      "messageCount": 1,
       "lastQueryStatus": "success"
     },
     {
@@ -13,31 +13,27 @@
       "title": "Сравнение регионов",
       "createdAt": "2026-05-26T14:30:00.000Z",
       "updatedAt": "2026-05-26T14:32:00.000Z",
-      "messageCount": 2,
+      "messageCount": 1,
       "lastQueryStatus": "success"
     }
   ],
   "messages": [
     {
-      "messageId": "msg-seed-1-user",
+      "id": "msg-seed-1",
       "chatId": "chat-seed-1",
-      "role": "user",
-      "createdAt": "2026-05-27T08:00:00.000Z",
-      "query": "Выручка по регионам за прошлый квартал"
-    },
-    {
-      "messageId": "msg-seed-1-assistant",
-      "chatId": "chat-seed-1",
-      "role": "assistant",
-      "createdAt": "2026-05-27T08:05:00.000Z",
-      "success": true,
-      "error": false,
-      "data": [
+      "prevId": null,
+      "queryText": "Выручка по регионам за прошлый квартал",
+      "dax": "EVALUATE FILTER(Sales, Sales[Quarter] = \"Q1\")",
+      "status": "success",
+      "attemptsMade": 1,
+      "resultRowCount": 2,
+      "executionTimeMs": 1200,
+      "errorHistory": null,
+      "qColumns": ["period", "revenue", "cost", "margin", "region"],
+      "qData": [
         { "period": "Q1-W1", "revenue": 900, "cost": 560, "margin": 340, "region": "Север" },
         { "period": "Q1-W2", "revenue": 947, "cost": 589, "margin": 358, "region": "Юг" }
       ],
-      "columns": ["period", "revenue", "cost", "margin", "region"],
-      "dax": "EVALUATE FILTER(Sales, Sales[Quarter] = \"Q1\")",
       "interpretation": "Выручка сосредоточена в ключевых регионах (демо-сид).",
       "chartConfig": {
         "chart_type": "bar",
@@ -46,28 +42,26 @@
         "title": "Результат по запросу: Выручка по регионам за прошлый квартал",
         "series": "revenue"
       },
-      "feedback": "like"
+      "vote": "like",
+      "votedAt": "2026-05-27T08:05:30.000Z",
+      "createdAt": "2026-05-27T08:00:00.000Z"
     },
     {
-      "messageId": "msg-seed-2-user",
+      "id": "msg-seed-2",
       "chatId": "chat-seed-2",
-      "role": "user",
-      "createdAt": "2026-05-26T14:30:00.000Z",
-      "query": "Сравнение регионов по марже"
-    },
-    {
-      "messageId": "msg-seed-2-assistant",
-      "chatId": "chat-seed-2",
-      "role": "assistant",
-      "createdAt": "2026-05-26T14:32:00.000Z",
-      "success": true,
-      "error": false,
-      "data": [
+      "prevId": null,
+      "queryText": "Сравнение регионов по марже",
+      "dax": "EVALUATE SUMMARIZE(Sales, Sales[Region], \"Margin\", SUM(Sales[Margin]))",
+      "status": "success",
+      "attemptsMade": 1,
+      "resultRowCount": 2,
+      "executionTimeMs": 980,
+      "errorHistory": null,
+      "qColumns": ["period", "revenue", "cost", "margin", "region"],
+      "qData": [
         { "period": "Q1-W1", "revenue": 900, "cost": 560, "margin": 340, "region": "Север" },
         { "period": "Q1-W3", "revenue": 994, "cost": 618, "margin": 376, "region": "Запад" }
       ],
-      "columns": ["period", "revenue", "cost", "margin", "region"],
-      "dax": "EVALUATE SUMMARIZE(Sales, Sales[Region], \"Margin\", SUM(Sales[Margin]))",
       "interpretation": "Маржа выше в регионе Запад (демо-сид).",
       "chartConfig": {
         "chart_type": "bar",
@@ -76,7 +70,9 @@
         "title": "Результат по запросу: Сравнение регионов по марже",
         "series": "margin"
       },
-      "feedback": null
+      "vote": null,
+      "votedAt": null,
+      "createdAt": "2026-05-26T14:30:00.000Z"
     }
   ]
 }

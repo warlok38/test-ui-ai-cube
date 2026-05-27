@@ -203,7 +203,13 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
     const taskId = createId()
     taskIdRef.current = taskId
 
-    dispatch(assistantActions.startQuery({ prompt: text, maxAttempts }))
+    dispatch(
+      assistantActions.startQuery({
+        prompt: text,
+        maxAttempts,
+        chatId: routeChatId ?? assistant.activeChatId
+      })
+    )
 
     const chatId = routeChatId ?? assistant.activeChatId ?? undefined
     const request = sendMessage({
@@ -234,9 +240,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       dispatch(
         assistantActions.querySucceeded({
           prompt: text,
-          result,
-          messageId: result.message_id,
-          chatId: result.chat_id
+          result
         })
       )
       dispatch(cubeApi.util.invalidateTags(['CubeStats', 'QueryLogs']))

@@ -5,28 +5,28 @@ import { App, Button, Space, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { useState } from 'react'
 import type { RequestFeedback } from '@/modules/fakeDb/schema'
-import { usePatchMessageFeedbackMutation } from '@/store/api/chatsApi'
+import { useVoteMessageMutation } from '@/store/api/chatsApi'
 
 import styles from './FeedbackBar.module.css'
 
 type FeedbackBarProps = {
   messageId: string | null
-  initialFeedback?: RequestFeedback | null
+  initialVote?: RequestFeedback | null
 }
 
-export function FeedbackBar({ messageId, initialFeedback = null }: FeedbackBarProps) {
+export function FeedbackBar({ messageId, initialVote = null }: FeedbackBarProps) {
   const { message } = App.useApp()
-  const [patchFeedback, { isLoading }] = usePatchMessageFeedbackMutation()
-  const [choice, setChoice] = useState<RequestFeedback | null>(initialFeedback)
+  const [voteMessage, { isLoading }] = useVoteMessageMutation()
+  const [choice, setChoice] = useState<RequestFeedback | null>(initialVote)
 
   if (!messageId) {
     return null
   }
 
-  const handle = async (feedback: RequestFeedback) => {
+  const handle = async (vote: RequestFeedback) => {
     try {
-      await patchFeedback({ messageId, body: { feedback } }).unwrap()
-      setChoice(feedback)
+      await voteMessage({ message_id: messageId, vote }).unwrap()
+      setChoice(vote)
       message.success('Спасибо за обратную связь')
     } catch {
       message.error('Не удалось сохранить оценку')

@@ -1,10 +1,5 @@
-import type {
-  ChatDetailEntity,
-  ChatEntity,
-  ChatMessageRecord,
-  MessageChartConfig
-} from '@/services/assistantWorkflow/types'
-import type { ChatMessageRecordDb, ChatRecord } from './chatSchema'
+import type { ChatDetailEntity, ChatEntity, MessageEntity } from '@/services/assistantWorkflow/types'
+import type { ChatRecord, MessageRecordDb } from './chatSchema'
 
 export function toChatEntity(chat: ChatRecord): ChatEntity {
   return {
@@ -17,45 +12,40 @@ export function toChatEntity(chat: ChatRecord): ChatEntity {
   }
 }
 
-export function toChatMessageRecord(msg: ChatMessageRecordDb): ChatMessageRecord {
-  const base: ChatMessageRecord = {
-    message_id: msg.messageId,
+export function toMessageEntity(msg: MessageRecordDb): MessageEntity {
+  return {
+    id: msg.id,
     chat_id: msg.chatId,
-    role: msg.role,
-    created_at: msg.createdAt,
-    query: msg.query,
-    feedback: msg.feedback ?? null
+    prev_id: msg.prevId,
+    query_text: msg.queryText,
+    dax: msg.dax,
+    status: msg.status,
+    attempts_made: msg.attemptsMade,
+    result_row_count: msg.resultRowCount,
+    execution_time_ms: msg.executionTimeMs,
+    error_history: msg.errorHistory,
+    q_columns: msg.qColumns,
+    q_data: msg.qData,
+    interpretation: msg.interpretation,
+    chart_config: msg.chartConfig,
+    vote: msg.vote,
+    voted_at: msg.votedAt,
+    created_at: msg.createdAt
   }
-
-  if (msg.role === 'assistant') {
-    return {
-      ...base,
-      success: msg.success,
-      error: msg.error,
-      data: msg.data,
-      columns: msg.columns,
-      dax: msg.dax,
-      interpretation: msg.interpretation,
-      chart_config: msg.chartConfig
-    }
-  }
-
-  return base
 }
+
+/** @deprecated Use toMessageEntity */
+export const toChatMessageRecord = toMessageEntity
 
 export function toChatDetailEntity(
   chat: ChatRecord,
-  messages: ChatMessageRecordDb[]
+  messages: MessageRecordDb[]
 ): ChatDetailEntity {
   return {
     ...toChatEntity(chat),
     messages: messages
       .filter((m) => m.chatId === chat.id)
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-      .map(toChatMessageRecord)
+      .map(toMessageEntity)
   }
-}
-
-export function dbChartToApi(chart?: MessageChartConfig): MessageChartConfig | undefined {
-  return chart
 }

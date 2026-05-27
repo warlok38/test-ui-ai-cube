@@ -5,7 +5,8 @@ import type {
   ChatEntity,
   DeleteChatResponse,
   MessageSendParams,
-  PatchMessageFeedbackBody,
+  PatchMessageVoteBody,
+  PatchMessageVoteResponse,
   SendMessageResponse
 } from '@/services/assistantWorkflow/types'
 
@@ -46,13 +47,10 @@ export const chatsApi = createApi({
       invalidatesTags: ['Chats']
     }),
 
-    patchMessageFeedback: builder.mutation<
-      { ok: boolean },
-      { messageId: string; body: PatchMessageFeedbackBody }
-    >({
-      query: ({ messageId, body }) => ({
-        url: `/chats/messages/${messageId}`,
-        method: 'PATCH',
+    voteMessage: builder.mutation<PatchMessageVoteResponse, PatchMessageVoteBody>({
+      query: (body) => ({
+        url: '/chats/vote',
+        method: 'POST',
         body
       }),
       invalidatesTags: ['Chats', 'CubeStats', 'QueryLogs']
@@ -72,6 +70,6 @@ export const {
   useListChatsQuery,
   useGetChatQuery,
   useDeleteChatMutation,
-  usePatchMessageFeedbackMutation,
+  useVoteMessageMutation,
   useCancelTaskMutation
 } = chatsApi

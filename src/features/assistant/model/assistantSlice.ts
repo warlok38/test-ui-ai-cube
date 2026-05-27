@@ -6,18 +6,36 @@ import {
   type AssistantTechnicalSettings
 } from '@/features/technical/model'
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
-import type { AssistantPhase, MessageEntity, ValidMaxAttempts } from '@/services/assistantWorkflow/types'
-import type { RequestFeedback } from '@/modules/fakeDb/schema'
+import type {
+  AssistantPhase,
+  MessageEntity,
+  SendMessageResponse,
+  ValidMaxAttempts
+} from '@/services/assistantWorkflow/types'
 import { createId } from '@/utils/createId'
 
-export type ChatMessage = {
-  id: string
-  role: 'user' | 'assistant'
-  text: string
-  createdAt: number
-  result?: MessageEntity | null
-  messageId?: string | null
-  feedback?: RequestFeedback | null
+export type ChatMessage = MessageEntity
+
+function createMessageStub(queryText: string, chatId: string | null): MessageEntity {
+  return {
+    id: createId(),
+    chat_id: chatId ?? '',
+    prev_id: null,
+    query_text: queryText,
+    dax: null,
+    status: null,
+    attempts_made: null,
+    result_row_count: null,
+    execution_time_ms: null,
+    error_history: null,
+    q_columns: null,
+    q_data: null,
+    interpretation: null,
+    chart_config: null,
+    vote: null,
+    voted_at: null,
+    created_at: new Date().toISOString()
+  }
 }
 
 export type AssistantUiState = {
@@ -61,19 +79,6 @@ const initialState: AssistantUiState = {
   suppressChatLoad: false
 }
 
-function pushMessage(
-  list: ChatMessage[],
-  msg: Omit<ChatMessage, 'createdAt'> & Partial<Pick<ChatMessage, 'createdAt'>>
-) {
-  return [
-    ...list,
-    {
-      ...msg,
-      createdAt: msg.createdAt ?? Date.now()
-    }
-  ]
-}
-
 export const assistantSlice = createSlice({
   name: 'assistant',
   initialState,
@@ -112,7 +117,10 @@ export const assistantSlice = createSlice({
       state.feedbackChoice = null
       state.currentAttempt = 1
     },
-    startQuery(state, action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts }>) {
+    startQuery(
+      state,
+      action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts; chatId?: string | null }>
+    ) {
       const prompt = action.payload.prompt.trim()
       state.isRunning = true
       state.inputWarning = null
@@ -124,55 +132,51 @@ export const assistantSlice = createSlice({
       state.currentAttempt = 1
       state.maxAttempts = action.payload.maxAttempts
       if (prompt) {
-        state.messages = pushMessage(state.messages, {
-          id: createId(),
-          role: 'user',
-          text: prompt
-        })
+        state.messages = [
+          ...state.messages,
+          createMessageStub(prompt, action.payload.chatId ?? state.activeChatId)
+        ]
       }
     },
-    querySucceeded(
-      state,
-      action: PayloadAction<{
-        prompt: string
-        result: MessageEntity
-        messageId: string
-        chatId: string
-      }>
-    ) {
+    querySucceeded(state, action: PayloadAction<{ prompt: string; result: SendMessageResponse }>) {
+      const { result } = action.payload
       state.isRunning = false
       state.phase = 'idle'
       state.currentAttempt = 1
-      state.lastResult = action.payload.result
+      state.lastResult = result
       state.lastQuery = action.payload.prompt
-      state.lastMessageId = action.payload.messageId
-      state.activeChatId = action.payload.chatId
-      state.failedSummaryText = action.payload.result.error
-        ? action.payload.result.interpretation
-        : null
-      state.unreachableDetails = action.payload.result.interpretation.includes('недоступен')
-        ? action.payload.result.interpretation
-        : null
+      state.lastMessageId = result.id
+      state.activeChatId = result.chat_id
+      state.failedSummaryText =
+        result.status === 'failed_max' ? (result.interpretation ?? null) : null
+      state.unreachableDetails =
+        result.status === 'server_unreachable' ? (result.interpretation ?? null) : null
       state.unreachableCode = null
-      state.messages = pushMessage(state.messages, {
-        id: createId(),
-        role: 'assistant',
-        text: action.payload.result.interpretation,
-        result: action.payload.result,
-        messageId: action.payload.messageId,
-        feedback: null
-      })
+
+      const lastIdx = state.messages.length - 1
+      if (lastIdx >= 0) {
+        state.messages[lastIdx] = {
+          ...result,
+          query_text: action.payload.prompt
+        }
+      } else {
+        state.messages.push(result)
+      }
     },
     queryFailed(state, action: PayloadAction<string>) {
       state.isRunning = false
       state.phase = 'idle'
       state.currentAttempt = 1
       state.failedSummaryText = action.payload
-      state.messages = pushMessage(state.messages, {
-        id: createId(),
-        role: 'assistant',
-        text: action.payload
-      })
+
+      const lastIdx = state.messages.length - 1
+      if (lastIdx >= 0) {
+        state.messages[lastIdx] = {
+          ...state.messages[lastIdx],
+          interpretation: action.payload,
+          status: 'failed_max'
+        }
+      }
     },
     queryCancelled(state) {
       state.isRunning = false

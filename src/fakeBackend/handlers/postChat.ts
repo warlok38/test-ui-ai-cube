@@ -1,7 +1,8 @@
 import { appendRequestLog } from '@/modules/fakeDb/repo'
-import { appendAssistantMessage, appendUserMessage, ensureChat } from '@/modules/fakeDb/chatRepo'
+import { appendMessage, ensureChat } from '@/modules/fakeDb/chatRepo'
 import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { toMessageEntity } from '@/modules/fakeDb/chatMappers'
 import type { MessageSendParams, SendMessageResponse } from '@/services/assistantWorkflow/types'
 import { createId } from '@/utils/createId'
 import { registerTask, unregisterTask } from '../taskRegistry'
@@ -27,8 +28,6 @@ export async function postChat(
 
   try {
     const chat = ensureChat(params.chat_id, query)
-    appendUserMessage(chat.id, query)
-
     const settings = loadTechnicalSettings()
     const maxAttempts = params.max_attempts ?? 3
     const startedAt = performance.now()
@@ -39,40 +38,43 @@ export async function postChat(
       controller.signal
     )
 
-    const assistantMsg = appendAssistantMessage(chat.id, {
-      success: result.success,
-      error: result.error,
-      data: result.data,
-      columns: result.columns,
+    const durationMs = Math.round(performance.now() - startedAt)
+
+    const saved = appendMessage(chat.id, {
+      query_text: query,
       dax: result.dax,
+      status: result.status,
+      attempts_made: result.attempts_made,
+      result_row_count: result.result_row_count,
+      execution_time_ms: durationMs,
+      error_history: result.error_history,
+      q_columns: result.q_columns,
+      q_data: result.q_data,
       interpretation: result.interpretation,
-      chart_config: result.chart_config
+      chart_config: result.chart_config,
+      vote: null,
+      voted_at: null
     })
 
-    const durationMs = Math.round(performance.now() - startedAt)
-    let status: 'success' | 'server_unreachable' | 'failed_max' = 'failed_max'
-    if (result.success) {
-      status = 'success'
-    } else if (settings.scenario === 'server_unreachable') {
-      status = 'server_unreachable'
-    }
+    const message = toMessageEntity(saved)
 
     appendRequestLog({
       userPrompt: query,
       finalDax: result.dax || null,
-      status,
-      attemptsUsed: result.success ? 1 : maxAttempts,
-      retrySummaries: result.error ? [result.interpretation] : [],
+      status: result.status ?? 'failed_max',
+      attemptsUsed: result.attempts_made ?? maxAttempts,
+      retrySummaries:
+        result.error_history?.map((entry) =>
+          typeof entry === 'string' ? entry : JSON.stringify(entry)
+        ) ?? [],
       interpretation: result.interpretation,
-      tableRows: result.success ? result.data : null,
+      tableRows: result.status === 'success' ? (result.q_data ?? []) : null,
       durationMs,
       feedback: null
     })
 
     return {
-      ...result,
-      chat_id: chat.id,
-      message_id: assistantMsg.messageId,
+      ...message,
       task_id: taskId
     }
   } catch (error) {

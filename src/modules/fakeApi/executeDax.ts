@@ -1,8 +1,8 @@
 import { LLM_RESPONSE_DELAY_MS, type FakeScenarioKind } from '@/modules/fakeLlm/config'
 import type {
+  CubeQueryResult,
   MessageChartConfig,
   MessageDataRow,
-  MessageEntity,
   MessageSendParams
 } from '@/services/assistantWorkflow/types'
 import { fakeDelay, throwIfAborted } from './delay'
@@ -153,43 +153,54 @@ function buildChartConfig(
   }
 }
 
+function emptyResult(
+  overrides: Partial<CubeQueryResult> & Pick<CubeQueryResult, 'dax' | 'interpretation' | 'status'>
+): CubeQueryResult {
+  return {
+    dax: overrides.dax,
+    status: overrides.status,
+    attempts_made: overrides.attempts_made ?? null,
+    result_row_count: overrides.result_row_count ?? 0,
+    error_history: overrides.error_history ?? null,
+    q_columns: overrides.q_columns ?? [],
+    q_data: overrides.q_data ?? [],
+    interpretation: overrides.interpretation,
+    chart_config: overrides.chart_config ?? fallbackChartConfig()
+  }
+}
+
 export async function executeCubeQuery(
   params: MessageSendParams,
   scenario: FakeScenarioKind,
   signal?: AbortSignal
-): Promise<Omit<MessageEntity, 'chat_id' | 'message_id'>> {
+): Promise<CubeQueryResult> {
   const query = params.query.trim()
   const maxAttempts = params.max_attempts ?? 3
 
   if (!query) {
-    return {
-      success: false,
-      error: true,
-      data: [],
-      columns: [],
+    return emptyResult({
       dax: '',
+      status: null,
       interpretation:
-        'Введите текст запроса: поле не должно быть пустым.\n\nУточните метрику, период и разрез анализа (например, регион или канал), чтобы система сформировала корректный DAX и вернула содержательный результат.',
-      chart_config: fallbackChartConfig()
-    }
+        'Введите текст запроса: поле не должно быть пустым.\n\nУточните метрику, период и разрез анализа (например, регион или канал), чтобы система сформировала корректный DAX и вернула содержательный результат.'
+    })
   }
 
   if (scenario === 'server_unreachable') {
-    return {
-      success: false,
-      error: true,
-      data: [],
-      columns: [],
+    return emptyResult({
       dax: buildDax(query, 1),
+      status: 'server_unreachable',
+      attempts_made: 1,
       interpretation:
-        'Сервер OLAP недоступен. Проверьте соединение и повторите запрос.\n\nЕсли проблема сохраняется, проверьте доступность источника данных и сетевые ограничения между сервисами.',
-      chart_config: fallbackChartConfig()
-    }
+        'Сервер OLAP недоступен. Проверьте соединение и повторите запрос.\n\nЕсли проблема сохраняется, проверьте доступность источника данных и сетевые ограничения между сервисами.'
+    })
   }
 
   await fakeDelay(LLM_RESPONSE_DELAY_MS, signal)
 
   let lastDax = buildDax(query, 1)
+  const errorHistory: unknown[] = []
+
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     lastDax = buildDax(query, attempt)
     const result = await executeDaxQuery(
@@ -205,29 +216,35 @@ export async function executeCubeQuery(
     throwIfAborted(signal)
 
     if (result.kind === 'success' && result.rows.length > 0) {
-      const data = result.rows
-      const previewColumns = buildColumns(data).slice(0, 3).join(', ')
+      const qData = result.rows
+      const previewColumns = buildColumns(qData).slice(0, 3).join(', ')
       return {
-        success: true,
-        error: false,
-        data,
-        columns: buildColumns(data),
         dax: lastDax,
+        status: 'success',
+        attempts_made: attempt,
+        result_row_count: qData.length,
+        error_history: errorHistory.length > 0 ? errorHistory : null,
+        q_columns: buildColumns(qData),
+        q_data: qData,
         interpretation:
-          `Запрос «${query}» выполнен успешно: получено ${data.length} строк. Данные согласованы по ключевым полям (${previewColumns}), и выборка подходит для базового сравнительного анализа.\n\n` +
+          `Запрос «${query}» выполнен успешно: получено ${qData.length} строк. Данные согласованы по ключевым полям (${previewColumns}), и выборка подходит для базового сравнительного анализа.\n\n` +
           'По результатам видно стабильную динамику метрик без аномальных скачков в пределах демонстрационного сценария. Рекомендуется использовать фильтрацию по периодам и региону, а затем сравнить маржинальность и выручку для принятия управленческого решения.',
-        chart_config: buildChartConfig(data, scenario, query)
+        chart_config: buildChartConfig(qData, scenario, query)
       }
+    }
+
+    if (result.soapMessage) {
+      errorHistory.push(result.soapMessage)
+    } else if (result.kind === 'empty') {
+      errorHistory.push('Пустой результат запроса')
     }
   }
 
-  return {
-    success: false,
-    error: true,
-    data: [],
-    columns: [],
+  return emptyResult({
     dax: lastDax,
-    interpretation: `Не удалось получить данные за ${maxAttempts} попыток. Измените формулировку запроса.\n\nПопробуйте уточнить период, показатель и измерение (например: выручка по регионам за квартал), чтобы повысить шанс успешного выполнения.`,
-    chart_config: fallbackChartConfig()
-  }
+    status: 'failed_max',
+    attempts_made: maxAttempts,
+    error_history: errorHistory.length > 0 ? errorHistory : null,
+    interpretation: `Не удалось получить данные за ${maxAttempts} попыток. Измените формулировку запроса.\n\nПопробуйте уточнить период, показатель и измерение (например: выручка по регионам за квартал), чтобы повысить шанс успешного выполнения.`
+  })
 }

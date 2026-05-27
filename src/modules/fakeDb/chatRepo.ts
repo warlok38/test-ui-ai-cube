@@ -1,14 +1,10 @@
-import type {
-  ChatDetailEntity,
-  ChatEntity,
-  ChatMessageRecord,
-  MessageEntity
-} from '@/services/assistantWorkflow/types'
-import type { RequestFeedback, RequestLogStatus } from './schema'
+import type { ChatDetailEntity, ChatEntity, MessageEntity } from '@/services/assistantWorkflow/types'
+import type { RequestFeedback } from './schema'
 import chatsSeed from './chatsSeed.json'
-import type { ChatMessageRecordDb, ChatRecord, ChatsDbSnapshot } from './chatSchema'
+import type { ChatRecord, ChatsDbSnapshot, MessageRecordDb } from './chatSchema'
+import { isLegacyChatsSnapshot } from './chatSchema'
 import { loadChatsFromStorage, saveChatsToStorage } from './chatPersistence'
-import { toChatDetailEntity, toChatEntity, toChatMessageRecord } from './chatMappers'
+import { toChatDetailEntity, toChatEntity, toMessageEntity } from './chatMappers'
 import { createId } from '@/utils/createId'
 
 let memorySnapshot: ChatsDbSnapshot | null = null
@@ -19,7 +15,11 @@ function hydrate(): ChatsDbSnapshot {
   if (raw) {
     try {
       const parsed = JSON.parse(raw) as ChatsDbSnapshot
-      if (Array.isArray(parsed.chats) && Array.isArray(parsed.messages)) {
+      if (
+        Array.isArray(parsed.chats) &&
+        Array.isArray(parsed.messages) &&
+        !isLegacyChatsSnapshot(parsed)
+      ) {
         memorySnapshot = parsed
         return memorySnapshot
       }
@@ -45,6 +45,13 @@ function deriveTitle(query: string): string {
   const trimmed = query.trim()
   if (!trimmed) return 'Новый чат'
   return trimmed.length > 48 ? `${trimmed.slice(0, 48)}…` : trimmed
+}
+
+function getLastMessageInChat(snapshot: ChatsDbSnapshot, chatId: string): MessageRecordDb | undefined {
+  return [...snapshot.messages]
+    .filter((m) => m.chatId === chatId)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .at(-1)
 }
 
 export function listChats(): ChatEntity[] {
@@ -79,67 +86,47 @@ export function createChat(title: string): ChatRecord {
   return chat
 }
 
-export function appendUserMessage(chatId: string, query: string): ChatMessageRecordDb {
-  const snapshot = hydrate()
-  const chatIdx = snapshot.chats.findIndex((c) => c.id === chatId)
-  if (chatIdx === -1) throw new Error('Chat not found')
-
-  const msg: ChatMessageRecordDb = {
-    messageId: createId(),
-    chatId,
-    role: 'user',
-    createdAt: new Date().toISOString(),
-    query
-  }
-
-  const chats = [...snapshot.chats]
-  const chat = { ...chats[chatIdx] }
-  chat.messageCount += 1
-  chat.updatedAt = msg.createdAt
-  chats[chatIdx] = chat
-
-  persist({
-    chats,
-    messages: [...snapshot.messages, msg]
-  })
-  return msg
+export type AppendMessagePayload = Omit<MessageEntity, 'id' | 'chat_id' | 'prev_id' | 'created_at'> & {
+  id?: string | null
+  prev_id?: string | null
+  created_at?: string
 }
 
-export function appendAssistantMessage(
-  chatId: string,
-  payload: Omit<MessageEntity, 'chat_id' | 'message_id'>
-): ChatMessageRecordDb {
+export function appendMessage(chatId: string, payload: AppendMessagePayload): MessageRecordDb {
   const snapshot = hydrate()
   const chatIdx = snapshot.chats.findIndex((c) => c.id === chatId)
   if (chatIdx === -1) throw new Error('Chat not found')
 
-  const msg: ChatMessageRecordDb = {
-    messageId: createId(),
+  const prevMessage = getLastMessageInChat(snapshot, chatId)
+  const now = payload.created_at ?? new Date().toISOString()
+
+  const msg: MessageRecordDb = {
+    id: payload.id ?? createId(),
     chatId,
-    role: 'assistant',
-    createdAt: new Date().toISOString(),
-    success: payload.success,
-    error: payload.error,
-    data: payload.data,
-    columns: payload.columns,
+    prevId: payload.prev_id ?? prevMessage?.id ?? null,
+    queryText: payload.query_text,
     dax: payload.dax,
+    status: payload.status,
+    attemptsMade: payload.attempts_made,
+    resultRowCount: payload.result_row_count,
+    executionTimeMs: payload.execution_time_ms,
+    errorHistory: payload.error_history,
+    qColumns: payload.q_columns,
+    qData: payload.q_data,
     interpretation: payload.interpretation,
     chartConfig: payload.chart_config,
-    feedback: null
-  }
-
-  let status: RequestLogStatus = 'failed_max'
-  if (payload.success) {
-    status = 'success'
-  } else if (payload.interpretation.includes('недоступен')) {
-    status = 'server_unreachable'
+    vote: payload.vote ?? null,
+    votedAt: payload.voted_at ?? null,
+    createdAt: now
   }
 
   const chats = [...snapshot.chats]
   const chat = { ...chats[chatIdx] }
   chat.messageCount += 1
-  chat.updatedAt = msg.createdAt
-  chat.lastQueryStatus = status
+  chat.updatedAt = now
+  if (payload.status) {
+    chat.lastQueryStatus = payload.status
+  }
   chats[chatIdx] = chat
 
   persist({
@@ -170,20 +157,24 @@ export function deleteChat(chatId: string): boolean {
   return true
 }
 
-export function patchMessageFeedback(messageId: string, feedback: RequestFeedback): boolean {
+export function patchMessageVote(messageId: string, vote: RequestFeedback): boolean {
   const snapshot = hydrate()
-  const idx = snapshot.messages.findIndex((m) => m.messageId === messageId)
+  const idx = snapshot.messages.findIndex((m) => m.id === messageId)
   if (idx === -1) return false
   const messages = [...snapshot.messages]
-  messages[idx] = { ...messages[idx], feedback }
+  messages[idx] = {
+    ...messages[idx],
+    vote,
+    votedAt: new Date().toISOString()
+  }
   persist({ ...snapshot, messages })
   return true
 }
 
-export function getMessageById(messageId: string): ChatMessageRecord | null {
+export function getMessageById(messageId: string): MessageEntity | null {
   const snapshot = hydrate()
-  const msg = snapshot.messages.find((m) => m.messageId === messageId)
-  return msg ? toChatMessageRecord(msg) : null
+  const msg = snapshot.messages.find((m) => m.id === messageId)
+  return msg ? toMessageEntity(msg) : null
 }
 
 /** Для модульных тестов — сброс в seed. */

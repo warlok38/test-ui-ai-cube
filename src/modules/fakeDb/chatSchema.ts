@@ -10,23 +10,38 @@ export type ChatRecord = {
   lastQueryStatus?: RequestLogStatus
 }
 
-export type ChatMessageRecordDb = {
-  messageId: string
+export type MessageRecordDb = {
+  id: string
   chatId: string
-  role: 'user' | 'assistant'
+  prevId: string | null
+  queryText: string
+  dax: string | null
+  status: RequestLogStatus | null
+  attemptsMade: number | null
+  resultRowCount: number | null
+  executionTimeMs: number | null
+  errorHistory: unknown[] | null
+  qColumns: string[] | null
+  qData: MessageDataRow[] | null
+  interpretation: string | null
+  chartConfig: MessageChartConfig | null
+  vote: RequestFeedback | null
+  votedAt: string | null
   createdAt: string
-  query?: string
-  feedback?: RequestFeedback | null
-  success?: boolean
-  error?: boolean
-  data?: MessageDataRow[]
-  columns?: string[]
-  dax?: string
-  interpretation?: string
-  chartConfig?: MessageChartConfig
 }
+
+/** @deprecated Use MessageRecordDb */
+export type ChatMessageRecordDb = MessageRecordDb
 
 export type ChatsDbSnapshot = {
   chats: ChatRecord[]
-  messages: ChatMessageRecordDb[]
+  messages: MessageRecordDb[]
+}
+
+function isLegacyMessageRecord(value: unknown): value is { role?: string } {
+  return typeof value === 'object' && value !== null && 'role' in value
+}
+
+export function isLegacyChatsSnapshot(snapshot: ChatsDbSnapshot): boolean {
+  return snapshot.messages.some(isLegacyMessageRecord)
 }

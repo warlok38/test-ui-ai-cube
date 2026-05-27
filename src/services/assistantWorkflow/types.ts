@@ -17,16 +17,37 @@ export type MessageDataRow = {
 }
 
 export type MessageEntity = {
-  success: boolean
-  error: boolean
-  data: MessageDataRow[]
-  columns: string[]
-  dax: string
-  interpretation: string
-  chart_config: MessageChartConfig
+  id: string | null
   chat_id: string
-  message_id: string
+  prev_id: string | null
+  query_text: string
+  dax: string | null
+  status: RequestLogStatus | null
+  attempts_made: number | null
+  result_row_count: number | null
+  execution_time_ms: number | null
+  error_history: unknown[] | null
+  q_columns: string[] | null
+  q_data: MessageDataRow[] | null
+  interpretation: string | null
+  chart_config: MessageChartConfig | null
+  vote: RequestFeedback | null
+  voted_at: string | null
+  created_at: string
 }
+
+export type CubeQueryResult = Pick<
+  MessageEntity,
+  | 'dax'
+  | 'status'
+  | 'attempts_made'
+  | 'result_row_count'
+  | 'error_history'
+  | 'q_columns'
+  | 'q_data'
+  | 'interpretation'
+  | 'chart_config'
+>
 
 export type SendMessageResponse = MessageEntity & {
   task_id: string
@@ -51,28 +72,19 @@ export type ChatEntity = {
   last_query_status?: RequestLogStatus
 }
 
-export type ChatMessageRecord = {
-  message_id: string
-  chat_id: string
-  role: 'user' | 'assistant'
-  created_at: string
-  query?: string
-  feedback?: RequestFeedback | null
-  success?: boolean
-  error?: boolean
-  data?: MessageDataRow[]
-  columns?: string[]
-  dax?: string
-  interpretation?: string
-  chart_config?: MessageChartConfig
-}
-
 export type ChatDetailEntity = ChatEntity & {
-  messages: ChatMessageRecord[]
+  messages: MessageEntity[]
 }
 
-export type PatchMessageFeedbackBody = {
-  feedback: RequestFeedback
+export type PatchMessageVoteBody = {
+  message_id: string
+  vote: RequestFeedback
+}
+
+export type PatchMessageVoteResponse = {
+  ok: boolean
+  vote: RequestFeedback
+  message_id: string
 }
 
 export type DeleteChatResponse = {
