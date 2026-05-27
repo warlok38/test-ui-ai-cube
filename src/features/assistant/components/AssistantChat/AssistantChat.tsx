@@ -6,7 +6,7 @@ import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { appendRequestLog } from '@/fakeBackend/db/repo'
 import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { cubeApi, useExecuteQueryMutation } from '@/store/api/cubeApi'
+import { mainApi, useExecuteQueryMutation } from '@/store/api'
 
 import { AssistantChatMessages } from './AssistantChatMessages'
 import { AssistantChatView } from './AssistantChatView'
@@ -125,7 +125,7 @@ export function AssistantChat() {
           logId: log.id
         })
       )
-      dispatch(cubeApi.util.invalidateTags(['CubeStats', 'QueryLogs']))
+      dispatch(mainApi.util.invalidateTags(['CubeStats', 'QueryLogs']))
       setDraft('')
     } catch (error) {
       if (isRequestAborted(error)) {

@@ -4,7 +4,7 @@ import { LikeOutlined, DislikeOutlined } from '@ant-design/icons'
 import { App, Button, Space, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { useState } from 'react'
-import { useSubmitFeedbackMutation } from '@/store/api/cubeApi'
+import { useSubmitFeedbackMutation } from '@/store/api'
 
 import styles from './FeedbackBar.module.css'
 

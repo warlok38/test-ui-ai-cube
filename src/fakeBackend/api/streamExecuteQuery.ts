@@ -2,8 +2,8 @@ import type { FakeScenarioKind } from '@/fakeBackend/llm/config'
 import { executeCubeQuery } from '@/fakeBackend/api/executeDax'
 import { fakeDelay, throwIfAborted } from '@/fakeBackend/api/delay'
 import type { CubeQueryParams } from '@/services/assistantWorkflow/types'
-import type { ExecuteQueryStreamEvent } from '@/store/api/sseEvents'
-import { streamTs } from '@/store/api/sseEvents'
+import type { ExecuteQueryStreamEvent } from '@/store/utils/sseEvents'
+import { streamTs } from '@/store/utils/sseEvents'
 import { createId } from '@/utils/createId'
 
 const PROGRESS_DELAY_MS = 420

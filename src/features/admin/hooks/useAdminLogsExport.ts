@@ -1,7 +1,7 @@
 'use client'
 
 import { triggerBlobDownload } from '@/features/assistant/utils/exportTable'
-import { useExportLogsBinaryMutation } from '@/store/api/cubeApi'
+import { useExportLogsBinaryMutation } from '@/store/api'
 
 export type AdminLogsExportFormat = 'csv' | 'json' | 'xlsx'
 

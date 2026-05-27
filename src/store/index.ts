@@ -1,9 +1,9 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { assistantSlice } from '@/features/assistant/model/assistantSlice'
-import { cubeApi } from '@/store/api/cubeApi'
+import { mainApi } from '@/store/api'
 
 export const rootReducer = combineReducers({
-  [cubeApi.reducerPath]: cubeApi.reducer,
+  [mainApi.reducerPath]: mainApi.reducer,
   [assistantSlice.name]: assistantSlice.reducer
 })
 
@@ -13,7 +13,7 @@ export type AppStore = ReturnType<typeof setupStore>
 export function setupStore() {
   return configureStore({
     reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(cubeApi.middleware)
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(mainApi.middleware)
   })
 }
 

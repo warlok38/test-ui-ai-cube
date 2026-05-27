@@ -5,7 +5,7 @@ import { Button, Card, Space, Typography } from 'antd'
 import { useState } from 'react'
 import type { AdminQueryLog } from '@/services/admin/types'
 import { useAdminLogsExport } from '@/features/admin/hooks/useAdminLogsExport'
-import { useQueryLogsQuery } from '@/store/api/cubeApi'
+import { useQueryLogsQuery } from '@/store/api'
 
 import { AdminLogDetailsDrawer } from '../AdminLogDetailsDrawer'
 import { AdminLogsTable } from '../AdminLogsTable'
