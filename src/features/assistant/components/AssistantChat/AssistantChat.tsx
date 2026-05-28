@@ -12,13 +12,13 @@ import { getVisibleChatState } from '@/features/assistant/utils/getVisibleChatSt
 import { mapChatRecordsToUiMessages } from '@/features/assistant/utils/mapChatMessages'
 import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { mainApi } from '@/store/api'
 import {
   chatsApi,
+  mainApi,
   useCancelTaskMutation,
   useGetChatQuery,
   useSendMessageMutation
-} from '@/store/api/chatsApi'
+} from '@/store/api'
 import { createId } from '@/utils/createId'
 
 import { AssistantChatMessages } from './AssistantChatMessages'

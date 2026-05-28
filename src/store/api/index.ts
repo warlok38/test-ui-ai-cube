@@ -1,6 +1,8 @@
 export { mainApi } from './mainApi'
+import './chats'
 import './cube'
 import './admin'
+export * from './chats'
 export * from './cube'
 export * from './admin'
 export type { ExportLogsBody } from './admin/consts'

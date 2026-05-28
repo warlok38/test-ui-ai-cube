@@ -7,7 +7,7 @@ import { useCallback } from 'react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { getChatIdFromPathname } from '@/features/assistant/utils/chatRoute'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { chatsApi, useDeleteChatMutation } from '@/store/api/chatsApi'
+import { chatsApi, useDeleteChatMutation } from '@/store/api'
 
 export function useDeleteChat() {
   const dispatch = useAppDispatch()
