@@ -113,23 +113,39 @@
 }
 
 .chatItem {
+  --chat-item-fade-width: 2.25rem;
+
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-1);
   padding: var(--space-1);
-  border: var(--border-width-hairline) solid transparent;
   border-radius: var(--radius-5);
   background: transparent;
 }
 
 .chatItem:hover {
-  background: var(--color-bg-sidebar-hover);
-  border-color: var(--color-border-sidebar);
+  background: var(--color-bg-sidebar-accent);
+  border-color: transparent;
+}
+
+.chatItem:hover::after,
+.chatItem:focus-within::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--chat-item-fade-width);
+  border-radius: 0 var(--radius-5) var(--radius-5) 0;
+  background: linear-gradient(to right, transparent, var(--color-bg-sidebar-accent));
+  pointer-events: none;
 }
 
 .chatItem:hover .chatDeleteButton,
 .chatItem:focus-within .chatDeleteButton {
   opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .chatItemActive {
@@ -137,9 +153,16 @@
   border-color: var(--color-border-sidebar);
 }
 
+.chatItemActive:hover,
+.chatItemActive:focus-within {
+  background: var(--color-bg-sidebar-accent);
+  border-color: transparent;
+}
+
 .chatItemButton {
   display: block;
   flex: 1;
+  width: 100%;
   min-width: 0;
   padding: var(--space-1);
   border: 0;
@@ -160,32 +183,45 @@
 }
 
 .chatDeleteButton {
-  flex-shrink: 0;
+  --chat-delete-bg-hover: color-mix(in srgb, var(--color-bg-sidebar-accent) 78%, white);
+
+  position: absolute;
+  right: var(--space-1);
+  top: 0;
+  bottom: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: auto 0;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-5);
   color: var(--color-text-sidebar);
-  background: transparent;
-  font-size: var(--font-size-xs);
+  background: var(--color-bg-sidebar-accent);
+  font-size: var(--font-size-base);
+  line-height: 1;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 150ms ease;
+  pointer-events: none;
+  transition:
+    opacity 150ms ease,
+    background 150ms ease;
+  visibility: hidden;
 }
 
 .chatDeleteButton:hover {
-  background: var(--color-bg-sidebar-hover);
-  color: var(--color-danger, #ff4d4f);
+  background: var(--chat-delete-bg-hover);
 }
 
 .chatDeleteButton:focus-visible {
   outline: var(--border-width-strong) solid var(--color-text-sidebar);
   outline-offset: var(--border-width-hairline);
   opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .chatList::-webkit-scrollbar {
