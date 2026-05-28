@@ -18,7 +18,6 @@ import {
   useSendMessageMutation
 } from '@/store/api/chatsApi'
 import { cubeApi } from '@/store/api/cubeApi'
-import { createId } from '@/utils/createId'
 
 import { AssistantChatMessages } from './AssistantChatMessages'
 import { AssistantChatView } from './AssistantChatView'
@@ -64,7 +63,6 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   const [sendMessage] = useSendMessageMutation()
   const [cancelTaskMutation] = useCancelTaskMutation()
   const requestRef = useRef<ReturnType<typeof sendMessage> | null>(null)
-  const taskIdRef = useRef<string | null>(null)
 
   const [draft, setDraft] = useState('')
   const chatShellRef = useRef<HTMLDivElement>(null)
@@ -184,9 +182,8 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   }, [isEmptyChat])
 
   const handleAbort = () => {
-    const taskId = assistant.activeTaskId ?? taskIdRef.current
-    if (taskId) {
-      void cancelTaskMutation(taskId)
+    if (assistant.activeTaskId) {
+      void cancelTaskMutation(assistant.activeTaskId)
     }
     requestRef.current?.abort()
   }
@@ -198,9 +195,6 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       return
     }
 
-    const taskId = createId()
-    taskIdRef.current = taskId
-
     dispatch(
       assistantActions.startQuery({
         prompt: text,
@@ -211,8 +205,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
     const chatId = routeChatId ?? assistant.activeChatId ?? undefined
     const request = sendMessage({
       query: text,
-      chat_id: chatId,
-      task_id: taskId
+      chat_id: chatId
     })
     requestRef.current = request
 
@@ -262,7 +255,6 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       setDraft('')
     } finally {
       requestRef.current = null
-      taskIdRef.current = null
     }
   }
 

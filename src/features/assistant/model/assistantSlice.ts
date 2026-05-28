@@ -10,8 +10,7 @@ import type {
   AssistantPhase,
   ChatStreamEvent,
   ErrorEntity,
-  MessageEntity,
-  StreamTaskData
+  MessageEntity
 } from '@/services/assistantWorkflow/types'
 import { createId } from '@/utils/createId'
 
@@ -161,8 +160,7 @@ export const assistantSlice = createSlice({
       const event = action.payload
       switch (event.event) {
         case 'task': {
-          const data = event.data as StreamTaskData | null | undefined
-          if (data?.task_id) state.activeTaskId = data.task_id
+          if (event.id) state.activeTaskId = event.id
           break
         }
         case 'progress':

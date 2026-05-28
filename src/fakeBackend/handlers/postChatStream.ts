@@ -76,7 +76,10 @@ export function postChatStream(params: MessageSendParams, externalSignal?: Abort
     throw new FakeBackendError('Поле query обязательно', 400)
   }
 
-  const taskId = params.task_id ?? createId()
+  const taskEvent = createStreamEvent('task', {
+    message: 'Запрос принят'
+  })
+  const taskId = taskEvent.id
   const controller = registerTask(taskId)
 
   const onExternalAbort = () => {
@@ -124,12 +127,7 @@ export function postChatStream(params: MessageSendParams, externalSignal?: Abort
       }
 
       try {
-        enqueue(
-          createStreamEvent('task', {
-            message: 'Запрос принят',
-            data: { task_id: taskId }
-          })
-        )
+        enqueue(taskEvent)
 
         enqueue(
           createStreamEvent('ack', {

@@ -49,10 +49,8 @@ export type CubeQueryResult = Pick<
   | 'chart_config'
 >
 
-/** @deprecated SSE stream returns MessageEntity; task_id is in task event */
-export type SendMessageResponse = MessageEntity & {
-  task_id: string
-}
+/** @deprecated SSE stream returns MessageEntity; cancel id is in task event `id` */
+export type SendMessageResponse = MessageEntity
 
 export type StreamEventType =
   | 'task'
@@ -70,23 +68,17 @@ export type ErrorEntity = {
   details: string | null
 }
 
-export type StreamTaskData = {
-  task_id: string
-}
-
 export type ChatStreamEvent = {
   event: StreamEventType
   id: string
   timestamp: string
   message?: string | null
-  data?: MessageEntity | ErrorEntity | StreamTaskData | null
+  data?: MessageEntity | ErrorEntity | null
 }
 
 export type MessageSendParams = {
   query: string
   chat_id?: string
-  /** Клиент может передать id для cancel во время in-flight запроса */
-  task_id?: string
   /** Контракт API; не используется в приложении */
   maxAttempts?: number
 }
