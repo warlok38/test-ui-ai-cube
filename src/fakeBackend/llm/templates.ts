@@ -1,7 +1,7 @@
 import { PALETTE_PRIMARY } from '@/constants/theme'
 
 import type { FakeScenarioKind } from './config'
-import type { OlapExecutionResult } from '@/modules/fakeApi/executeDax'
+import type { OlapExecutionResult } from '@/fakeBackend/api/executeDax'
 import type { ChartConfigPayload } from '@/services/assistantWorkflow/types'
 
 export function generateInterpretation(

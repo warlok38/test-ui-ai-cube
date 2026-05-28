@@ -1,4 +1,7 @@
-import type { RequestFeedback, RequestLogStatus } from '@/modules/fakeDb/schema'
+import type { AssistantTechnicalSettings } from '@/features/technical/model'
+import type { RequestFeedback, RequestLogStatus } from '@/fakeBackend/db/schema'
+
+export type ExecuteQueryTechnicalParams = AssistantTechnicalSettings
 
 export type AssistantPhase = 'idle' | 'checking' | 'generating' | 'fetching' | 'interpreting'
 
@@ -61,7 +64,13 @@ export type MessageSendParams = {
   chat_id?: string
   /** Клиент может передать id для cancel во время in-flight запроса */
   task_id?: string
+  /** Dev/demo only; stripped before HTTP body */
+  _technical?: ExecuteQueryTechnicalParams
 }
+
+export type CubeQueryParams = MessageSendParams
+
+export type CubeQueryApiBody = Omit<MessageSendParams, '_technical'>
 
 export type ChatEntity = {
   id: string
@@ -103,8 +112,6 @@ export type CubeQueryChartConfig = MessageChartConfig
 export type CubeQueryDataEntity = MessageDataRow
 /** @deprecated Use MessageEntity */
 export type CubeQueryEntity = MessageEntity
-/** @deprecated Use MessageSendParams */
-export type CubeQueryParams = MessageSendParams
 
 export type ChartConfigPayload = {
   type: 'bar' | 'line'

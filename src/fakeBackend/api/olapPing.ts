@@ -1,4 +1,4 @@
-import type { FakeScenarioKind } from '@/modules/fakeLlm/config'
+import type { FakeScenarioKind } from '@/fakeBackend/llm/config'
 import { fakeDelay } from './delay'
 
 export type OlapPingResult = {

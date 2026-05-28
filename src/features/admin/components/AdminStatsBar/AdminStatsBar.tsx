@@ -2,7 +2,7 @@
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { Card, Col, Row, Statistic, Tooltip } from 'antd'
-import { useCubeStatsQuery } from '@/store/api/cubeApi'
+import { useCubeStatsQuery } from '@/store/api'
 
 import styles from './AdminStatsBar.module.css'
 

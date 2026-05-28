@@ -10,7 +10,7 @@ import {
   TECHNICAL_SCENARIO_OPTIONS
 } from '@/features/technical/model'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
-import { saveTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { saveTechnicalSettings } from '@/fakeBackend/db/technicalSettingsPersistence'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
 import styles from './TechnicalSettingsPage.module.css'

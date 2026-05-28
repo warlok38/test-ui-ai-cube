@@ -1,4 +1,4 @@
-import { deleteChat as deleteChatFromRepo } from '@/modules/fakeDb/chatRepo'
+import { deleteChat as deleteChatFromRepo } from '@/fakeBackend/db/chatRepo'
 import type { DeleteChatResponse } from '@/services/assistantWorkflow/types'
 import { FakeBackendError } from '../errors'
 

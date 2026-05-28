@@ -1,6 +1,6 @@
-import { patchMessageVote as patchVoteInRepo } from '@/modules/fakeDb/chatRepo'
+import { patchMessageVote as patchVoteInRepo } from '@/fakeBackend/db/chatRepo'
 import type { PatchMessageVoteBody, PatchMessageVoteResponse } from '@/services/assistantWorkflow/types'
-import type { RequestFeedback } from '@/modules/fakeDb/schema'
+import type { RequestFeedback } from '@/fakeBackend/db/schema'
 import { FakeBackendError } from '../errors'
 
 export function postChatVote(body: PatchMessageVoteBody): PatchMessageVoteResponse {

@@ -1,13 +1,14 @@
-import { appendRequestLog } from '@/modules/fakeDb/repo'
-import { appendMessage, ensureChat } from '@/modules/fakeDb/chatRepo'
-import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
-import { toMessageEntity } from '@/modules/fakeDb/chatMappers'
+import { appendRequestLog } from '@/fakeBackend/db/repo'
+import { appendMessage, ensureChat } from '@/fakeBackend/db/chatRepo'
+import { executeCubeQuery } from '@/fakeBackend/api/executeDax'
+import { loadTechnicalSettings } from '@/fakeBackend/db/technicalSettingsPersistence'
+import { toMessageEntity } from '@/fakeBackend/db/chatMappers'
 import type { MessageSendParams, SendMessageResponse } from '@/services/assistantWorkflow/types'
 import { createId } from '@/utils/createId'
 import { registerTask, unregisterTask } from '../taskRegistry'
 import { FakeBackendError } from '../errors'
 
+/** @deprecated Use streamPostChat for SSE transport */
 export async function postChat(
   params: MessageSendParams,
   externalSignal?: AbortSignal
@@ -29,12 +30,13 @@ export async function postChat(
   try {
     const chat = ensureChat(params.chat_id, query)
     const settings = loadTechnicalSettings()
+    const scenario = params._technical?.scenario ?? settings.scenario
     const maxAttempts = params.max_attempts ?? 3
     const startedAt = performance.now()
 
     const result = await executeCubeQuery(
       { query, max_attempts: maxAttempts },
-      settings.scenario,
+      scenario,
       controller.signal
     )
 

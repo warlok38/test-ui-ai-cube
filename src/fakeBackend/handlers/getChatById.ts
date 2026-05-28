@@ -1,4 +1,4 @@
-import { getChatById as getChatFromRepo } from '@/modules/fakeDb/chatRepo'
+import { getChatById as getChatFromRepo } from '@/fakeBackend/db/chatRepo'
 import type { ChatDetailEntity } from '@/services/assistantWorkflow/types'
 import { FakeBackendError } from '../errors'
 

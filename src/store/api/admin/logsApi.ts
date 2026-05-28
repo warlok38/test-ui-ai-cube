@@ -1,28 +1,11 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
-import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import { aggregateCubeStats, listAdminQueryLogs, listLogs } from '@/modules/fakeDb/repo'
-import { randomDelay } from '@/modules/fakeApi/delay'
-import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
+import { listAdminQueryLogs, listLogs } from '@/fakeBackend/db/repo'
+import { randomDelay } from '@/fakeBackend/api/delay'
+import type { AdminQueryLog } from '@/services/admin/types'
+import { mainApi } from '../mainApi'
+import type { ExportLogsBody } from './consts'
 
-const noopBaseQuery: BaseQueryFn = async () => ({ data: null })
-
-export type ExportLogsBody = {
-  format: 'csv' | 'json' | 'xlsx'
-}
-
-export const cubeApi = createApi({
-  reducerPath: 'cubeApi',
-  baseQuery: noopBaseQuery,
-  tagTypes: ['CubeStats', 'QueryLogs'],
+export const adminLogsApi = mainApi.injectEndpoints({
   endpoints: (builder) => ({
-    cubeStats: builder.query<CubeStats, void>({
-      async queryFn() {
-        await randomDelay(180, 400)
-        return { data: aggregateCubeStats() }
-      },
-      providesTags: ['CubeStats']
-    }),
-
     queryLogs: builder.query<AdminQueryLog[], { limit?: number; offset?: number } | void>({
       async queryFn(arg) {
         await randomDelay(150, 350)
@@ -84,7 +67,8 @@ export const cubeApi = createApi({
         }
       }
     })
-  })
+  }),
+  overrideExisting: false
 })
 
-export const { useCubeStatsQuery, useQueryLogsQuery, useExportLogsBinaryMutation } = cubeApi
+export const { useQueryLogsQuery, useExportLogsBinaryMutation } = adminLogsApi

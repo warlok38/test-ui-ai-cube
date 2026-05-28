@@ -1,11 +1,11 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { assistantSlice } from '@/features/assistant/model/assistantSlice'
+import { mainApi } from '@/store/api'
 import { chatsApi } from '@/store/api/chatsApi'
-import { cubeApi } from '@/store/api/cubeApi'
 
 export const rootReducer = combineReducers({
+  [mainApi.reducerPath]: mainApi.reducer,
   [chatsApi.reducerPath]: chatsApi.reducer,
-  [cubeApi.reducerPath]: cubeApi.reducer,
   [assistantSlice.name]: assistantSlice.reducer
 })
 
@@ -16,7 +16,7 @@ export function setupStore() {
   return configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(chatsApi.middleware, cubeApi.middleware)
+      getDefaultMiddleware().concat(mainApi.middleware, chatsApi.middleware)
   })
 }
 

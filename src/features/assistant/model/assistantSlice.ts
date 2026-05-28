@@ -5,7 +5,7 @@ import {
   DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
   type AssistantTechnicalSettings
 } from '@/features/technical/model'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { loadTechnicalSettings } from '@/fakeBackend/db/technicalSettingsPersistence'
 import type {
   AssistantPhase,
   MessageEntity,
@@ -38,6 +38,11 @@ function createMessageStub(queryText: string, chatId: string | null): MessageEnt
   }
 }
 
+export type StreamingStatus = {
+  message: string
+  step: string
+}
+
 export type AssistantUiState = {
   phase: AssistantPhase
   isRunning: boolean
@@ -56,6 +61,8 @@ export type AssistantUiState = {
   activeChatId: string | null
   /** Блокирует loadChatMessages после «Новый чат», пока не уйдём с /chat/:id */
   suppressChatLoad: boolean
+  streamingStatus: StreamingStatus | null
+  currentTaskId: string | null
 }
 
 const initialTechnicalSettings = loadTechnicalSettings()
@@ -76,7 +83,9 @@ const initialState: AssistantUiState = {
   currentAttempt: 1,
   maxAttempts: 3,
   activeChatId: null,
-  suppressChatLoad: false
+  suppressChatLoad: false,
+  streamingStatus: null,
+  currentTaskId: null
 }
 
 export const assistantSlice = createSlice({
@@ -116,6 +125,23 @@ export const assistantSlice = createSlice({
       state.unreachableCode = null
       state.feedbackChoice = null
       state.currentAttempt = 1
+      state.streamingStatus = null
+      state.currentTaskId = null
+    },
+    setStreamingStatus(state, action: PayloadAction<StreamingStatus>) {
+      state.streamingStatus = action.payload
+    },
+    updateStreamingStep(state, action: PayloadAction<{ step: string }>) {
+      if (state.streamingStatus) {
+        state.streamingStatus.step = action.payload.step
+      }
+    },
+    setCurrentTaskId(state, action: PayloadAction<string>) {
+      state.currentTaskId = action.payload
+    },
+    clearStreaming(state) {
+      state.streamingStatus = null
+      state.currentTaskId = null
     },
     startQuery(
       state,
@@ -128,6 +154,8 @@ export const assistantSlice = createSlice({
       state.unreachableDetails = null
       state.unreachableCode = null
       state.feedbackChoice = null
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'generating'
       state.currentAttempt = 1
       state.maxAttempts = action.payload.maxAttempts
@@ -141,6 +169,8 @@ export const assistantSlice = createSlice({
     querySucceeded(state, action: PayloadAction<{ prompt: string; result: SendMessageResponse }>) {
       const { result } = action.payload
       state.isRunning = false
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.currentAttempt = 1
       state.lastResult = result
@@ -165,6 +195,8 @@ export const assistantSlice = createSlice({
     },
     queryFailed(state, action: PayloadAction<string>) {
       state.isRunning = false
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.currentAttempt = 1
       state.failedSummaryText = action.payload
@@ -180,6 +212,8 @@ export const assistantSlice = createSlice({
     },
     queryCancelled(state) {
       state.isRunning = false
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.currentAttempt = 1
     },
@@ -206,6 +240,8 @@ export const assistantSlice = createSlice({
     },
     resetChat(state) {
       state.messages = []
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.isRunning = false
       state.inputWarning = null
@@ -222,6 +258,8 @@ export const assistantSlice = createSlice({
     },
     startNewChat(state) {
       state.messages = []
+      state.streamingStatus = null
+      state.currentTaskId = null
       state.phase = 'idle'
       state.isRunning = false
       state.inputWarning = null

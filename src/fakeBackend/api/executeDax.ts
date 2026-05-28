@@ -1,4 +1,4 @@
-import { LLM_RESPONSE_DELAY_MS, type FakeScenarioKind } from '@/modules/fakeLlm/config'
+import { LLM_RESPONSE_DELAY_MS, type FakeScenarioKind } from '@/fakeBackend/llm/config'
 import type {
   CubeQueryResult,
   MessageChartConfig,

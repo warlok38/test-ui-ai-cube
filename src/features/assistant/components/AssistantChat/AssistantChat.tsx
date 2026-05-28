@@ -12,13 +12,13 @@ import { getVisibleChatState } from '@/features/assistant/utils/getVisibleChatSt
 import { mapChatRecordsToUiMessages } from '@/features/assistant/utils/mapChatMessages'
 import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { mainApi } from '@/store/api'
 import {
   chatsApi,
   useCancelTaskMutation,
   useGetChatQuery,
   useSendMessageMutation
 } from '@/store/api/chatsApi'
-import { cubeApi } from '@/store/api/cubeApi'
 import { createId } from '@/utils/createId'
 
 import { AssistantChatMessages } from './AssistantChatMessages'
@@ -185,7 +185,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   }, [isEmptyChat])
 
   const handleAbort = () => {
-    const taskId = taskIdRef.current
+    const taskId = taskIdRef.current ?? assistant.currentTaskId
     if (taskId) {
       void cancelTaskMutation(taskId)
     }
@@ -216,26 +216,13 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       query: text,
       max_attempts: maxAttempts,
       chat_id: chatId,
-      task_id: taskId
+      task_id: taskId,
+      _technical: assistant.technicalSettings
     })
     requestRef.current = request
 
     try {
-      dispatch(
-        assistantActions.setPhase({
-          phase: 'fetching',
-          currentAttempt: 1,
-          maxAttempts
-        })
-      )
       const result = await request.unwrap()
-      dispatch(
-        assistantActions.setPhase({
-          phase: 'interpreting',
-          currentAttempt: 1,
-          maxAttempts
-        })
-      )
 
       dispatch(
         assistantActions.querySucceeded({
@@ -243,7 +230,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
           result
         })
       )
-      dispatch(cubeApi.util.invalidateTags(['CubeStats', 'QueryLogs']))
+      dispatch(mainApi.util.invalidateTags(['CubeStats', 'QueryLogs']))
       setDraft('')
 
       if (!chatId && result.chat_id) {
@@ -310,8 +297,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
             messages={visibleMessages}
             chatId={routeChatId}
             isRunning={assistant.isRunning}
-            currentAttempt={assistant.currentAttempt}
-            maxAttempts={assistant.maxAttempts}
+            streamingStatus={assistant.streamingStatus}
           />
           <div className={styles.composerDock}>
             <div className={styles.chatColumn}>{composer}</div>
