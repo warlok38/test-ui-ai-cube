@@ -107,7 +107,7 @@ export function TechnicalSettingsPage() {
               showIcon
               type="error"
               message="failed_max (SOAP/empty)"
-              description="Выберите сценарий «Ошибка SOAP на всех попытках» или «Пустой результат на всех попытках»."
+              description="Выберите сценарий «Ошибка SOAP» или «Пустой результат»."
             />
           </Space>
         </Card>

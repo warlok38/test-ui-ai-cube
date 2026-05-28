@@ -64,7 +64,7 @@ export function buildChartJson(input: {
     }
   }
 
-  if (scenario === 'successful_bar' || scenario === 'retry_then_success') {
+  if (scenario === 'successful_bar') {
     return {
       type: 'bar',
       xKey: labelKey,

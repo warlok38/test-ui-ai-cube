@@ -1,5 +1,5 @@
 import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
-import type { ChatDetailEntity, SendMessageResponse } from '@/services/assistantWorkflow/types'
+import type { ChatDetailEntity, MessageEntity } from '@/services/assistantWorkflow/types'
 
 function deriveTitle(query: string): string {
   const trimmed = query.trim()
@@ -27,7 +27,7 @@ export function buildChatDetailCache(
 }
 
 export function buildChatDetailCacheAfterSend(
-  result: SendMessageResponse,
+  result: MessageEntity,
   messages: ChatMessage[],
   prompt: string
 ): ChatDetailEntity {

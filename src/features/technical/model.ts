@@ -35,19 +35,14 @@ export const TECHNICAL_SCENARIO_OPTIONS: Array<{
     summary: 'Успешный ответ с временным рядом.'
   },
   {
-    value: 'retry_then_success',
-    label: 'Ретраи, затем успех',
-    summary: 'Первые попытки с ошибкой/пусто, затем успешный ответ.'
-  },
-  {
     value: 'fail_all_soap',
-    label: 'Ошибка SOAP на всех попытках',
-    summary: 'Финал: failed_max после 3 SOAP-ошибок.'
+    label: 'Ошибка SOAP',
+    summary: 'Финал: failed_max после SOAP-ошибки.'
   },
   {
     value: 'fail_all_empty',
-    label: 'Пустой результат на всех попытках',
-    summary: 'Финал: failed_max после 3 пустых выборок.'
+    label: 'Пустой результат',
+    summary: 'Финал: failed_max после пустой выборки.'
   },
   {
     value: 'server_unreachable',

@@ -7,11 +7,9 @@ export type FakeScenarioKind =
   | 'successful_bar'
   /** Успешный ответ, линейный график */
   | 'successful_line'
-  /** Первые две попытки с ошибкой/пусто, затем успех */
-  | 'retry_then_success'
-  /** Три ошибки SOAP подряд */
+  /** Ошибка SOAP */
   | 'fail_all_soap'
-  /** Три раза пустой результат */
+  /** Пустой результат */
   | 'fail_all_empty'
   /** Сервер недоступен на этапе ping */
   | 'server_unreachable'

@@ -10,7 +10,6 @@ import { buildChatDetailCacheAfterSend } from '@/features/assistant/utils/buildC
 import { getQueryErrorStatus } from '@/features/assistant/utils/getQueryErrorStatus'
 import { getVisibleChatState } from '@/features/assistant/utils/getVisibleChatState'
 import { mapChatRecordsToUiMessages } from '@/features/assistant/utils/mapChatMessages'
-import type { ValidMaxAttempts } from '@/services/assistantWorkflow/types'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
   chatsApi,
@@ -185,7 +184,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   }, [isEmptyChat])
 
   const handleAbort = () => {
-    const taskId = taskIdRef.current
+    const taskId = assistant.activeTaskId ?? taskIdRef.current
     if (taskId) {
       void cancelTaskMutation(taskId)
     }
@@ -199,14 +198,12 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       return
     }
 
-    const maxAttempts: ValidMaxAttempts = 3
     const taskId = createId()
     taskIdRef.current = taskId
 
     dispatch(
       assistantActions.startQuery({
         prompt: text,
-        maxAttempts,
         chatId: routeChatId ?? assistant.activeChatId
       })
     )
@@ -214,35 +211,13 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
     const chatId = routeChatId ?? assistant.activeChatId ?? undefined
     const request = sendMessage({
       query: text,
-      max_attempts: maxAttempts,
       chat_id: chatId,
       task_id: taskId
     })
     requestRef.current = request
 
     try {
-      dispatch(
-        assistantActions.setPhase({
-          phase: 'fetching',
-          currentAttempt: 1,
-          maxAttempts
-        })
-      )
       const result = await request.unwrap()
-      dispatch(
-        assistantActions.setPhase({
-          phase: 'interpreting',
-          currentAttempt: 1,
-          maxAttempts
-        })
-      )
-
-      dispatch(
-        assistantActions.querySucceeded({
-          prompt: text,
-          result
-        })
-      )
       dispatch(cubeApi.util.invalidateTags(['CubeStats', 'QueryLogs']))
       setDraft('')
 
@@ -262,8 +237,28 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
         dispatch(assistantActions.queryCancelled())
         return
       }
-      const errorMessage = error instanceof Error ? error.message : 'Сбой выполнения запроса'
-      dispatch(assistantActions.queryFailed(errorMessage))
+
+      const state = store.getState().assistant
+      const streamAlreadyHandled =
+        !state.isRunning &&
+        (state.failedSummaryText !== null || state.lastResult !== null)
+
+      if (!streamAlreadyHandled) {
+        let errorMessage = 'Сбой выполнения запроса'
+        if (typeof error === 'object' && error !== null) {
+          if ('error' in error && typeof (error as { error: unknown }).error === 'string') {
+            errorMessage = (error as { error: string }).error
+          } else if (
+            'data' in error &&
+            typeof (error as { data: unknown }).data === 'string'
+          ) {
+            errorMessage = (error as { data: string }).data
+          }
+        } else if (error instanceof Error) {
+          errorMessage = error.message
+        }
+        dispatch(assistantActions.queryFailed(errorMessage))
+      }
       setDraft('')
     } finally {
       requestRef.current = null
@@ -310,8 +305,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
             messages={visibleMessages}
             chatId={routeChatId}
             isRunning={assistant.isRunning}
-            currentAttempt={assistant.currentAttempt}
-            maxAttempts={assistant.maxAttempts}
+            streamMessage={assistant.streamMessage}
           />
           <div className={styles.composerDock}>
             <div className={styles.chatColumn}>{composer}</div>
