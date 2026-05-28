@@ -23,8 +23,7 @@ type AssistantChatMessagesProps = {
   messages: ChatMessage[]
   chatId?: string | null
   isRunning: boolean
-  currentAttempt: number
-  maxAttempts: number
+  streamMessage?: string | null
 }
 
 function AssistantMessage({ message }: { message: ChatMessage }) {
@@ -73,8 +72,7 @@ export function AssistantChatMessages({
   messages,
   chatId,
   isRunning,
-  currentAttempt,
-  maxAttempts
+  streamMessage
 }: AssistantChatMessagesProps) {
   const messageListRef = useRef<HTMLDivElement>(null)
   const chatColumnRef = useRef<HTMLDivElement>(null)
@@ -136,7 +134,7 @@ export function AssistantChatMessages({
               <div className={styles.messageAssistant}>
                 <ShimmerText
                   className={styles.loadingStatus}
-                  text={`Попытка ${currentAttempt} из ${maxAttempts}`}
+                  text={streamMessage ?? 'Выполнение запроса…'}
                 />
               </div>
             </div>

@@ -8,9 +8,9 @@ import {
 import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
 import type {
   AssistantPhase,
-  MessageEntity,
-  SendMessageResponse,
-  ValidMaxAttempts
+  ChatStreamEvent,
+  ErrorEntity,
+  MessageEntity
 } from '@/services/assistantWorkflow/types'
 import { createId } from '@/utils/createId'
 
@@ -51,11 +51,44 @@ export type AssistantUiState = {
   feedbackChoice: 'like' | 'dislike' | null
   technicalSettings: AssistantTechnicalSettings
   messages: ChatMessage[]
-  currentAttempt: number
-  maxAttempts: number
   activeChatId: string | null
+  activeTaskId: string | null
+  streamMessage: string | null
   /** Блокирует loadChatMessages после «Новый чат», пока не уйдём с /chat/:id */
   suppressChatLoad: boolean
+}
+
+function clearStreamState(state: AssistantUiState) {
+  state.streamMessage = null
+  state.activeTaskId = null
+}
+
+function applyQueryResult(state: AssistantUiState, result: MessageEntity, prompt: string) {
+  state.isRunning = false
+  state.phase = 'idle'
+  state.lastResult = result
+  state.lastQuery = prompt
+  state.lastMessageId = result.id
+  state.activeChatId = result.chat_id
+  state.failedSummaryText = result.status === 'failed_max' ? (result.interpretation ?? null) : null
+  state.unreachableDetails =
+    result.status === 'server_unreachable' ? (result.interpretation ?? null) : null
+
+  state.unreachableCode = null
+
+  clearStreamState(state)
+
+  const lastIdx = state.messages.length - 1
+
+  if (lastIdx >= 0) {
+    state.messages[lastIdx] = {
+      ...result,
+
+      query_text: prompt
+    }
+  } else {
+    state.messages.push({ ...result, query_text: prompt })
+  }
 }
 
 const initialTechnicalSettings = loadTechnicalSettings()
@@ -73,9 +106,9 @@ const initialState: AssistantUiState = {
   feedbackChoice: null,
   technicalSettings: { ...initialTechnicalSettings },
   messages: [],
-  currentAttempt: 1,
-  maxAttempts: 3,
   activeChatId: null,
+  activeTaskId: null,
+  streamMessage: null,
   suppressChatLoad: false
 }
 
@@ -83,29 +116,13 @@ export const assistantSlice = createSlice({
   name: 'assistant',
   initialState,
   reducers: {
-    setPhase(
-      state,
-      action: PayloadAction<{
-        phase: AssistantPhase
-        currentAttempt?: number
-        maxAttempts?: number
-      }>
-    ) {
+    setPhase(state, action: PayloadAction<{ phase: AssistantPhase }>) {
       state.phase = action.payload.phase
-      if (action.payload.currentAttempt !== undefined) {
-        state.currentAttempt = action.payload.currentAttempt
-      }
-      if (action.payload.maxAttempts !== undefined) {
-        state.maxAttempts = action.payload.maxAttempts
-      }
     },
     setActiveChatId(state, action: PayloadAction<string | null>) {
       state.activeChatId = action.payload
     },
-    loadChatMessages(
-      state,
-      action: PayloadAction<{ chatId: string; messages: ChatMessage[] }>
-    ) {
+    loadChatMessages(state, action: PayloadAction<{ chatId: string; messages: ChatMessage[] }>) {
       state.activeChatId = action.payload.chatId
       state.messages = action.payload.messages
       state.phase = 'idle'
@@ -115,12 +132,10 @@ export const assistantSlice = createSlice({
       state.unreachableDetails = null
       state.unreachableCode = null
       state.feedbackChoice = null
-      state.currentAttempt = 1
+      clearStreamState(state)
     },
-    startQuery(
-      state,
-      action: PayloadAction<{ prompt: string; maxAttempts: ValidMaxAttempts; chatId?: string | null }>
-    ) {
+
+    startQuery(state, action: PayloadAction<{ prompt: string; chatId?: string | null }>) {
       const prompt = action.payload.prompt.trim()
       state.isRunning = true
       state.inputWarning = null
@@ -129,46 +144,68 @@ export const assistantSlice = createSlice({
       state.unreachableCode = null
       state.feedbackChoice = null
       state.phase = 'generating'
-      state.currentAttempt = 1
-      state.maxAttempts = action.payload.maxAttempts
+      clearStreamState(state)
       if (prompt) {
         state.messages = [
           ...state.messages,
+
           createMessageStub(prompt, action.payload.chatId ?? state.activeChatId)
         ]
       }
     },
-    querySucceeded(state, action: PayloadAction<{ prompt: string; result: SendMessageResponse }>) {
-      const { result } = action.payload
-      state.isRunning = false
-      state.phase = 'idle'
-      state.currentAttempt = 1
-      state.lastResult = result
-      state.lastQuery = action.payload.prompt
-      state.lastMessageId = result.id
-      state.activeChatId = result.chat_id
-      state.failedSummaryText =
-        result.status === 'failed_max' ? (result.interpretation ?? null) : null
-      state.unreachableDetails =
-        result.status === 'server_unreachable' ? (result.interpretation ?? null) : null
-      state.unreachableCode = null
-
-      const lastIdx = state.messages.length - 1
-      if (lastIdx >= 0) {
-        state.messages[lastIdx] = {
-          ...result,
-          query_text: action.payload.prompt
+    querySucceeded(state, action: PayloadAction<{ prompt: string; result: MessageEntity }>) {
+      applyQueryResult(state, action.payload.result, action.payload.prompt)
+    },
+    applyStreamEvent(state, action: PayloadAction<ChatStreamEvent>) {
+      const event = action.payload
+      switch (event.event) {
+        case 'task': {
+          if (event.id) state.activeTaskId = event.id
+          break
         }
-      } else {
-        state.messages.push(result)
+        case 'progress':
+        case 'heartbeat':
+          if (event.message) {
+            state.streamMessage = event.message
+          }
+          break
+        case 'result': {
+          if (!event.data || !('chat_id' in event.data)) break
+          const result = event.data as MessageEntity
+          const lastIdx = state.messages.length - 1
+          const prompt = lastIdx >= 0 ? state.messages[lastIdx].query_text : result.query_text
+          applyQueryResult(state, result, prompt)
+          break
+        }
+        case 'error': {
+          const entity = event.data as ErrorEntity | null | undefined
+          const message = entity?.message ?? event.message ?? 'Сбой выполнения запроса'
+          state.isRunning = false
+          state.phase = 'idle'
+          state.failedSummaryText = message
+          clearStreamState(state)
+          const lastIdx = state.messages.length - 1
+          if (lastIdx >= 0) {
+            state.messages[lastIdx] = {
+              ...state.messages[lastIdx],
+              interpretation: message,
+              status: entity?.code === 499 ? 'cancelled_hint' : 'failed_max'
+            }
+          }
+          break
+        }
+        case 'end':
+          state.streamMessage = null
+          break
+        default:
+          break
       }
     },
     queryFailed(state, action: PayloadAction<string>) {
       state.isRunning = false
       state.phase = 'idle'
-      state.currentAttempt = 1
       state.failedSummaryText = action.payload
-
+      clearStreamState(state)
       const lastIdx = state.messages.length - 1
       if (lastIdx >= 0) {
         state.messages[lastIdx] = {
@@ -181,7 +218,7 @@ export const assistantSlice = createSlice({
     queryCancelled(state) {
       state.isRunning = false
       state.phase = 'idle'
-      state.currentAttempt = 1
+      clearStreamState(state)
     },
     resetFeedbackPreview(state) {
       state.feedbackChoice = null
@@ -216,8 +253,8 @@ export const assistantSlice = createSlice({
       state.lastQuery = null
       state.lastMessageId = null
       state.feedbackChoice = null
-      state.currentAttempt = 1
       state.activeChatId = null
+      clearStreamState(state)
       state.suppressChatLoad = false
     },
     startNewChat(state) {
@@ -232,8 +269,8 @@ export const assistantSlice = createSlice({
       state.lastQuery = null
       state.lastMessageId = null
       state.feedbackChoice = null
-      state.currentAttempt = 1
       state.activeChatId = null
+      clearStreamState(state)
       state.suppressChatLoad = true
     },
     clearSuppressChatLoad(state) {
