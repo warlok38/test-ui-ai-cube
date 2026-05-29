@@ -1,9 +1,10 @@
-import type {
-  ChatStreamEvent,
-  ErrorEntity,
-  MessageEntity,
-  MessageSendParams
-} from './types'
+import {
+  createHttpError,
+  createHttpErrorFromResponse,
+  mapHttpStatusToError,
+  type HttpErrorType
+} from '@/shared/errors'
+import type { ChatStreamEvent, ErrorEntity, MessageEntity, MessageSendParams } from './types'
 
 export type ConsumeChatStreamOptions = {
   signal?: AbortSignal
@@ -11,13 +12,12 @@ export type ConsumeChatStreamOptions = {
 }
 
 export class ChatStreamError extends Error {
-  constructor(
-    message: string,
-    readonly code?: number,
-    readonly entity?: ErrorEntity
-  ) {
-    super(message)
+  readonly httpError: HttpErrorType
+
+  constructor(httpError: HttpErrorType) {
+    super(httpError.message)
     this.name = 'ChatStreamError'
+    this.httpError = httpError
   }
 }
 
@@ -55,15 +55,6 @@ function isEventStreamResponse(response: Response): boolean {
   return contentType.includes('text/event-stream')
 }
 
-async function readHttpError(response: Response): Promise<string> {
-  try {
-    const body = (await response.json()) as { error?: string }
-    return body.error ?? `HTTP ${response.status}`
-  } catch {
-    return `HTTP ${response.status}`
-  }
-}
-
 export async function consumeChatStream(
   params: MessageSendParams,
   options: ConsumeChatStreamOptions = {}
@@ -81,16 +72,16 @@ export async function consumeChatStream(
   })
 
   if (!response.ok) {
-    throw new ChatStreamError(await readHttpError(response), response.status)
+    throw new ChatStreamError(await createHttpErrorFromResponse(response))
   }
 
   if (!isEventStreamResponse(response)) {
-    throw new ChatStreamError('Ожидался поток SSE', response.status)
+    throw new ChatStreamError(createHttpError(response.status, 'Ожидался поток SSE'))
   }
 
   const reader = response.body?.getReader()
   if (!reader) {
-    throw new ChatStreamError('Пустой ответ сервера')
+    throw new ChatStreamError(createHttpError(undefined, 'Пустой ответ сервера'))
   }
 
   const decoder = new TextDecoder()
@@ -107,7 +98,7 @@ export async function consumeChatStream(
 
     if (event.event === 'error' && event.data && 'code' in event.data) {
       const entity = event.data as ErrorEntity
-      streamError = new ChatStreamError(entity.message, entity.code, entity)
+      streamError = new ChatStreamError(mapHttpStatusToError(entity.code, entity.message, entity))
     }
   }
 
@@ -142,7 +133,7 @@ export async function consumeChatStream(
   if (streamError) throw streamError
 
   if (!resultMessage) {
-    throw new ChatStreamError('Поток завершён без результата')
+    throw new ChatStreamError(createHttpError(undefined, 'Поток завершён без результата'))
   }
 
   return resultMessage

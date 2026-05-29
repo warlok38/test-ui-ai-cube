@@ -2,7 +2,6 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { createErrorFromUnknown, httpErrorToFetchBaseQueryError } from '@/shared/errors'
 import { ChatStreamError, consumeChatStream } from '@/services/assistantWorkflow/consumeChatStream'
-import { mapChatStreamErrorToHttpError } from '@/services/assistantWorkflow/mapChatStreamErrorToHttpError'
 import type {
   CancelTaskResponse,
   ChatDetailEntity,
@@ -29,9 +28,7 @@ export const chatsApi = createApi({
           return { data }
         } catch (error) {
           const httpError =
-            error instanceof ChatStreamError
-              ? mapChatStreamErrorToHttpError(error)
-              : createErrorFromUnknown(error)
+            error instanceof ChatStreamError ? error.httpError : createErrorFromUnknown(error)
           return { error: httpErrorToFetchBaseQueryError(httpError) }
         }
       },

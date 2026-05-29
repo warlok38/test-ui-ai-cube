@@ -15,6 +15,8 @@ export const createErrorFromRtkError = (
       const dataFromError = error.data as Record<string, unknown>
       if (dataFromError?.message && typeof dataFromError?.message === 'string') {
         message = dataFromError.message
+      } else if (dataFromError?.error && typeof dataFromError?.error === 'string') {
+        message = dataFromError.error
       }
       errorData = dataFromError
     } else if (error.data) {

@@ -1,5 +1,6 @@
 export * from './createError'
 export * from './createHttpError'
+export * from './createHttpErrorFromResponse'
 export * from './createErrorFromRtkError'
 export * from './createErrorFromUnknown'
 export * from './httpErrorToFetchBaseQueryError'
