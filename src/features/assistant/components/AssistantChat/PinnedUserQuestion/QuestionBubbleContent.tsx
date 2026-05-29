@@ -7,6 +7,7 @@ import styles from './PinnedUserQuestion.module.css'
 
 export type QuestionBubbleContentProps = {
   text: string
+  cancelled?: boolean
   isCollapsed: boolean
   showToggle: boolean
   isExpanded: boolean
@@ -15,6 +16,7 @@ export type QuestionBubbleContentProps = {
 
 export function QuestionBubbleContent({
   text,
+  cancelled = false,
   isCollapsed,
   showToggle,
   isExpanded,
@@ -25,6 +27,8 @@ export function QuestionBubbleContent({
       <div className={classNames(styles.text, isCollapsed && !isExpanded && styles.textCollapsed)}>
         {text}
       </div>
+
+      {cancelled ? <div className={styles.cancelledNote}>Запрос отменен</div> : null}
 
       {showToggle ? (
         <button

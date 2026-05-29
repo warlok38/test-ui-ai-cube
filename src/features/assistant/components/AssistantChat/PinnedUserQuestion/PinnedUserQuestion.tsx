@@ -10,6 +10,7 @@ export type PinnedUserQuestionProps = {
   messageId: string
   activePinnedMessageId: string | null
   text: string
+  cancelled?: boolean
   innerRef?: Ref<HTMLDivElement>
 }
 
@@ -17,6 +18,7 @@ export function PinnedUserQuestion({
   messageId,
   activePinnedMessageId,
   text,
+  cancelled = false,
   innerRef
 }: PinnedUserQuestionProps) {
   const isActivePin = messageId === activePinnedMessageId
@@ -33,11 +35,17 @@ export function PinnedUserQuestion({
 
   return (
     <>
-      <UserQuestionFlowBubble text={text} hidden={hideFlowBubble} innerRef={setFlowRef} />
+      <UserQuestionFlowBubble
+        text={text}
+        cancelled={cancelled}
+        hidden={hideFlowBubble}
+        innerRef={setFlowRef}
+      />
 
       <PinnedQuestionOverlay
         messageId={messageId}
         text={text}
+        cancelled={cancelled}
         visible={showOverlay}
         measureRef={measureRef}
         isMultiline={isMultiline}

@@ -63,6 +63,21 @@ function clearStreamState(state: AssistantUiState) {
   state.activeTaskId = null
 }
 
+function markLastMessageCancelled(state: AssistantUiState) {
+  state.isRunning = false
+  state.phase = 'idle'
+  state.failedSummaryText = null
+  clearStreamState(state)
+  const lastIdx = state.messages.length - 1
+  if (lastIdx >= 0) {
+    state.messages[lastIdx] = {
+      ...state.messages[lastIdx],
+      status: 'cancelled_hint',
+      interpretation: null
+    }
+  }
+}
+
 function applyQueryResult(state: AssistantUiState, result: MessageEntity, prompt: string) {
   state.isRunning = false
   state.phase = 'idle'
@@ -179,6 +194,10 @@ export const assistantSlice = createSlice({
         }
         case 'error': {
           const entity = event.data as ErrorEntity | null | undefined
+          if (entity?.code === 499) {
+            markLastMessageCancelled(state)
+            break
+          }
           const message = entity?.message ?? event.message ?? 'Сбой выполнения запроса'
           state.isRunning = false
           state.phase = 'idle'
@@ -189,7 +208,7 @@ export const assistantSlice = createSlice({
             state.messages[lastIdx] = {
               ...state.messages[lastIdx],
               interpretation: message,
-              status: entity?.code === 499 ? 'cancelled_hint' : 'failed_max'
+              status: 'failed_max'
             }
           }
           break
@@ -216,9 +235,7 @@ export const assistantSlice = createSlice({
       }
     },
     queryCancelled(state) {
-      state.isRunning = false
-      state.phase = 'idle'
-      clearStreamState(state)
+      markLastMessageCancelled(state)
     },
     resetFeedbackPreview(state) {
       state.feedbackChoice = null

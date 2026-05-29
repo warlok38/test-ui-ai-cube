@@ -27,7 +27,7 @@ type AssistantChatMessagesProps = {
 }
 
 function AssistantMessage({ message }: { message: ChatMessage }) {
-  const { id, interpretation, q_data, q_columns, chart_config, vote } = message
+  const { id, status, interpretation, q_data, q_columns, chart_config, vote } = message
   const hasTable = Boolean(q_data && q_data.length > 0)
   const hasChart = hasTable && chart_config
 
@@ -58,7 +58,7 @@ function AssistantMessage({ message }: { message: ChatMessage }) {
           </div>
         ) : null}
 
-        {id ? (
+        {status === 'success' && id ? (
           <div className={styles.messageFeedback}>
             <FeedbackBar messageId={id} initialVote={vote} />
           </div>
@@ -121,6 +121,7 @@ export function AssistantChatMessages({
                   messageId={messageKey}
                   activePinnedMessageId={pinState.pinDisabled ? null : activePinnedMessageId}
                   text={turn.message.query_text}
+                  cancelled={turn.message.status === 'cancelled_hint'}
                   innerRef={setUserRef(messageKey)}
                 />
 

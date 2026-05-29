@@ -9,6 +9,7 @@ import { QuestionBubbleContent } from './QuestionBubbleContent'
 type PinnedQuestionOverlayProps = {
   messageId: string
   text: string
+  cancelled?: boolean
   visible: boolean
   measureRef: Ref<HTMLDivElement>
   isMultiline: boolean
@@ -19,6 +20,7 @@ type PinnedQuestionOverlayProps = {
 export function PinnedQuestionOverlay({
   messageId,
   text,
+  cancelled = false,
   visible,
   measureRef,
   isMultiline,
@@ -37,6 +39,7 @@ export function PinnedQuestionOverlay({
           <div data-message-id={messageId} className={styles.pinnedOverlay}>
             <QuestionBubbleContent
               text={text}
+              cancelled={cancelled}
               isCollapsed={isMultiline}
               showToggle={isMultiline}
               isExpanded={isExpanded}

@@ -119,6 +119,14 @@ html[data-theme='dark'] .pinnedOverlay {
   width: 100%;
 }
 
+.cancelledNote {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
 .textCollapsed {
   display: -webkit-box;
   overflow: hidden;

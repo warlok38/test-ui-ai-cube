@@ -4,7 +4,10 @@ import { App, Spin } from 'antd'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from 'react-redux'
-import { assistantActions } from '@/features/assistant/model/assistantSlice'
+import {
+  assistantActions,
+  type AssistantUiState
+} from '@/features/assistant/model/assistantSlice'
 import type { RootState } from '@/store'
 import { buildChatDetailCacheAfterSend } from '@/features/assistant/utils/buildChatDetailCache'
 import { getQueryErrorStatus } from '@/features/assistant/utils/getQueryErrorStatus'
@@ -46,6 +49,22 @@ function isRequestAborted(error: unknown): boolean {
     return true
   }
   return false
+}
+
+function isRequestCancelled(error: unknown, state: AssistantUiState): boolean {
+  if (isRequestAborted(error)) {
+    return true
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    (error as { status?: number | string }).status === 499
+  ) {
+    return true
+  }
+  const lastMessage = state.messages.at(-1)
+  return lastMessage?.status === 'cancelled_hint'
 }
 
 type AssistantChatProps = {
@@ -103,10 +122,19 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   useEffect(() => {
     if (!routeChatId) {
       dispatch(assistantActions.clearSuppressChatLoad())
-      setDraft('')
+    }
+  }, [routeChatId, dispatch])
+
+  useEffect(() => {
+    if (routeChatId || assistant.isRunning || assistant.messages.length > 0) {
       return
     }
 
+    setDraft('')
+  }, [routeChatId, assistant.isRunning, assistant.messages.length])
+
+  useEffect(() => {
+    if (!routeChatId) return
     if (!chatDetail) return
     if (assistant.suppressChatLoad) return
     if (assistant.isRunning) return
@@ -226,12 +254,21 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
         router.replace(`/chat/${result.chat_id}`)
       }
     } catch (error) {
-      if (isRequestAborted(error)) {
-        dispatch(assistantActions.queryCancelled())
+      const state = store.getState().assistant
+
+      if (isRequestCancelled(error, state)) {
+        if (isRequestAborted(error)) {
+          dispatch(assistantActions.queryCancelled())
+        }
+
+        const cancelledQueryText = state.messages.at(-1)?.query_text
+        if (!draft.trim() && cancelledQueryText) {
+          setDraft(cancelledQueryText)
+        }
+
         return
       }
 
-      const state = store.getState().assistant
       const streamAlreadyHandled =
         !state.isRunning &&
         (state.failedSummaryText !== null || state.lastResult !== null)
