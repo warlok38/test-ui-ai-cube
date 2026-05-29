@@ -19,6 +19,7 @@ export type BadRequestErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.BadReque
 export type UnauthorizedErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.Unauthorized>
 export type AccessDeniedErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.AccessDenied>
 export type NotFoundErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.NotFound>
+export type MethodNotAllowedErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.MethodNotAllowed>
 export type UnprocessableEntityErrorType = HttpErrorType<
   typeof HTTP_ERROR_CODES.UnprocessableEntity
 >
