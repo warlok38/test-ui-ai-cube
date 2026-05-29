@@ -12,6 +12,7 @@ import type {
   PatchMessageVoteBody,
   PatchMessageVoteResponse
 } from '@/services/assistantWorkflow/types'
+import { invalidateTagsOnSuccess } from '@/store/api/invalidateTagsOnSuccess'
 
 export const chatsApi = createApi({
   reducerPath: 'chatsApi',
@@ -32,7 +33,8 @@ export const chatsApi = createApi({
           return { error: httpErrorToFetchBaseQueryError(httpError) }
         }
       },
-      invalidatesTags: (result, _error, arg) => {
+      invalidatesTags: (result, error, arg) => {
+        if (error) return []
         const tags: Array<'Chats' | { type: 'Chat'; id: string }> = ['Chats']
         if (arg.chat_id) tags.push({ type: 'Chat', id: arg.chat_id })
         if (result?.chat_id) tags.push({ type: 'Chat', id: result.chat_id })
@@ -55,7 +57,7 @@ export const chatsApi = createApi({
         url: `/chats/${chatId}`,
         method: 'DELETE'
       }),
-      invalidatesTags: ['Chats']
+      invalidatesTags: invalidateTagsOnSuccess<'Chats' | 'Chat' | 'CubeStats' | 'QueryLogs'>(['Chats'])
     }),
 
     voteMessage: builder.mutation<PatchMessageVoteResponse, PatchMessageVoteBody>({
@@ -64,7 +66,11 @@ export const chatsApi = createApi({
         method: 'POST',
         body
       }),
-      invalidatesTags: ['Chats', 'CubeStats', 'QueryLogs']
+      invalidatesTags: invalidateTagsOnSuccess<'Chats' | 'Chat' | 'CubeStats' | 'QueryLogs'>([
+        'Chats',
+        'CubeStats',
+        'QueryLogs'
+      ])
     }),
 
     cancelTask: builder.mutation<CancelTaskResponse, string>({

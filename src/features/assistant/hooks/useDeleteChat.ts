@@ -29,6 +29,8 @@ export function useDeleteChat() {
         assistantMessages.length > 0
 
       try {
+        await deleteChatMutation(chatId).unwrap()
+
         dispatch(
           chatsApi.util.updateQueryData('getChat', chatId, () => undefined as never)
         )
@@ -41,7 +43,6 @@ export function useDeleteChat() {
           router.replace('/')
         }
 
-        await deleteChatMutation(chatId).unwrap()
         message.success('Чат удалён')
 
         return true
