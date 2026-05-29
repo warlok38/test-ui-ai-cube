@@ -22,5 +22,6 @@ export type NotFoundErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.NotFound>
 export type UnprocessableEntityErrorType = HttpErrorType<
   typeof HTTP_ERROR_CODES.UnprocessableEntity
 >
+export type RequestCancelledErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.RequestCancelled>
 export type ServerInternalErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.ServerInternalError>
 export type GatewayTimeoutErrorType = HttpErrorType<typeof HTTP_ERROR_CODES.GatewayTimeout>

@@ -4,6 +4,7 @@ import { LikeOutlined, DislikeOutlined } from '@ant-design/icons'
 import { App, Button, Space, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { useState } from 'react'
+import { createErrorFromUnknown } from '@/shared/errors'
 import type { RequestFeedback } from '@/shared/modules/fakeDb/schema'
 import { useVoteMessageMutation } from '@/store/api/chatsApi'
 
@@ -28,8 +29,8 @@ export function FeedbackBar({ messageId, initialVote = null }: FeedbackBarProps)
       await voteMessage({ message_id: messageId, vote }).unwrap()
       setChoice(vote)
       message.success('Спасибо за обратную связь')
-    } catch {
-      message.error('Не удалось сохранить оценку')
+    } catch (error) {
+      message.error(createErrorFromUnknown(error).message)
     }
   }
 

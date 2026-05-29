@@ -1,6 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
+import { createErrorFromUnknown, httpErrorToFetchBaseQueryError } from '@/shared/errors'
 import { ChatStreamError, consumeChatStream } from '@/services/assistantWorkflow/consumeChatStream'
+import { mapChatStreamErrorToHttpError } from '@/services/assistantWorkflow/mapChatStreamErrorToHttpError'
 import type {
   CancelTaskResponse,
   ChatDetailEntity,
@@ -26,14 +28,11 @@ export const chatsApi = createApi({
           })
           return { data }
         } catch (error) {
-          if (error instanceof ChatStreamError) {
-            if (typeof error.code === 'number') {
-              return { error: { status: error.code, data: error.message } }
-            }
-            return { error: { status: 'CUSTOM_ERROR', error: error.message } }
-          }
-          const message = error instanceof Error ? error.message : 'Сбой выполнения запроса'
-          return { error: { status: 'CUSTOM_ERROR', error: message } }
+          const httpError =
+            error instanceof ChatStreamError
+              ? mapChatStreamErrorToHttpError(error)
+              : createErrorFromUnknown(error)
+          return { error: httpErrorToFetchBaseQueryError(httpError) }
         }
       },
       invalidatesTags: (result, _error, arg) => {

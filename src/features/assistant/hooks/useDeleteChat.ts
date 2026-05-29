@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 
 import { assistantActions } from '@/features/assistant/model/assistantSlice'
 import { getChatIdFromPathname } from '@/features/assistant/utils/chatRoute'
+import { createErrorFromUnknown } from '@/shared/errors'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { chatsApi, useDeleteChatMutation } from '@/store/api/chatsApi'
 
@@ -44,8 +45,9 @@ export function useDeleteChat() {
         message.success('Чат удалён')
 
         return true
-      } catch {
-        message.error('Не удалось удалить чат')
+      } catch (error) {
+        const { message: errMsg } = createErrorFromUnknown(error)
+        message.error(errMsg)
         return false
       }
     },

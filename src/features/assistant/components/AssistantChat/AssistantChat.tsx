@@ -10,8 +10,12 @@ import {
 } from '@/features/assistant/model/assistantSlice'
 import type { RootState } from '@/store'
 import { buildChatDetailCacheAfterSend } from '@/features/assistant/utils/buildChatDetailCache'
-import { getQueryErrorStatus } from '@/features/assistant/utils/getQueryErrorStatus'
 import { getVisibleChatState } from '@/features/assistant/utils/getVisibleChatState'
+import {
+  createErrorFromUnknown,
+  getHttpErrorStatus,
+  HTTP_ERROR_CODES
+} from '@/shared/errors'
 import { mapChatRecordsToUiMessages } from '@/features/assistant/utils/mapChatMessages'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
@@ -55,12 +59,8 @@ function isRequestCancelled(error: unknown, state: AssistantUiState): boolean {
   if (isRequestAborted(error)) {
     return true
   }
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'status' in error &&
-    (error as { status?: number | string }).status === 499
-  ) {
+  const httpError = createErrorFromUnknown(error)
+  if (httpError.statusCode === HTTP_ERROR_CODES.RequestCancelled) {
     return true
   }
   const lastMessage = state.messages.at(-1)
@@ -162,15 +162,15 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   useEffect(() => {
     if (!routeChatId || !isChatError || isChatFetching || chatDetail) return
 
-    const status = getQueryErrorStatus(chatError)
-    if (status === 404) {
-      message.error('Чат не найден')
+    const httpError = createErrorFromUnknown(chatError)
+    if (httpError.statusCode === HTTP_ERROR_CODES.NotFound) {
+      message.error(httpError.message)
       router.replace('/')
       return
     }
 
-    if (status !== undefined) {
-      message.error('Не удалось загрузить чат')
+    if (getHttpErrorStatus(chatError) !== undefined) {
+      message.error(httpError.message)
     }
   }, [
     isChatError,
@@ -274,20 +274,8 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
         (state.failedSummaryText !== null || state.lastResult !== null)
 
       if (!streamAlreadyHandled) {
-        let errorMessage = 'Сбой выполнения запроса'
-        if (typeof error === 'object' && error !== null) {
-          if ('error' in error && typeof (error as { error: unknown }).error === 'string') {
-            errorMessage = (error as { error: string }).error
-          } else if (
-            'data' in error &&
-            typeof (error as { data: unknown }).data === 'string'
-          ) {
-            errorMessage = (error as { data: string }).data
-          }
-        } else if (error instanceof Error) {
-          errorMessage = error.message
-        }
-        dispatch(assistantActions.queryFailed(errorMessage))
+        const httpError = createErrorFromUnknown(error)
+        dispatch(assistantActions.queryFailed(httpError.message))
       }
       setDraft('')
     } finally {
