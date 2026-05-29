@@ -10,7 +10,8 @@ import type {
   AssistantPhase,
   ChatStreamEvent,
   ErrorEntity,
-  MessageEntity
+  MessageEntity,
+  StreamEventType
 } from '@/services/assistantWorkflow/types'
 import { createId } from '@/shared/utils/createId'
 
@@ -53,13 +54,15 @@ export type AssistantUiState = {
   messages: ChatMessage[]
   activeChatId: string | null
   activeTaskId: string | null
-  streamMessage: string | null
+  streamEventType: StreamEventType | null
+  streamEventMessage: string | null
   /** Блокирует loadChatMessages после «Новый чат», пока не уйдём с /chat/:id */
   suppressChatLoad: boolean
 }
 
 function clearStreamState(state: AssistantUiState) {
-  state.streamMessage = null
+  state.streamEventType = null
+  state.streamEventMessage = null
   state.activeTaskId = null
 }
 
@@ -123,7 +126,8 @@ const initialState: AssistantUiState = {
   messages: [],
   activeChatId: null,
   activeTaskId: null,
-  streamMessage: null,
+  streamEventType: null,
+  streamEventMessage: null,
   suppressChatLoad: false
 }
 
@@ -176,13 +180,15 @@ export const assistantSlice = createSlice({
       switch (event.event) {
         case 'task': {
           if (event.id) state.activeTaskId = event.id
+          state.streamEventType = event.event
+          state.streamEventMessage = event.message ?? null
           break
         }
+        case 'ack':
         case 'progress':
         case 'heartbeat':
-          if (event.message) {
-            state.streamMessage = event.message
-          }
+          state.streamEventType = event.event
+          state.streamEventMessage = event.message ?? null
           break
         case 'result': {
           if (!event.data || !('chat_id' in event.data)) break
@@ -214,7 +220,8 @@ export const assistantSlice = createSlice({
           break
         }
         case 'end':
-          state.streamMessage = null
+          state.streamEventType = null
+          state.streamEventMessage = null
           break
         default:
           break

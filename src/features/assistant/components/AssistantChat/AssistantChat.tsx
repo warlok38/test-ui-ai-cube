@@ -322,7 +322,8 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
             messages={visibleMessages}
             chatId={routeChatId}
             isRunning={assistant.isRunning}
-            streamMessage={assistant.streamMessage}
+            streamEventType={assistant.streamEventType}
+            streamEventMessage={assistant.streamEventMessage}
           />
           <div className={styles.composerDock}>
             <div className={styles.chatColumn}>{composer}</div>

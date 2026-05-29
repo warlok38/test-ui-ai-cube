@@ -172,6 +172,14 @@ html[data-theme='dark'] .messageAssistant {
   line-height: 1.25;
 }
 
+.loadingStatusDetail {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  line-height: 1.25;
+  color: var(--color-text-secondary);
+}
+
 .composerDock {
   flex-shrink: 0;
   padding: var(--space-2) var(--space-4) var(--space-4);

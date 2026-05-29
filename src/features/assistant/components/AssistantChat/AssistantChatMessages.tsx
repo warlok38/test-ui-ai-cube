@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm'
 
 import { ScrollToBottom } from '@/components/ScrollToBottom'
 import { ShimmerText } from '@/components/ShimmerText'
+import type { StreamEventType } from '@/services/assistantWorkflow/types'
 import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
 import { AnalyticsChart } from '@/features/assistant/components/AnalyticsChart'
 import { AnalyticsTable } from '@/features/assistant/components/AnalyticsTable'
@@ -19,11 +20,24 @@ import { PinnedUserQuestion } from './PinnedUserQuestion'
 
 import styles from './AssistantChat.module.css'
 
+const STREAM_EVENT_LABELS: Record<StreamEventType, string> = {
+  task: 'Запрос принят',
+  ack: 'Запрос передан в обработку',
+  progress: 'Выполнение запроса',
+  heartbeat: 'Запрос выполняется',
+  result: 'Формирование ответа',
+  error: 'Ошибка выполнения',
+  end: 'Завершение'
+}
+
+const DEFAULT_STREAM_LABEL = 'Выполнение запроса…'
+
 type AssistantChatMessagesProps = {
   messages: ChatMessage[]
   chatId?: string | null
   isRunning: boolean
-  streamMessage?: string | null
+  streamEventType?: StreamEventType | null
+  streamEventMessage?: string | null
 }
 
 function AssistantMessage({ message }: { message: ChatMessage }) {
@@ -72,7 +86,8 @@ export function AssistantChatMessages({
   messages,
   chatId,
   isRunning,
-  streamMessage
+  streamEventType,
+  streamEventMessage
 }: AssistantChatMessagesProps) {
   const messageListRef = useRef<HTMLDivElement>(null)
   const chatColumnRef = useRef<HTMLDivElement>(null)
@@ -135,8 +150,13 @@ export function AssistantChatMessages({
               <div className={styles.messageAssistant}>
                 <ShimmerText
                   className={styles.loadingStatus}
-                  text={streamMessage ?? 'Выполнение запроса…'}
+                  text={
+                    streamEventType ? STREAM_EVENT_LABELS[streamEventType] : DEFAULT_STREAM_LABEL
+                  }
                 />
+                {streamEventMessage ? (
+                  <span className={styles.loadingStatusDetail}>{streamEventMessage}</span>
+                ) : null}
               </div>
             </div>
           ) : null}
