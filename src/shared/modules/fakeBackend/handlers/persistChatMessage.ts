@@ -1,6 +1,6 @@
-import { appendRequestLog } from '@/modules/fakeDb/repo'
-import { appendMessage } from '@/modules/fakeDb/chatRepo'
-import { toMessageEntity } from '@/modules/fakeDb/chatMappers'
+import { appendRequestLog } from '@/shared/modules/fakeDb/repo'
+import { appendMessage } from '@/shared/modules/fakeDb/chatRepo'
+import { toMessageEntity } from '@/shared/modules/fakeDb/chatMappers'
 import type { CubeQueryResult, MessageEntity } from '@/services/assistantWorkflow/types'
 
 export function persistChatMessage(

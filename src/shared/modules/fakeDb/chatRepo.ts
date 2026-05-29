@@ -5,7 +5,7 @@ import type { ChatRecord, ChatsDbSnapshot, MessageRecordDb } from './chatSchema'
 import { isLegacyChatsSnapshot } from './chatSchema'
 import { loadChatsFromStorage, saveChatsToStorage } from './chatPersistence'
 import { toChatDetailEntity, toChatEntity, toMessageEntity } from './chatMappers'
-import { createId } from '@/utils/createId'
+import { createId } from '@/shared/utils/createId'
 
 let memorySnapshot: ChatsDbSnapshot | null = null
 

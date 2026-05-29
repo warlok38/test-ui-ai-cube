@@ -1,7 +1,7 @@
 import type { ColumnsType } from 'antd/es/table'
 import { Button } from 'antd'
 import type { AdminQueryLog } from '@/services/admin/types'
-import { formatCompactDateTime } from '@/utils/formatDateTime'
+import { formatCompactDateTime } from '@/shared/utils/formatDateTime'
 
 export function createAdminLogsColumns(
   onOpenDetails: (row: AdminQueryLog) => void

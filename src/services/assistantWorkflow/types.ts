@@ -1,4 +1,4 @@
-import type { RequestFeedback, RequestLogStatus } from '@/modules/fakeDb/schema'
+import type { RequestFeedback, RequestLogStatus } from '@/shared/modules/fakeDb/schema'
 
 export type AssistantPhase = 'idle' | 'checking' | 'generating' | 'fetching' | 'interpreting'
 

@@ -1,5 +1,5 @@
-import { postChatStream } from '@/fakeBackend/handlers/postChatStream'
-import { handleFakeBackendError } from '@/fakeBackend/http'
+import { postChatStream } from '@/shared/modules/fakeBackend/handlers/postChatStream'
+import { handleFakeBackendError } from '@/shared/modules/fakeBackend/http'
 import type { MessageSendParams } from '@/services/assistantWorkflow/types'
 
 export async function POST(request: Request) {

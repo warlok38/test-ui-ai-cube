@@ -1,4 +1,4 @@
-@import '../styles/tokens/index.css';
+@import '../shared/styles/tokens/index.css';
 
 * {
   box-sizing: border-box;

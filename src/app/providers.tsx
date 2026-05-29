@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
 import { useRef } from 'react'
 
-import { ThemeProvider } from '@/theme'
+import { ThemeProvider } from '@/shared/theme'
 
 import { setupStore, type AppStore } from '@/store'
 

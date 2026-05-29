@@ -10,7 +10,7 @@ import {
   formatSmartDateTime,
   isDateColumn,
   parseIsoToTimestamp
-} from '@/utils/formatDateTime'
+} from '@/shared/utils/formatDateTime'
 
 type Row = Record<string, string | number | null>
 

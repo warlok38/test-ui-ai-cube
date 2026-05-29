@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import { aggregateCubeStats, listAdminQueryLogs, listLogs } from '@/modules/fakeDb/repo'
-import { randomDelay } from '@/modules/fakeApi/delay'
+import { aggregateCubeStats, listAdminQueryLogs, listLogs } from '@/shared/modules/fakeDb/repo'
+import { randomDelay } from '@/shared/modules/fakeApi/delay'
 import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
 
 const noopBaseQuery: BaseQueryFn = async () => ({ data: null })

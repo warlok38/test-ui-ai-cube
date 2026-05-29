@@ -26,7 +26,7 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 Хук **`useGlobalFontSize`** ([`src/hooks/useGlobalFontSize.ts`](src/hooks/useGlobalFontSize.ts)) подписан на событие `resize`, берёт [`window.outerWidth`](https://developer.mozilla.org/en-US/docs/Web/API/Window/outerWidth) (удобнее при масштабировании страницы) и считает размер шрифта по пропорции к базовой ширине **1920** и базовому значению **16** пикселей, ограничивая результат диапазоном **8…24**. Возвращённое число пробрасывается в **`style={{ fontSize }}`** на `<html>` в [`src/app/layout.tsx`](src/app/layout.tsx).
 
-Подробнее про слои токенов и соглашения по верстке: [`src/styles/README.md`](src/styles/README.md).
+Подробнее про слои токенов и соглашения по верстке: [`src/shared/styles/README.md`](src/shared/styles/README.md).
 
 ## Learn More
 

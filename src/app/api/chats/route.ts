@@ -1,5 +1,5 @@
-import { getChats } from '@/fakeBackend/handlers/getChats'
-import { handleFakeBackendError } from '@/fakeBackend/http'
+import { getChats } from '@/shared/modules/fakeBackend/handlers/getChats'
+import { handleFakeBackendError } from '@/shared/modules/fakeBackend/http'
 
 export async function GET() {
   try {

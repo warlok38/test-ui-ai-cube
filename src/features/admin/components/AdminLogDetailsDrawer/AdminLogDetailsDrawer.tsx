@@ -3,7 +3,7 @@
 import { Drawer, Space, Typography } from 'antd'
 import type { AdminQueryLog } from '@/services/admin/types'
 import { ADMIN_DRAWER_DEMO_DAX } from '@/features/admin/constants/adminDemoDax'
-import { formatCompactDateTime } from '@/utils/formatDateTime'
+import { formatCompactDateTime } from '@/shared/utils/formatDateTime'
 
 import styles from './AdminLogDetailsDrawer.module.css'
 

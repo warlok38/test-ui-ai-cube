@@ -1,5 +1,5 @@
-import { postChatVote } from '@/fakeBackend/handlers/postChatVote'
-import { handleFakeBackendError } from '@/fakeBackend/http'
+import { postChatVote } from '@/shared/modules/fakeBackend/handlers/postChatVote'
+import { handleFakeBackendError } from '@/shared/modules/fakeBackend/http'
 import type { PatchMessageVoteBody } from '@/services/assistantWorkflow/types'
 
 export async function POST(request: Request) {

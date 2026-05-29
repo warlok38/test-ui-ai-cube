@@ -1,5 +1,5 @@
-import { cancelChatTask } from '@/fakeBackend/handlers/cancelChatTask'
-import { handleFakeBackendError } from '@/fakeBackend/http'
+import { cancelChatTask } from '@/shared/modules/fakeBackend/handlers/cancelChatTask'
+import { handleFakeBackendError } from '@/shared/modules/fakeBackend/http'
 
 type RouteContext = {
   params: { taskId: string }

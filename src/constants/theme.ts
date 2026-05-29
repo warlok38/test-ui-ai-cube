@@ -1,5 +1,5 @@
 /**
- * Совпадает с `--palette-accent-primary` в `styles/tokens/palette.css`.
+ * Совпадает с `--palette-accent-primary` в `shared/styles/tokens/palette.css`.
  */
 export const PALETTE_PRIMARY = '#fab529' as const
 

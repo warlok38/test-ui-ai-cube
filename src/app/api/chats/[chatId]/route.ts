@@ -1,6 +1,6 @@
-import { deleteChat } from '@/fakeBackend/handlers/deleteChat'
-import { getChatById } from '@/fakeBackend/handlers/getChatById'
-import { handleFakeBackendError } from '@/fakeBackend/http'
+import { deleteChat } from '@/shared/modules/fakeBackend/handlers/deleteChat'
+import { getChatById } from '@/shared/modules/fakeBackend/handlers/getChatById'
+import { handleFakeBackendError } from '@/shared/modules/fakeBackend/http'
 
 type RouteContext = {
   params: { chatId: string }

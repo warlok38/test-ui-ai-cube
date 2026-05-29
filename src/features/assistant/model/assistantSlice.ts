@@ -5,14 +5,14 @@ import {
   DEFAULT_ASSISTANT_TECHNICAL_SETTINGS,
   type AssistantTechnicalSettings
 } from '@/features/technical/model'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { loadTechnicalSettings } from '@/shared/modules/fakeDb/technicalSettingsPersistence'
 import type {
   AssistantPhase,
   ChatStreamEvent,
   ErrorEntity,
   MessageEntity
 } from '@/services/assistantWorkflow/types'
-import { createId } from '@/utils/createId'
+import { createId } from '@/shared/utils/createId'
 
 export type ChatMessage = MessageEntity
 

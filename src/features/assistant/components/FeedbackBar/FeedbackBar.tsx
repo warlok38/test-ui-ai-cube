@@ -4,7 +4,7 @@ import { LikeOutlined, DislikeOutlined } from '@ant-design/icons'
 import { App, Button, Space, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { useState } from 'react'
-import type { RequestFeedback } from '@/modules/fakeDb/schema'
+import type { RequestFeedback } from '@/shared/modules/fakeDb/schema'
 import { useVoteMessageMutation } from '@/store/api/chatsApi'
 
 import styles from './FeedbackBar.module.css'

@@ -4,14 +4,14 @@
 
 ## Где находятся токены
 
-- Точка входа токенов: `src/styles/tokens/index.css`
+- Точка входа токенов: `src/shared/styles/tokens/index.css`
 - Файлы токенов:
-  - `src/styles/tokens/space.css`
-  - `src/styles/tokens/font-sizes.css`
-  - `src/styles/tokens/layout.css`
-  - `src/styles/tokens/palette.css`
-  - `src/styles/tokens/colors.css`
-- Подключение в приложение: `src/app/globals.css` через `@import "../styles/tokens/index.css";`
+  - `src/shared/styles/tokens/space.css`
+  - `src/shared/styles/tokens/font-sizes.css`
+  - `src/shared/styles/tokens/layout.css`
+  - `src/shared/styles/tokens/palette.css`
+  - `src/shared/styles/tokens/colors.css`
+- Подключение в приложение: `src/app/globals.css` через `@import "../shared/styles/tokens/index.css";`
 
 ## Слои токенов
 
@@ -25,7 +25,7 @@
 - Тема управляется вручную через `html[data-theme='light' | 'dark']`.
 - Источник темы хранится в `localStorage` по ключу `theme`.
 - Начальное значение темы на сервере - `light`, затем после гидрации тема синхронизируется с `localStorage` через `ThemeProvider` / `useTheme`.
-- Переключение темы реализовано через `useTheme` (`src/theme/ThemeProvider.tsx`, реэкспорт в `src/hooks/index.ts`) и UI в `Header1`.
+- Переключение темы реализовано через `useTheme` (`src/shared/theme/ThemeProvider.tsx`, реэкспорт в `src/hooks/index.ts`) и UI в `Header1`.
 
 ## Правила использования
 

@@ -2,7 +2,7 @@ import type { AdminQueryLog, CubeStats } from '@/services/admin/types'
 import type { MetricsAggregate, RequestFeedback, RequestLogRecord } from './schema'
 import seed from './seed.json'
 import { loadFromStorage, saveToStorage } from './persistence'
-import { createId } from '@/utils/createId'
+import { createId } from '@/shared/utils/createId'
 
 let memoryLogs: RequestLogRecord[] | null = null
 

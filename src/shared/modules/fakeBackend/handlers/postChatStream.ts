@@ -1,12 +1,12 @@
-import { ensureChat } from '@/modules/fakeDb/chatRepo'
-import { executeCubeQuery } from '@/modules/fakeApi/executeDax'
-import { loadTechnicalSettings } from '@/modules/fakeDb/technicalSettingsPersistence'
+import { ensureChat } from '@/shared/modules/fakeDb/chatRepo'
+import { executeCubeQuery } from '@/shared/modules/fakeApi/executeDax'
+import { loadTechnicalSettings } from '@/shared/modules/fakeDb/technicalSettingsPersistence'
 import type {
   ChatStreamEvent,
   ErrorEntity,
   MessageSendParams
 } from '@/services/assistantWorkflow/types'
-import { createId } from '@/utils/createId'
+import { createId } from '@/shared/utils/createId'
 import { createSseResponse, encodeSseChunk } from '../sse'
 import { FakeBackendError } from '../errors'
 import { registerTask, unregisterTask } from '../taskRegistry'
