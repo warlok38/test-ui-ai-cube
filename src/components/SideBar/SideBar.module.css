@@ -67,7 +67,39 @@
   outline-offset: calc(var(--border-width-strong) * -1);
 }
 
-.sideBarOpen .collapsedTrigger {
+.collapsedNewChatButton {
+  position: absolute;
+  top: calc(var(--space-3) + 1.75rem + var(--space-2));
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--radius-5);
+  color: var(--color-text-sidebar);
+  background: var(--color-bg-sidebar-accent);
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  cursor: pointer;
+  transform: translateX(-50%);
+}
+
+.collapsedNewChatButton:hover {
+  background: var(--color-bg-sidebar-accent-hover);
+}
+
+.collapsedNewChatButton:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-text-sidebar);
+  outline-offset: var(--border-width-hairline);
+}
+
+.sideBarOpen .collapsedTrigger,
+.sideBarOpen .collapsedNewChatButton {
   pointer-events: none;
 }
 

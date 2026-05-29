@@ -6,9 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { useDeleteChat } from '@/features/assistant/hooks/useDeleteChat'
-import { assistantActions } from '@/features/assistant/model/assistantSlice'
+import { useStartNewChat } from '@/features/assistant/hooks/useStartNewChat'
 import { getChatIdFromPathname } from '@/features/assistant/utils/chatRoute'
-import { useAppDispatch } from '@/store/hooks'
 import { useListChatsQuery } from '@/store/api/chatsApi'
 
 import { DeleteChatConfirmModal } from '../DeleteChatConfirmModal/DeleteChatConfirmModal'
@@ -21,23 +20,14 @@ export type SideBarChatsProps = {
 }
 
 export function SideBarChats({ isOpen, onToggle, position = 'left' }: SideBarChatsProps) {
-  const dispatch = useAppDispatch()
   const router = useRouter()
   const pathname = usePathname()
+  const startNewChat = useStartNewChat()
   const { data: chats = [], isLoading } = useListChatsQuery()
   const { deleteChat, isDeleting } = useDeleteChat()
   const [chatToDelete, setChatToDelete] = useState<string | null>(null)
 
   const activeChatId = getChatIdFromPathname(pathname)
-
-  const handleNewChat = () => {
-    dispatch(assistantActions.startNewChat())
-    if (pathname.startsWith('/chat/')) {
-      router.replace('/')
-    } else if (pathname !== '/') {
-      router.replace('/')
-    }
-  }
 
   const handleChatClick = (chatId: string) => {
     router.push(`/chat/${chatId}`)
@@ -81,7 +71,7 @@ export function SideBarChats({ isOpen, onToggle, position = 'left' }: SideBarCha
           </button>
         </header>
 
-        <button type="button" className={styles.newChatButton} onClick={handleNewChat}>
+        <button type="button" className={styles.newChatButton} onClick={startNewChat}>
           <PlusOutlined />
           Новый чат
         </button>

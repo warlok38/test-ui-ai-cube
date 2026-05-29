@@ -1,7 +1,9 @@
 'use client'
 
-import { CommentOutlined } from '@ant-design/icons'
+import { CommentOutlined, PlusOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
+
+import { useStartNewChat } from '@/features/assistant/hooks/useStartNewChat'
 
 import { SideBarChats } from './SideBarChats'
 import { SideBarFooter } from './SideBarFooter/SideBarFooter'
@@ -16,6 +18,7 @@ export type SideBarProps = {
 
 export function SideBar({ position = 'left' }: SideBarProps) {
   const { isOpen, openSideBar, toggleSideBar } = useSideBar()
+  const startNewChat = useStartNewChat()
 
   return (
     <aside
@@ -26,14 +29,27 @@ export function SideBar({ position = 'left' }: SideBarProps) {
     >
       <div className={styles.body}>
         {!isOpen && (
-          <button
-            type="button"
-            className={styles.collapsedTrigger}
-            onClick={openSideBar}
-            aria-label="Открыть панель чатов"
-          >
-            <CommentOutlined />
-          </button>
+          <>
+            <button
+              type="button"
+              className={styles.collapsedTrigger}
+              onClick={openSideBar}
+              aria-label="Открыть панель чатов"
+            >
+              <CommentOutlined />
+            </button>
+            <button
+              type="button"
+              className={styles.collapsedNewChatButton}
+              onClick={(e) => {
+                e.stopPropagation()
+                startNewChat()
+              }}
+              aria-label="Новый чат"
+            >
+              <PlusOutlined />
+            </button>
+          </>
         )}
 
         <SideBarChats isOpen={isOpen} onToggle={toggleSideBar} position={position} />
