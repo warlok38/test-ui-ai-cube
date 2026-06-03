@@ -34,6 +34,49 @@ function isNewUserQuestion(
   return Boolean(currLast && currLast.id !== prevLast?.id && !currLast.interpretation)
 }
 
+/** Переход между двумя уже известными чатами (не присвоение id новому чату после отправки с /). */
+export function isNavigatingBetweenChats(
+  prevChatId: string | null | undefined,
+  nextChatId: string | null | undefined
+): boolean {
+  const prev = prevChatId ?? null
+  const next = nextChatId ?? null
+
+  return prev !== null && next !== null && prev !== next
+}
+
+/** Подгрузка истории другого чата, а не замена stub → result в текущем ходе. */
+export function isHistoryMessagesReload(
+  prevMessages: ChatMessage[],
+  nextMessages: ChatMessage[]
+): boolean {
+  if (prevMessages.length === 0 || nextMessages.length === 0) return false
+  if (prevMessages[0]?.id === nextMessages[0]?.id) return false
+
+  return prevMessages[0]?.query_text !== nextMessages[0]?.query_text
+}
+
+export function isInitialHistoryLoad(
+  prevMessages: ChatMessage[],
+  nextMessages: ChatMessage[],
+  chatId: string | null | undefined
+): boolean {
+  return prevMessages.length === 0 && nextMessages.length > 0 && Boolean(chatId)
+}
+
+function shouldScrollToHistoryBottom(
+  prevMessages: ChatMessage[],
+  nextMessages: ChatMessage[],
+  prevChatId: string | null | undefined,
+  nextChatId: string | null | undefined
+): boolean {
+  return (
+    isNavigatingBetweenChats(prevChatId, nextChatId) ||
+    isInitialHistoryLoad(prevMessages, nextMessages, nextChatId) ||
+    isHistoryMessagesReload(prevMessages, nextMessages)
+  )
+}
+
 type UseChatAutoScrollOptions = {
   scrollContainerRef: RefObject<HTMLElement | null>
   contentRef: RefObject<HTMLElement | null>
@@ -55,8 +98,9 @@ export function useChatAutoScroll({
 }: UseChatAutoScrollOptions) {
   const autoFollowActiveTurnRef = useRef(false)
   const isProgrammaticScrollRef = useRef(false)
-  const prevMessagesRef = useRef<ChatMessage[]>([])
-  const prevChatIdRef = useRef<string | null | undefined>(undefined)
+  /** Синхронизируем с props при монтировании: после / → /chat/:id хук перемонтируется, иначе [] даёт ложный isInitialHistoryLoad. */
+  const prevMessagesRef = useRef(messages)
+  const prevChatIdRef = useRef(chatId)
   const prevIsRunningRef = useRef(isRunning)
 
   const userRefsRef = useRef(userRefs)
@@ -102,16 +146,12 @@ export function useChatAutoScroll({
       return
     }
 
-    const chatChanged = prevChatIdRef.current !== undefined && chatId !== prevChatIdRef.current
     const prevLast = prevMessagesRef.current.at(-1)
     const currLast = messages.at(-1)
-    const messagesReplaced =
-      !chatChanged &&
-      prevMessagesRef.current.length > 0 &&
-      messages.length > 0 &&
-      prevMessagesRef.current[0]?.id !== messages[0]?.id
 
-    if (chatChanged || messagesReplaced) {
+    if (
+      shouldScrollToHistoryBottom(prevMessagesRef.current, messages, prevChatIdRef.current, chatId)
+    ) {
       autoFollowActiveTurnRef.current = false
       scrollToBottom(container)
     } else if (isNewUserQuestion(prevLast, currLast)) {
