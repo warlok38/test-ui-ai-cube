@@ -98,6 +98,7 @@ export function useChatAutoScroll({
 }: UseChatAutoScrollOptions) {
   const autoFollowActiveTurnRef = useRef(false)
   const isProgrammaticScrollRef = useRef(false)
+  const smoothAnchorActiveRef = useRef(false)
   /** Синхронизируем с props при монтировании: после / → /chat/:id хук перемонтируется, иначе [] даёт ложный isInitialHistoryLoad. */
   const prevMessagesRef = useRef(messages)
   const prevChatIdRef = useRef(chatId)
@@ -112,19 +113,65 @@ export function useChatAutoScroll({
   const isRunningRef = useRef(isRunning)
   isRunningRef.current = isRunning
 
-  const runProgrammaticScroll = useCallback((scroll: () => void) => {
-    isProgrammaticScrollRef.current = true
-    scroll()
-    requestAnimationFrame(() => {
-      isProgrammaticScrollRef.current = false
-    })
-  }, [])
+  const runProgrammaticScroll = useCallback(
+    (scroll: () => void, options?: { smooth?: boolean; onComplete?: () => void }) => {
+      isProgrammaticScrollRef.current = true
+      scroll()
+
+      const complete = () => {
+        isProgrammaticScrollRef.current = false
+        options?.onComplete?.()
+      }
+
+      if (!options?.smooth) {
+        requestAnimationFrame(complete)
+        return
+      }
+
+      const container = scrollContainerRef.current
+      if (!container) {
+        requestAnimationFrame(complete)
+        return
+      }
+
+      let finished = false
+      const finish = () => {
+        if (finished) return
+        finished = true
+        window.clearTimeout(timeoutId)
+        container.removeEventListener('scrollend', finish)
+        complete()
+      }
+
+      container.addEventListener('scrollend', finish)
+      const timeoutId = window.setTimeout(finish, 800)
+    },
+    [scrollContainerRef]
+  )
 
   const anchorActiveTurnToTop = useCallback(
-    (container: HTMLElement) => {
-      runProgrammaticScroll(() => {
-        scrollActiveTurnToTopWithRetry(container, userRefsRef.current, activeTurnUserIdRef.current)
-      })
+    (container: HTMLElement, options?: { smooth?: boolean }) => {
+      if (options?.smooth) {
+        smoothAnchorActiveRef.current = true
+      }
+
+      runProgrammaticScroll(
+        () => {
+          scrollActiveTurnToTopWithRetry(
+            container,
+            userRefsRef.current,
+            activeTurnUserIdRef.current,
+            4,
+            options?.smooth ? 'smooth' : 'auto'
+          )
+        },
+        {
+          smooth: options?.smooth,
+          onComplete: () => {
+            smoothAnchorActiveRef.current = false
+          }
+        }
+      )
     },
     [runProgrammaticScroll]
   )
@@ -156,7 +203,7 @@ export function useChatAutoScroll({
       scrollToBottom(container)
     } else if (isNewUserQuestion(prevLast, currLast)) {
       autoFollowActiveTurnRef.current = true
-      anchorActiveTurnToTop(container)
+      anchorActiveTurnToTop(container, { smooth: true })
     } else if (currLast && isTurnCompleted(prevLast, currLast)) {
       autoFollowActiveTurnRef.current = false
     }
@@ -173,7 +220,7 @@ export function useChatAutoScroll({
       autoFollowActiveTurnRef.current = false
     }
 
-    if (!isRunning || !autoFollowActiveTurnRef.current) return
+    if (!isRunning || !autoFollowActiveTurnRef.current || smoothAnchorActiveRef.current) return
 
     const container = scrollContainerRef.current
     if (!container) return
@@ -187,7 +234,13 @@ export function useChatAutoScroll({
     if (!container || !content) return
 
     const handleResize = () => {
-      if (!isRunningRef.current || !autoFollowActiveTurnRef.current) return
+      if (
+        !isRunningRef.current ||
+        !autoFollowActiveTurnRef.current ||
+        smoothAnchorActiveRef.current
+      ) {
+        return
+      }
       anchorActiveTurnToTop(container)
     }
 
