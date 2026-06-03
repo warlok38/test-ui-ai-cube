@@ -11,6 +11,8 @@ const DEFAULT_THRESHOLD = 150
 
 type ScrollToBottomProps = {
   scrollContainerRef: RefObject<HTMLElement | null>
+  /** Кнопка внутри внешнего оверлея (позиционирование задаёт родитель). */
+  embedded?: boolean
   threshold?: number
   className?: string
   'aria-label'?: string
@@ -26,6 +28,7 @@ function getHasOverflow(container: HTMLElement) {
 
 export function ScrollToBottom({
   scrollContainerRef,
+  embedded = false,
   threshold = DEFAULT_THRESHOLD,
   className,
   'aria-label': ariaLabel = 'Прокрутить вниз'
@@ -72,7 +75,12 @@ export function ScrollToBottom({
       type="default"
       shape="circle"
       icon={<DownOutlined />}
-      className={classNames(styles.button, visible && styles.buttonVisible, className)}
+      className={classNames(
+        styles.button,
+        embedded && styles.buttonEmbedded,
+        visible && styles.buttonVisible,
+        className
+      )}
       onClick={handleClick}
       aria-label={ariaLabel}
       tabIndex={visible ? 0 : -1}

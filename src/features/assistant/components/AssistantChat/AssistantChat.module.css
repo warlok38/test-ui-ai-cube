@@ -33,11 +33,12 @@
 
 .chatColumn {
   width: 100%;
-  max-width: 52rem;
+  max-width: var(--layout-max-width-assistant-chat);
   margin: 0 auto;
 }
 
 .messagesStage {
+  --assistant-chat-gutter-inline: var(--space-4);
   position: relative;
   flex: 1;
   min-height: 0;
@@ -51,11 +52,27 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: var(--space-4) var(--space-4) var(--space-2);
+  padding: var(--assistant-chat-gutter-inline) var(--assistant-chat-gutter-inline) var(--space-2);
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   background: var(--color-bg-default);
   isolation: isolate;
+}
+
+.scrollToBottomOverlay {
+  position: absolute;
+  bottom: var(--assistant-chat-gutter-inline);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  width: min(
+    var(--layout-max-width-assistant-chat),
+    calc(100% - 2 * var(--assistant-chat-gutter-inline))
+  );
+  padding-right: var(--space-3);
+  pointer-events: none;
+  transform: translateX(-50%);
 }
 
 .turn {

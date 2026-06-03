@@ -20,6 +20,12 @@
   pointer-events: auto;
 }
 
+.buttonEmbedded {
+  position: static;
+  bottom: auto;
+  right: auto;
+}
+
 .button:global(.ant-btn-icon-only) {
   display: inline-flex;
   align-items: center;

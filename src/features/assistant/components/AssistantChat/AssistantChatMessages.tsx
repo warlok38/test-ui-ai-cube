@@ -167,7 +167,9 @@ export function AssistantChatMessages({
           ) : null}
         </div>
       </div>
-      <ScrollToBottom scrollContainerRef={messageListRef} />
+      <div className={styles.scrollToBottomOverlay}>
+        <ScrollToBottom scrollContainerRef={messageListRef} embedded />
+      </div>
     </div>
   )
 }
