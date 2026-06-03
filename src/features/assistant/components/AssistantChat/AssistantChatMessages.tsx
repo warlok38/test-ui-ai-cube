@@ -1,5 +1,6 @@
 'use client'
 
+import classNames from 'classnames'
 import { useMemo, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -105,9 +106,13 @@ export function AssistantChatMessages({
     userRefs
   })
 
+  const activeTurnUserId = turnUserIds.at(-1)
+
   useChatAutoScroll({
     scrollContainerRef: messageListRef,
     contentRef: chatColumnRef,
+    userRefs,
+    activeTurnUserId,
     messages,
     chatId,
     isRunning
@@ -146,8 +151,8 @@ export function AssistantChatMessages({
           })}
 
           {isRunning ? (
-            <div className={styles.messageRow}>
-              <div className={styles.messageAssistant}>
+            <div className={classNames(styles.messageRow, styles.generationRow)}>
+              <div className={classNames(styles.messageAssistant, styles.generationMessage)}>
                 <ShimmerText
                   className={styles.loadingStatus}
                   text={

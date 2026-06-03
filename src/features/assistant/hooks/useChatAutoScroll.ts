@@ -1,8 +1,12 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from 'react'
 
 import type { ChatMessage } from '@/features/assistant/model/assistantSlice'
+import {
+  isQuestionAnchoredToTop,
+  scrollActiveTurnToTopWithRetry
+} from '@/features/assistant/hooks/scrollActiveTurnToTop'
 
 export const NEAR_BOTTOM_THRESHOLD = 150
 
@@ -14,42 +18,81 @@ export function scrollToBottomInstant(container: HTMLElement): void {
   container.scrollTop = container.scrollHeight
 }
 
+export function isTurnCompleted(prev: ChatMessage | undefined, curr: ChatMessage): boolean {
+  if (!prev || !curr) return false
+
+  const interpretationAppeared = !prev.interpretation && Boolean(curr.interpretation)
+  const replacedWithResult = prev.id !== curr.id && Boolean(curr.interpretation)
+
+  return interpretationAppeared || replacedWithResult
+}
+
+function isNewUserQuestion(
+  prevLast: ChatMessage | undefined,
+  currLast: ChatMessage | undefined
+): currLast is ChatMessage {
+  return Boolean(currLast && currLast.id !== prevLast?.id && !currLast.interpretation)
+}
+
 type UseChatAutoScrollOptions = {
   scrollContainerRef: RefObject<HTMLElement | null>
   contentRef: RefObject<HTMLElement | null>
+  userRefs: RefObject<Map<string, HTMLDivElement>>
+  activeTurnUserId: string | undefined
   messages: ChatMessage[]
   chatId?: string | null
   isRunning: boolean
 }
 
-function isAssistantReply(prevLast: ChatMessage | undefined, currLast: ChatMessage): boolean {
-  if (!prevLast || prevLast.id !== currLast.id) return false
-
-  const hadInterpretation = Boolean(prevLast.interpretation)
-  const hasInterpretation = Boolean(currLast.interpretation)
-
-  return !hadInterpretation && hasInterpretation
-}
-
 export function useChatAutoScroll({
   scrollContainerRef,
   contentRef,
+  userRefs,
+  activeTurnUserId,
   messages,
   chatId,
   isRunning
 }: UseChatAutoScrollOptions) {
-  const stickToBottomRef = useRef(true)
+  const autoFollowActiveTurnRef = useRef(false)
   const isProgrammaticScrollRef = useRef(false)
   const prevMessagesRef = useRef<ChatMessage[]>([])
   const prevChatIdRef = useRef<string | null | undefined>(undefined)
+  const prevIsRunningRef = useRef(isRunning)
 
-  const scrollInstant = (container: HTMLElement) => {
+  const userRefsRef = useRef(userRefs)
+  userRefsRef.current = userRefs
+
+  const activeTurnUserIdRef = useRef(activeTurnUserId)
+  activeTurnUserIdRef.current = activeTurnUserId
+
+  const isRunningRef = useRef(isRunning)
+  isRunningRef.current = isRunning
+
+  const runProgrammaticScroll = useCallback((scroll: () => void) => {
     isProgrammaticScrollRef.current = true
-    scrollToBottomInstant(container)
+    scroll()
     requestAnimationFrame(() => {
       isProgrammaticScrollRef.current = false
     })
-  }
+  }, [])
+
+  const anchorActiveTurnToTop = useCallback(
+    (container: HTMLElement) => {
+      runProgrammaticScroll(() => {
+        scrollActiveTurnToTopWithRetry(container, userRefsRef.current, activeTurnUserIdRef.current)
+      })
+    },
+    [runProgrammaticScroll]
+  )
+
+  const scrollToBottom = useCallback(
+    (container: HTMLElement) => {
+      runProgrammaticScroll(() => {
+        scrollToBottomInstant(container)
+      })
+    },
+    [runProgrammaticScroll]
+  )
 
   useLayoutEffect(() => {
     const container = scrollContainerRef.current
@@ -69,33 +112,34 @@ export function useChatAutoScroll({
       prevMessagesRef.current[0]?.id !== messages[0]?.id
 
     if (chatChanged || messagesReplaced) {
-      stickToBottomRef.current = true
-      scrollInstant(container)
-    } else if (currLast && prevChatIdRef.current === undefined) {
-      stickToBottomRef.current = true
-      scrollInstant(container)
-    } else if (currLast && currLast.id !== prevLast?.id && !currLast.interpretation) {
-      if (stickToBottomRef.current) {
-        scrollInstant(container)
-      }
-    } else if (currLast && isAssistantReply(prevLast, currLast)) {
-      if (stickToBottomRef.current) {
-        scrollInstant(container)
-      }
+      autoFollowActiveTurnRef.current = false
+      scrollToBottom(container)
+    } else if (isNewUserQuestion(prevLast, currLast)) {
+      autoFollowActiveTurnRef.current = true
+      anchorActiveTurnToTop(container)
+    } else if (currLast && isTurnCompleted(prevLast, currLast)) {
+      autoFollowActiveTurnRef.current = false
     }
 
     prevMessagesRef.current = messages
     prevChatIdRef.current = chatId
-  }, [messages, chatId, scrollContainerRef])
+  }, [messages, chatId, anchorActiveTurnToTop, scrollToBottom, scrollContainerRef])
 
   useLayoutEffect(() => {
-    if (!isRunning || !stickToBottomRef.current) return
+    const wasRunning = prevIsRunningRef.current
+    prevIsRunningRef.current = isRunning
+
+    if (wasRunning && !isRunning) {
+      autoFollowActiveTurnRef.current = false
+    }
+
+    if (!isRunning || !autoFollowActiveTurnRef.current) return
 
     const container = scrollContainerRef.current
     if (!container) return
 
-    scrollInstant(container)
-  }, [isRunning, scrollContainerRef])
+    anchorActiveTurnToTop(container)
+  }, [isRunning, anchorActiveTurnToTop, scrollContainerRef])
 
   useEffect(() => {
     const container = scrollContainerRef.current
@@ -103,8 +147,8 @@ export function useChatAutoScroll({
     if (!container || !content) return
 
     const handleResize = () => {
-      if (!stickToBottomRef.current) return
-      scrollInstant(container)
+      if (!isRunningRef.current || !autoFollowActiveTurnRef.current) return
+      anchorActiveTurnToTop(container)
     }
 
     const resizeObserver = new ResizeObserver(handleResize)
@@ -113,7 +157,7 @@ export function useChatAutoScroll({
     return () => {
       resizeObserver.disconnect()
     }
-  }, [scrollContainerRef, contentRef])
+  }, [isRunning, anchorActiveTurnToTop, contentRef, scrollContainerRef])
 
   useEffect(() => {
     const container = scrollContainerRef.current
@@ -121,7 +165,16 @@ export function useChatAutoScroll({
 
     const handleScroll = () => {
       if (isProgrammaticScrollRef.current) return
-      stickToBottomRef.current = isNearBottom(container)
+
+      if (!isRunningRef.current || !autoFollowActiveTurnRef.current) return
+
+      const turnUserId = activeTurnUserIdRef.current
+      if (!turnUserId) return
+
+      const userElement = userRefsRef.current.current?.get(turnUserId)
+      if (!userElement) return
+
+      autoFollowActiveTurnRef.current = isQuestionAnchoredToTop(container, userElement)
     }
 
     container.addEventListener('scroll', handleScroll, { passive: true })
