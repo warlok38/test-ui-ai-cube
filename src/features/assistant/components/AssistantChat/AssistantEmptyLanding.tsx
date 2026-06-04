@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import styles from './AssistantChat.module.css'
 import { AssistantChatDisclaimer } from './AssistantChatDisclaimer'
+import { CubeUnavailableAlert } from './CubeUnavailableAlert'
 
 const ASSISTANT_LANDING_DESCRIPTION = [
   'ИИ Модуль помогает формулировать аналитические вопросы к кубу на естественном языке и получать таблицы, интерпретации и базовые визуализации.',
@@ -11,12 +12,19 @@ const ASSISTANT_LANDING_DESCRIPTION = [
 
 type AssistantEmptyLandingProps = {
   children: ReactNode
+  showCubeUnavailableAlert?: boolean
 }
 
-export function AssistantEmptyLanding({ children }: AssistantEmptyLandingProps) {
+export function AssistantEmptyLanding({
+  children,
+  showCubeUnavailableAlert = false
+}: AssistantEmptyLandingProps) {
   return (
     <div className={styles.emptyLanding}>
       <h1 className={styles.emptyTitle}>ИИ Модуль</h1>
+      {showCubeUnavailableAlert ? (
+        <CubeUnavailableAlert closable={false} />
+      ) : null}
       {children}
       <AssistantChatDisclaimer />
       <section className={styles.descriptionCard} aria-labelledby="assistant-landing-description">

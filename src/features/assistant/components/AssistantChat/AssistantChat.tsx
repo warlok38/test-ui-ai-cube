@@ -26,9 +26,11 @@ import {
 } from '@/store/api/chatsApi'
 import { cubeApi } from '@/store/api/cubeApi'
 
+import { useCubeConnectHealth } from '@/features/assistant/hooks/useCubeConnectHealth'
 import { AssistantChatMessages } from './AssistantChatMessages'
 import { AssistantChatView } from './AssistantChatView'
 import { AssistantEmptyLanding } from './AssistantEmptyLanding'
+import { CubeUnavailableAlert } from './CubeUnavailableAlert'
 
 import styles from './AssistantChat.module.css'
 
@@ -84,6 +86,8 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
   const requestRef = useRef<ReturnType<typeof sendMessage> | null>(null)
 
   const [draft, setDraft] = useState('')
+  const [cubeAlertDismissed, setCubeAlertDismissed] = useState(false)
+  const { isHealthyConnect } = useCubeConnectHealth()
   const chatShellRef = useRef<HTMLDivElement>(null)
   const { messages: visibleMessages, isEmpty: isEmptyChat } = getVisibleChatState(
     routeChatId,
@@ -118,6 +122,10 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
     (isChatLoading || isChatFetching)
 
   const showLoader = showInitialLoader || showTransitionLoader
+
+  useEffect(() => {
+    setCubeAlertDismissed(false)
+  }, [routeChatId, isHealthyConnect])
 
   useEffect(() => {
     if (!routeChatId) {
@@ -288,6 +296,7 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       variant={isEmptyChat ? 'empty' : 'active'}
       draft={draft}
       isRunning={assistant.isRunning}
+      isHealthyConnect={isHealthyConnect}
       onDraftChange={setDraft}
       onRun={handleRun}
       onAbort={handleAbort}
@@ -313,7 +322,9 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
       {isEmptyChat ? (
         <div className={styles.emptyStage}>
           <div className={styles.chatColumn}>
-            <AssistantEmptyLanding>{composer}</AssistantEmptyLanding>
+            <AssistantEmptyLanding showCubeUnavailableAlert={!isHealthyConnect}>
+              {composer}
+            </AssistantEmptyLanding>
           </div>
         </div>
       ) : (
@@ -326,6 +337,11 @@ export function AssistantChat({ chatIdFromRoute }: AssistantChatProps) {
             streamEventMessage={assistant.streamEventMessage}
           />
           <div className={styles.composerDock}>
+            {!isHealthyConnect && !cubeAlertDismissed ? (
+              <div className={styles.chatColumn}>
+                <CubeUnavailableAlert closable onClose={() => setCubeAlertDismissed(true)} />
+              </div>
+            ) : null}
             <div className={styles.chatColumn}>{composer}</div>
           </div>
         </>

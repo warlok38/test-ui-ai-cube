@@ -10,6 +10,7 @@ type AssistantChatViewProps = {
   variant: 'empty' | 'active'
   draft: string
   isRunning: boolean
+  isHealthyConnect: boolean
   onDraftChange: (value: string) => void
   onRun: () => void
   onAbort: () => void
@@ -19,11 +20,12 @@ export function AssistantChatView({
   variant,
   draft,
   isRunning,
+  isHealthyConnect,
   onDraftChange,
   onRun,
   onAbort
 }: AssistantChatViewProps) {
-  const canSend = draft.trim().length > 0 && !isRunning
+  const canSend = draft.trim().length > 0 && !isRunning && isHealthyConnect
   const minRows = variant === 'empty' ? 4 : 1
 
   useEffect(() => {
@@ -81,6 +83,7 @@ export function AssistantChatView({
                 icon={<ArrowUpOutlined />}
                 className={styles.composerSend}
                 disabled={!canSend}
+                title={isHealthyConnect ? undefined : 'Куб недоступен'}
                 onClick={onRun}
               />
             )}
